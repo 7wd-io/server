@@ -1,0 +1,1 @@
+ENV=dev NAME=init make m

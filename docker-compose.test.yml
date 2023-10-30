@@ -1,0 +1,20 @@
+version: '3.9'
+services:
+    pg_test:
+        container_name: swd_pg_test
+        image: postgres
+        environment:
+            POSTGRES_USER: ${SWD_PG_USER}
+            POSTGRES_PASSWORD: ${SWD_PG_PASSWORD}
+            POSTGRES_DB: ${SWD_PG_DBNAME}
+        ports:
+            - "${SWD_PG_PORT}:5432"
+
+    redis_test:
+        container_name: swd_redis_test
+        image: redis
+        restart: always
+        build:
+            context: deployments/dev/docker/redis
+        ports:
+            - "${SWD_REDIS_PORT}:6379"
