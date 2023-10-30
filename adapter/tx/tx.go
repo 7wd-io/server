@@ -3,6 +3,7 @@ package tx
 import (
 	"7wd.io/domain"
 	"context"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 

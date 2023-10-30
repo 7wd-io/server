@@ -3,6 +3,7 @@ package rds
 import (
 	"7wd.io/config"
 	"context"
+	"github.com/redis/go-redis/v9"
 )
 
 func MustNew() *redis.Client {

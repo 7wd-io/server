@@ -2,6 +2,7 @@ package http
 
 import (
 	"7wd.io/adapter/validator"
+	"github.com/gofiber/fiber/v2"
 )
 
 func useQueryRequest(c *fiber.Ctx, req interface{}) error {

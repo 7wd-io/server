@@ -2,6 +2,7 @@ package token
 
 import (
 	"7wd.io/domain"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func New(secret string) F {

@@ -3,6 +3,7 @@ package http
 import (
 	"7wd.io/config"
 	jwtware "github.com/gofiber/contrib/jwt"
+	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"net/http"
 	"strings"

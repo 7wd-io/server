@@ -64,7 +64,8 @@ type RoomService struct {
 }
 
 func (dst RoomService) List(ctx context.Context) ([]*Room, error) {
-	return dst.roomRepo.Find()
+	//return dst.roomRepo.Find()
+	return nil, nil
 }
 
 func (dst RoomService) Create(ctx context.Context, pass Passport, o RoomOptions) (*Room, error) {

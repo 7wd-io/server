@@ -2,6 +2,7 @@ package http
 
 import (
 	"7wd.io/domain"
+	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
 
@@ -124,7 +125,7 @@ func (dst Room) Bind(app *fiber.App) {
 }
 
 func (dst Room) list() fiber.Handler {
-
+	return nil
 }
 
 func (dst Room) create() fiber.Handler {

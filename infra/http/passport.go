@@ -2,6 +2,8 @@ package http
 
 import (
 	"7wd.io/domain"
+	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func usePassport(c *fiber.Ctx) (p domain.Passport, err error) {

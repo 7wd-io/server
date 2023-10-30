@@ -6,6 +6,7 @@ import (
 	"7wd.io/domain"
 	"7wd.io/infra/http"
 	"fmt"
+	"github.com/gofiber/fiber/v2"
 	"log"
 	"log/slog"
 	"os"
