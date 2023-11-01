@@ -5,6 +5,7 @@ import (
 	"7wd.io/domain"
 	"context"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -46,6 +47,28 @@ func (dst RoomRepo) Find(ctx context.Context, id domain.RoomId) (*domain.Room, e
 	}
 
 	return r, nil
+}
+
+func (dst RoomRepo) FindAll(ctx context.Context) ([]*domain.Room, error) {
+	members, err := dst.Client.SMembers(ctx, "rooms").Result()
+
+	if err != nil {
+		return nil, err
+	}
+
+	rooms := make([]*domain.Room, len(members))
+
+	for k, v := range members {
+		room := new(domain.Room)
+
+		if err = dst.Get(ctx, dst.k(domain.RoomId(uuid.MustParse(v))), room); err != nil {
+			return nil, err
+		}
+
+		rooms[k] = room
+	}
+
+	return rooms, nil
 }
 
 func (dst RoomRepo) k(id domain.RoomId) string {

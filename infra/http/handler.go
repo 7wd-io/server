@@ -192,7 +192,9 @@ func (dst Room) list() fiber.Handler {
 
 func (dst Room) create() fiber.Handler {
 	type request struct {
-		Size int `json:"size" validate:"required,min=2,max=5"`
+		Fast      bool            `json:"fast,omitempty"`
+		MinRating int             `json:"minRating,omitempty" validate:"omitempty,max=2000"`
+		Enemy     domain.Nickname `json:"enemy,omitempty" validate:"omitempty,nickname"`
 	}
 
 	type response struct {

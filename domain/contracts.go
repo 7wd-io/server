@@ -52,5 +52,6 @@ type (
 		Save(context.Context, *Room) error
 		Delete(context.Context, RoomId) (*Room, error)
 		Find(context.Context, RoomId) (*Room, error)
+		FindAll(ctx context.Context) ([]*Room, error)
 	}
 )

@@ -2,8 +2,7 @@ package domain
 
 import (
 	"context"
-	"encoding/base64"
-	"slices"
+	"github.com/google/uuid"
 	"time"
 )
 
@@ -11,55 +10,62 @@ const (
 	RoomTtl = time.Minute * 60
 )
 
-type RoomId string
+type RoomId uuid.UUID
 
 type Room struct {
-	Id      RoomId      `json:"id"`
-	Users   []UserId    `json:"users"`
-	Options RoomOptions `json:"options"`
+	Id          RoomId      `json:"id"`
+	Host        Nickname    `json:"host"`
+	HostRating  int         `json:"hostRating"`
+	Guest       Nickname    `json:"guest,omitempty"`
+	GuestRating int         `json:"guestRating,omitempty"`
+	Options     RoomOptions `json:"options"`
+	// set if room converted to game
+	GameId GameId `json:"gameId,omitempty"`
 }
 
-func (dst *Room) Join(u UserId) error {
-	if slices.Contains(dst.Users, u) {
-		return ErrAlreadyJoined
-	}
-
-	if len(dst.Users) >= dst.Options.Size {
-		return ErrRoomIsFull
-	}
-
-	dst.Users = append(dst.Users, u)
-
-	return nil
-}
-
-func (dst *Room) Leave(u UserId) {
-	dst.Users = slices.DeleteFunc(dst.Users, func(id UserId) bool {
-		return id == u
-	})
-}
-
-func (dst *Room) Empty() bool {
-	return len(dst.Users) == 0
-}
+//func (dst *Room) Join(u UserId) error {
+//	if slices.Contains(dst.Users, u) {
+//		return ErrAlreadyJoined
+//	}
+//
+//	if len(dst.Users) >= dst.Options.Size {
+//		return ErrRoomIsFull
+//	}
+//
+//	dst.Users = append(dst.Users, u)
+//
+//	return nil
+//}
+//
+//func (dst *Room) Leave(u UserId) {
+//	dst.Users = slices.DeleteFunc(dst.Users, func(id UserId) bool {
+//		return id == u
+//	})
+//}
 
 type RoomOptions struct {
-	// max 5
-	Size int `json:"size"`
+	Fast         bool          `json:"fast,omitempty"`
+	MinRating    int           `json:"minRating,omitempty" validate:"omitempty,max=2000"`
+	Enemy        Nickname      `json:"enemy,omitempty"`
+	PromoWonders bool          `json:"promoWonders"`
+	TimeBank     time.Duration `json:"timeBank,omitempty"`
 }
 
 func NewRoomService(
 	roomRepo RoomRepo,
+	userRepo UserRepo,
 	uuidf Uuidf,
 ) RoomService {
 	return RoomService{
 		roomRepo: roomRepo,
+		userRepo: userRepo,
 		uuidf:    uuidf,
 	}
 }
 
 type RoomService struct {
 	roomRepo RoomRepo
+	userRepo UserRepo
 	uuidf    Uuidf
 }
 
@@ -69,22 +75,42 @@ func (dst RoomService) List(ctx context.Context) ([]*Room, error) {
 }
 
 func (dst RoomService) Create(ctx context.Context, pass Passport, o RoomOptions) (*Room, error) {
+	if o.Enemy != "" {
+		enemy, err := dst.userRepo.Find(ctx, WithUserNickname(o.Enemy))
+
+		if err != nil {
+			return nil, err
+		}
+
+		if enemy.Nickname == pass.Nickname {
+			return nil, ErrInvalidRoomOptions
+		}
+	}
+
+	rooms, err := dst.roomRepo.FindAll(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, v := range rooms {
+		if pass.Nickname == v.Host || pass.Nickname == v.Guest {
+			return nil, ErrOneRoomPerPlayer
+		}
+	}
+
 	room := &Room{
-		Id:      RoomId(base64.RawURLEncoding.EncodeToString([]byte(dst.uuidf.Uuid().String()))),
-		Users:   make([]UserId, 0, o.Size),
-		Options: o,
+		Id:         RoomId(dst.uuidf.Uuid()),
+		Host:       pass.Nickname,
+		HostRating: pass.Rating,
+		Options:    o,
 	}
 
-	if err := room.Join(pass.Id); err != nil {
+	if err = dst.roomRepo.Save(ctx, room); err != nil {
 		return nil, err
 	}
 
-	// @TODO проверить что у чела больше нет комнат
-	// @TODO пуш обновы
-
-	if err := dst.roomRepo.Save(ctx, room); err != nil {
-		return nil, err
-	}
+	// @TODO cent
 
 	return room, nil
 }
