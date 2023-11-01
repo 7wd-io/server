@@ -21,6 +21,8 @@ func NewUser(c *pgxpool.Pool) UserRepo {
 					"email",
 					"nickname",
 					"password",
+					"settings",
+					"rating",
 					"created_at",
 				},
 			},
@@ -65,6 +67,8 @@ func (dst UserRepo) findOneBy(ctx context.Context, o ...domain.UserOption) (*dom
 			&out.Email,
 			&out.Nickname,
 			&out.Password,
+			&out.Settings,
+			&out.Rating,
 			&out.CreatedAt,
 		)
 
@@ -89,6 +93,8 @@ func (dst UserRepo) Save(ctx context.Context, in *domain.User, o ...domain.UserO
 			in.Email,
 			in.Nickname,
 			in.Password,
+			in.Settings,
+			in.Rating,
 			in.CreatedAt,
 		).Scan(&in.Id)
 }
@@ -104,6 +110,8 @@ func (dst UserRepo) Update(ctx context.Context, in *domain.User, o ...domain.Use
 			in.Email,
 			in.Nickname,
 			in.Password,
+			in.Settings,
+			in.Rating,
 			in.CreatedAt,
 		)
 

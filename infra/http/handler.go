@@ -23,6 +23,7 @@ func (dst Account) Bind(app *fiber.App) {
 	g.Post("/signin", dst.signin())
 	g.Post("/logout", dst.logout())
 	g.Post("/refresh", dst.refresh())
+	g.Post("/settings", dst.updateSettings())
 }
 
 func (dst Account) signup() fiber.Handler {
@@ -127,6 +128,42 @@ func (dst Account) refresh() fiber.Handler {
 			AccessToken:  res.Access,
 			RefreshToken: res.Refresh,
 		})
+	}
+}
+
+func (dst Account) updateSettings() fiber.Handler {
+	type request struct {
+		AnimationSpeed int  `json:"animationSpeed" validate:"min=1,max=5"`
+		OpponentJoined bool `json:"opponentJoined"`
+		MyTurn         bool `json:"myTurn"`
+	}
+
+	return func(ctx *fiber.Ctx) error {
+		r := new(request)
+
+		if err := useBodyRequest(ctx, r); err != nil {
+			return err
+		}
+
+		pass, _ := usePassport(ctx)
+
+		s := domain.UserSettings{
+			Game: domain.GameSettings{
+				AnimationSpeed: r.AnimationSpeed,
+			},
+			Sounds: domain.SoundsSettings{
+				OpponentJoined: r.OpponentJoined,
+				MyTurn:         r.MyTurn,
+			},
+		}
+
+		err := dst.svc.UpdateSettings(ctx.Context(), pass, s)
+
+		if err != nil {
+			return err
+		}
+
+		return ctx.JSON(nil)
 	}
 }
 

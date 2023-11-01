@@ -26,7 +26,23 @@ type User struct {
 	Email     Email
 	Nickname  Nickname
 	Password  string
+	Settings  UserSettings
+	Rating    int
 	CreatedAt time.Time
+}
+
+type UserSettings struct {
+	Game   GameSettings   `json:"game"`
+	Sounds SoundsSettings `json:"sounds"`
+}
+
+type GameSettings struct {
+	AnimationSpeed int `json:"animationSpeed"`
+}
+
+type SoundsSettings struct {
+	OpponentJoined bool `json:"opponentJoined"`
+	MyTurn         bool `json:"myTurn"`
 }
 
 type UserOptions struct {
@@ -182,6 +198,18 @@ func (dst AccountService) Refresh(ctx context.Context, refreshToken uuid.UUID, f
 	}
 
 	return dst.token(ctx, user, fingerprint)
+}
+
+func (dst AccountService) UpdateSettings(ctx context.Context, pass Passport, s UserSettings) error {
+	user, err := dst.userRepo.Find(ctx, WithUserId(pass.Id))
+
+	if err != nil {
+		return err
+	}
+
+	user.Settings = s
+
+	return dst.userRepo.Update(ctx, user)
 }
 
 func (dst AccountService) token(ctx context.Context, u *User, fingerprint uuid.UUID) (*Token, error) {
