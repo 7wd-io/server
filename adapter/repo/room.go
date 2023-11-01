@@ -20,7 +20,12 @@ type RoomRepo struct {
 }
 
 func (dst RoomRepo) Save(ctx context.Context, r *domain.Room) error {
-	return dst.Set(ctx, dst.k(r.Id), r, domain.RoomTtl)
+	// @TODO transaction
+	if err := dst.Client.SAdd(ctx, dst.keyList(), r.Id).Err(); err != nil {
+		return err
+	}
+
+	return dst.Set(ctx, dst.keyItem(r.Id), r, domain.RoomTtl)
 }
 
 func (dst RoomRepo) Delete(ctx context.Context, id domain.RoomId) (*domain.Room, error) {
@@ -34,13 +39,13 @@ func (dst RoomRepo) Delete(ctx context.Context, id domain.RoomId) (*domain.Room,
 		return nil, domain.ErrRoomNotFound
 	}
 
-	return s, dst.Client.Del(ctx, dst.k(s.Id)).Err()
+	return s, dst.Client.Del(ctx, dst.keyItem(s.Id)).Err()
 }
 
 func (dst RoomRepo) Find(ctx context.Context, id domain.RoomId) (*domain.Room, error) {
 	r := new(domain.Room)
 
-	err := dst.Get(ctx, dst.k(id), r)
+	err := dst.Get(ctx, dst.keyItem(id), r)
 
 	if err != nil {
 		return nil, err
@@ -50,7 +55,7 @@ func (dst RoomRepo) Find(ctx context.Context, id domain.RoomId) (*domain.Room, e
 }
 
 func (dst RoomRepo) FindAll(ctx context.Context) ([]*domain.Room, error) {
-	members, err := dst.Client.SMembers(ctx, "rooms").Result()
+	members, err := dst.Client.SMembers(ctx, dst.keyList()).Result()
 
 	if err != nil {
 		return nil, err
@@ -61,7 +66,7 @@ func (dst RoomRepo) FindAll(ctx context.Context) ([]*domain.Room, error) {
 	for k, v := range members {
 		room := new(domain.Room)
 
-		if err = dst.Get(ctx, dst.k(domain.RoomId(uuid.MustParse(v))), room); err != nil {
+		if err = dst.Get(ctx, dst.keyItem(domain.RoomId(uuid.MustParse(v))), room); err != nil {
 			return nil, err
 		}
 
@@ -71,6 +76,10 @@ func (dst RoomRepo) FindAll(ctx context.Context) ([]*domain.Room, error) {
 	return rooms, nil
 }
 
-func (dst RoomRepo) k(id domain.RoomId) string {
+func (dst RoomRepo) keyItem(id domain.RoomId) string {
 	return fmt.Sprintf("room:%s", id)
+}
+
+func (dst RoomRepo) keyList() string {
+	return "rooms"
 }

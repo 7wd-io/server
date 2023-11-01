@@ -86,16 +86,8 @@ func (dst RoomService) Create(ctx context.Context, pass Passport, o RoomOptions)
 		}
 	}
 
-	rooms, err := dst.roomRepo.FindAll(ctx)
-
-	if err != nil {
+	if err := dst.alreadyJoin(ctx, pass); err != nil {
 		return nil, err
-	}
-
-	for _, v := range rooms {
-		if pass.Nickname == v.Host || pass.Nickname == v.Guest {
-			return nil, ErrOneRoomPerPlayer
-		}
 	}
 
 	room := &Room{
@@ -105,7 +97,7 @@ func (dst RoomService) Create(ctx context.Context, pass Passport, o RoomOptions)
 		Options:    o,
 	}
 
-	if err = dst.roomRepo.Save(ctx, room); err != nil {
+	if err := dst.roomRepo.Save(ctx, room); err != nil {
 		return nil, err
 	}
 
@@ -139,20 +131,38 @@ func (dst RoomService) Delete(ctx context.Context, pass Passport, id RoomId) err
 }
 
 func (dst RoomService) Join(ctx context.Context, pass Passport, id RoomId) error {
-	// @TODO lock
+	if err := dst.alreadyJoin(ctx, pass); err != nil {
+		return err
+	}
+
 	room, err := dst.roomRepo.Find(ctx, id)
 
 	if err != nil {
 		return err
 	}
 
-	// @TODO пуш обновы
+	if room.Guest != "" {
+		return ErrRoomIsFull
+	}
 
-	if err := room.Join(pass.Id); err != nil {
+	if room.Options.Enemy != "" && pass.Nickname != room.Options.Enemy {
+		return ErrJoinToTheRoomRestricted
+	}
+
+	if room.Options.MinRating != 0 && pass.Rating < room.Options.MinRating {
+		return ErrJoinToTheRoomRestricted
+	}
+
+	room.Guest = pass.Nickname
+	room.GuestRating = pass.Rating
+
+	if err := dst.roomRepo.Save(ctx, room); err != nil {
 		return err
 	}
 
-	return dst.roomRepo.Save(ctx, room)
+	// @TODO cent
+
+	return nil
 }
 
 func (dst RoomService) Leave(ctx context.Context, pass Passport, id RoomId) error {
@@ -178,6 +188,22 @@ func (dst RoomService) Leave(ctx context.Context, pass Passport, id RoomId) erro
 		}
 
 		// @TODO пуш обновы
+	}
+
+	return nil
+}
+
+func (dst RoomService) alreadyJoin(ctx context.Context, pass Passport) error {
+	rooms, err := dst.roomRepo.FindAll(ctx)
+
+	if err != nil {
+		return err
+	}
+
+	for _, v := range rooms {
+		if pass.Nickname == v.Host || pass.Nickname == v.Guest {
+			return ErrOneRoomPerPlayer
+		}
 	}
 
 	return nil

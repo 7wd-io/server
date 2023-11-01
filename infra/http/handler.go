@@ -249,17 +249,13 @@ func (dst Room) delete() fiber.Handler {
 
 		pass, _ := usePassport(ctx)
 
-		if err := dst.svc.Delete(ctx.Context(), pass, id); err != nil {
-			return err
-		}
-
-		return ctx.JSON(nil)
+		return dst.svc.Delete(ctx.Context(), pass, id)
 	}
 }
 
 func (dst Room) join() fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
-		id := domain.RoomId(ctx.Params("id"))
+		id := domain.RoomId(uuid.MustParse(ctx.Params("id")))
 
 		pass, _ := usePassport(ctx)
 
