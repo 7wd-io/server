@@ -23,26 +23,6 @@ type Room struct {
 	GameId GameId `json:"gameId,omitempty"`
 }
 
-//func (dst *Room) Join(u UserId) error {
-//	if slices.Contains(dst.Users, u) {
-//		return ErrAlreadyJoined
-//	}
-//
-//	if len(dst.Users) >= dst.Options.Size {
-//		return ErrRoomIsFull
-//	}
-//
-//	dst.Users = append(dst.Users, u)
-//
-//	return nil
-//}
-//
-//func (dst *Room) Leave(u UserId) {
-//	dst.Users = slices.DeleteFunc(dst.Users, func(id UserId) bool {
-//		return id == u
-//	})
-//}
-
 type RoomOptions struct {
 	Fast         bool          `json:"fast,omitempty"`
 	MinRating    int           `json:"minRating,omitempty" validate:"omitempty,max=2000"`
@@ -166,6 +146,33 @@ func (dst RoomService) Join(ctx context.Context, pass Passport, id RoomId) error
 }
 
 func (dst RoomService) Leave(ctx context.Context, pass Passport, id RoomId) error {
+	room, err := dst.roomRepo.Find(ctx, id)
+
+	if err != nil {
+		return err
+	}
+
+	if room.GameId != 0 {
+		return ErrCantLeaveInProgressRoom
+	}
+
+	if room.Guest != pass.Nickname {
+		return ErrRoomPlayerNotFound
+	}
+
+	room.Guest = ""
+	room.GuestRating = 0
+
+	if err := dst.roomRepo.Save(ctx, room); err != nil {
+		return err
+	}
+
+	// @TODO cent
+
+	return nil
+}
+
+func (dst RoomService) Kick(ctx context.Context, pass Passport, id RoomId) error {
 	room, err := dst.roomRepo.Find(ctx, id)
 
 	if err != nil {
