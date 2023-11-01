@@ -187,14 +187,27 @@ func (dst Room) Bind(app *fiber.App) {
 }
 
 func (dst Room) list() fiber.Handler {
-	return nil
+	type response struct {
+		Items []*domain.Room `json:"items"`
+	}
+
+	return func(ctx *fiber.Ctx) error {
+		rooms, err := dst.svc.List(ctx.Context())
+
+		if err != nil {
+			return err
+		}
+
+		return ctx.JSON(response{Items: rooms})
+	}
 }
 
 func (dst Room) create() fiber.Handler {
 	type request struct {
-		Fast      bool            `json:"fast,omitempty"`
-		MinRating int             `json:"minRating,omitempty" validate:"omitempty,max=2000"`
-		Enemy     domain.Nickname `json:"enemy,omitempty" validate:"omitempty,nickname"`
+		Fast         bool            `json:"fast,omitempty"`
+		MinRating    int             `json:"minRating,omitempty" validate:"omitempty,max=2000"`
+		Enemy        domain.Nickname `json:"enemy,omitempty" validate:"omitempty,nickname"`
+		PromoWonders bool            `json:"promoWonders"`
 	}
 
 	type response struct {
@@ -214,7 +227,10 @@ func (dst Room) create() fiber.Handler {
 			ctx.Context(),
 			pass,
 			domain.RoomOptions{
-				Size: r.Size,
+				Fast:         r.Fast,
+				MinRating:    r.MinRating,
+				Enemy:        r.Enemy,
+				PromoWonders: r.PromoWonders,
 			},
 		)
 
