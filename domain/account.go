@@ -132,9 +132,19 @@ func (dst AccountService) Signup(ctx context.Context, email Email, password stri
 	}
 
 	user := &User{
-		Email:     email,
-		Nickname:  nickname,
-		Password:  password,
+		Email:    email,
+		Nickname: nickname,
+		Password: password,
+		Settings: UserSettings{
+			Game: GameSettings{
+				AnimationSpeed: 3,
+			},
+			Sounds: SoundsSettings{
+				OpponentJoined: true,
+				MyTurn:         false,
+			},
+		},
+		Rating:    1500,
 		CreatedAt: dst.clock.Now(),
 	}
 
