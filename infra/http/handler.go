@@ -21,6 +21,7 @@ func (dst Account) Bind(app *fiber.App) {
 
 	g.Post("/signup", dst.signup())
 	g.Post("/signin", dst.signin())
+	g.Post("/logout", dst.logout())
 	g.Post("/refresh", dst.refresh())
 }
 
@@ -71,6 +72,30 @@ func (dst Account) signin() fiber.Handler {
 			AccessToken:  res.Access,
 			RefreshToken: res.Refresh,
 		})
+	}
+}
+
+func (dst Account) logout() fiber.Handler {
+	type request struct {
+		Fingerprint uuid.UUID `json:"fingerprint" validate:"required"`
+	}
+
+	return func(ctx *fiber.Ctx) error {
+		r := new(request)
+
+		if err := useBodyRequest(ctx, r); err != nil {
+			return err
+		}
+
+		pass, _ := usePassport(ctx)
+
+		err := dst.svc.Logout(ctx.Context(), pass, r.Fingerprint)
+
+		if err != nil {
+			return err
+		}
+
+		return ctx.JSON(nil)
 	}
 }
 

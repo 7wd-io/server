@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"log/slog"
 	"time"
 )
 
@@ -140,6 +141,27 @@ func (dst AccountService) Signin(ctx context.Context, email Email, pass string, 
 	}
 
 	return dst.token(ctx, user, fingerprint)
+}
+
+func (dst AccountService) Logout(ctx context.Context, pass Passport, fingerprint uuid.UUID) error {
+	session, err := dst.sessionRepo.Find(ctx, fingerprint)
+
+	if err != nil {
+		return err
+	}
+
+	if session == nil {
+		return nil
+	}
+
+	if session.UserId != pass.Id {
+		slog.Warn("try logout by user=%d for user=%d", pass.Id, session.UserId)
+		return nil
+	}
+
+	_, err = dst.sessionRepo.Delete(ctx, fingerprint)
+
+	return err
 }
 
 func (dst AccountService) Refresh(ctx context.Context, refreshToken uuid.UUID, fingerprint uuid.UUID) (*Token, error) {
