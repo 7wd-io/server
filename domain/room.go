@@ -172,23 +172,22 @@ func (dst RoomService) Leave(ctx context.Context, pass Passport, id RoomId) erro
 		return err
 	}
 
-	room.Leave(pass.Id)
-
-	if room.Empty() {
-		_, err = dst.roomRepo.Delete(ctx, id)
-
-		if err != nil {
-			return err
-		}
-
-		// @TODO пуш обновы
-	} else {
-		if err = dst.roomRepo.Save(ctx, room); err != nil {
-			return err
-		}
-
-		// @TODO пуш обновы
+	if room.GameId != 0 {
+		return ErrCantLeaveInProgressRoom
 	}
+
+	if room.Guest != pass.Nickname {
+		return ErrRoomPlayerNotFound
+	}
+
+	room.Guest = ""
+	room.GuestRating = 0
+
+	if err := dst.roomRepo.Save(ctx, room); err != nil {
+		return err
+	}
+
+	// @TODO cent
 
 	return nil
 }

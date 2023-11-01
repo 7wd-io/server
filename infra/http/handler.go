@@ -265,7 +265,7 @@ func (dst Room) join() fiber.Handler {
 
 func (dst Room) leave() fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
-		id := domain.RoomId(ctx.Params("id"))
+		id := domain.RoomId(uuid.MustParse(ctx.Params("id")))
 
 		pass, _ := usePassport(ctx)
 

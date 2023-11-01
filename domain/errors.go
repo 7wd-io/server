@@ -11,7 +11,9 @@ var (
 	ErrAlreadyJoined            = rr.New("already joined")
 	ErrOnlyHostCanRemoveRoom    = rr.New("only host can remove room")
 	ErrCantRemoveInProgressRoom = rr.New("cant remove in progress room")
+	ErrCantLeaveInProgressRoom  = rr.New("cant leave in progress room")
 	ErrJoinToTheRoomRestricted  = rr.New("join to the room restricted")
+	ErrRoomPlayerNotFound       = rr.New("room player not found")
 )
 
 // account errors

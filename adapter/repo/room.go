@@ -29,6 +29,10 @@ func (dst RoomRepo) Save(ctx context.Context, r *domain.Room) error {
 }
 
 func (dst RoomRepo) Delete(ctx context.Context, id domain.RoomId) (*domain.Room, error) {
+	if err := dst.Client.SRem(ctx, dst.keyList(), uuid.UUID(id).String()).Err(); err != nil {
+		return nil, err
+	}
+
 	s, err := dst.Find(ctx, id)
 
 	if err != nil {
