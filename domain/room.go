@@ -70,8 +70,7 @@ type RoomService struct {
 }
 
 func (dst RoomService) List(ctx context.Context) ([]*Room, error) {
-	//return dst.roomRepo.Find()
-	return nil, nil
+	return dst.roomRepo.FindAll(ctx)
 }
 
 func (dst RoomService) Create(ctx context.Context, pass Passport, o RoomOptions) (*Room, error) {
@@ -113,6 +112,30 @@ func (dst RoomService) Create(ctx context.Context, pass Passport, o RoomOptions)
 	// @TODO cent
 
 	return room, nil
+}
+
+func (dst RoomService) Delete(ctx context.Context, pass Passport, id RoomId) error {
+	room, err := dst.roomRepo.Find(ctx, id)
+
+	if err != nil {
+		return err
+	}
+
+	if room.Host != pass.Nickname {
+		return ErrOnlyHostCanRemoveRoom
+	}
+
+	if room.GameId != 0 {
+		return ErrCantRemoveInProgressRoom
+	}
+
+	if _, err := dst.roomRepo.Delete(ctx, id); err != nil {
+		return err
+	}
+
+	// @TODO cent
+
+	return nil
 }
 
 func (dst RoomService) Join(ctx context.Context, pass Passport, id RoomId) error {

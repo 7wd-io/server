@@ -182,6 +182,7 @@ func (dst Room) Bind(app *fiber.App) {
 
 	g.Get("/", dst.list())
 	g.Post("/", dst.create())
+	g.Delete("/:id", dst.delete())
 	g.Post("/join/:id", dst.join())
 	g.Post("/leave/:id", dst.leave())
 }
@@ -239,6 +240,20 @@ func (dst Room) create() fiber.Handler {
 		}
 
 		return ctx.JSON(response{Id: room.Id})
+	}
+}
+
+func (dst Room) delete() fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		id := domain.RoomId(uuid.MustParse(ctx.Params("id")))
+
+		pass, _ := usePassport(ctx)
+
+		if err := dst.svc.Delete(ctx.Context(), pass, id); err != nil {
+			return err
+		}
+
+		return ctx.JSON(nil)
 	}
 }
 
