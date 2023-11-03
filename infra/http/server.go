@@ -12,7 +12,7 @@ import (
 
 func NewApp() *fiber.App {
 	app := fiber.New(fiber.Config{
-		AppName: "AGNY",
+		AppName: "7wd",
 		ErrorHandler: func(ctx *fiber.Ctx, err error) error {
 			slog.Error(err.Error())
 
