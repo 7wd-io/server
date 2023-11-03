@@ -38,6 +38,7 @@ func main() {
 
 	roomSvc := domain.NewRoomService(
 		c.Repo.Room,
+		c.Repo.User,
 		c.UUIDFactory,
 	)
 
