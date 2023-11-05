@@ -23,7 +23,7 @@ func (dst Account) Bind(app *fiber.App) {
 	g.Post("/signin", dst.signin())
 	g.Post("/logout", dst.logout())
 	g.Post("/refresh", dst.refresh())
-	g.Post("/settings", dst.updateSettings())
+	g.Put("/settings", dst.updateSettings())
 }
 
 func (dst Account) signup() fiber.Handler {
@@ -46,9 +46,9 @@ func (dst Account) signup() fiber.Handler {
 
 func (dst Account) signin() fiber.Handler {
 	type request struct {
-		Email       domain.Email `json:"email" validate:"required"`
-		Password    string       `json:"password" validate:"required"`
-		Fingerprint uuid.UUID    `json:"fingerprint" validate:"required"`
+		Login       string    `json:"login" validate:"required"`
+		Password    string    `json:"password" validate:"required"`
+		Fingerprint uuid.UUID `json:"fingerprint" validate:"required"`
 	}
 
 	type response struct {
@@ -63,7 +63,7 @@ func (dst Account) signin() fiber.Handler {
 			return err
 		}
 
-		res, err := dst.svc.Signin(ctx.Context(), r.Email, r.Password, r.Fingerprint)
+		res, err := dst.svc.Signin(ctx.Context(), r.Login, r.Password, r.Fingerprint)
 
 		if err != nil {
 			return err

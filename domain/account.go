@@ -6,6 +6,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"log/slog"
+	"strings"
 	"time"
 )
 
@@ -152,8 +153,15 @@ func (dst AccountService) Signup(ctx context.Context, email Email, password stri
 	return dst.userRepo.Save(ctx, user)
 }
 
-func (dst AccountService) Signin(ctx context.Context, email Email, pass string, fingerprint uuid.UUID) (*Token, error) {
-	user, err := dst.userRepo.Find(ctx, WithUserEmail(email))
+func (dst AccountService) Signin(ctx context.Context, login string, pass string, fingerprint uuid.UUID) (*Token, error) {
+	var user *User
+	var err error
+
+	if strings.Contains(login, "@") {
+		user, err = dst.userRepo.Find(ctx, WithUserEmail(Email(login)))
+	} else {
+		user, err = dst.userRepo.Find(ctx, WithUserNickname(Nickname(login)))
+	}
 
 	if err != nil {
 		if errors.Is(err, ErrUserNotFound) {
