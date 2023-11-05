@@ -19,6 +19,19 @@ services:
         restart: always
         ports:
             - "${SWD_REDIS_PORT}:6379"
+
+    centrifugo:
+        container_name: swd_cent_dev
+        image: centrifugo/centrifugo:latest
+        volumes:
+            - ./centrifugo.dev.json:/centrifugo/config.json
+        command: centrifugo -c config.json
+        ports:
+            - "8105:8000"
+        ulimits:
+            nofile:
+                soft: 65535
+                hard: 65535
 networks:
     default:
         name: swd_network

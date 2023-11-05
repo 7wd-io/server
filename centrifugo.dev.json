@@ -1,0 +1,30 @@
+{
+  "debug": true,
+  "admin": true,
+  "admin_password": "9ecb6139-ee3f-4d2b-8e59-675cd68aeb2d",
+  "admin_secret": "ade88943-f0f4-495c-8349-ba1065ffe308",
+  "token_hmac_secret_key": "secret",
+  "api_key": "f8e18ca4-ae9d-4ecb-ac51-493612800a73",
+  "allowed_origins": [
+    "https://7wd.io.local"
+  ],
+  "namespaces": [
+    {
+      "name": "stats",
+      "presence": true
+    },
+    {
+      "name": "public",
+      "allow_publish_for_client": true,
+      "history_size": 50,
+      "history_ttl": "24h"
+    },
+    {
+      "name": "game",
+      "presence": true,
+      "allow_publish_for_client": true,
+      "history_size": 50,
+      "history_ttl": "1200s"
+    }
+  ]
+}
