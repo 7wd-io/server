@@ -1,6 +1,8 @@
 package domain
 
-import "time"
+import (
+	"time"
+)
 
 const (
 	timeBankDefault = 10 * time.Minute
@@ -23,8 +25,8 @@ type GameClock struct {
 }
 
 type GameResult struct {
-	Winner  Nickname `json:"winner"`
-	Loser   Nickname `json:"loser"`
-	Victory victory  `json:"victory"`
-	Points  int      `json:"points"`
+	Winner  Nickname       `json:"winner"`
+	Loser   Nickname       `json:"loser"`
+	Victory engine.Victory `json:"victory"`
+	Points  int            `json:"points"`
 }
