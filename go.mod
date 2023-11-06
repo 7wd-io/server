@@ -3,6 +3,7 @@ module 7wd.io
 go 1.21
 
 require (
+	github.com/centrifugal/gocent/v3 v3.2.0
 	github.com/go-playground/validator/v10 v10.15.5
 	github.com/gofiber/contrib/jwt v1.0.7
 	github.com/gofiber/fiber/v2 v2.50.0

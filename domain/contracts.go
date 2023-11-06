@@ -33,6 +33,14 @@ type (
 	Tokenf interface {
 		Token(*Passport) (string, error)
 	}
+
+	Pusher interface {
+		Push(msg interface{})
+	}
+
+	OWatcher interface {
+		Online() []Nickname
+	}
 )
 
 type (
