@@ -272,3 +272,6 @@ func (dst Room) leave() fiber.Handler {
 		return dst.svc.Leave(ctx.Context(), pass, id)
 	}
 }
+
+type Online struct {
+}

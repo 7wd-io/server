@@ -21,3 +21,10 @@ type GameClock struct {
 	Turn       Nickname         `json:"turn"`
 	Values     map[Nickname]int `json:"values"`
 }
+
+type GameResult struct {
+	Winner  Nickname `json:"winner"`
+	Loser   Nickname `json:"loser"`
+	Victory victory  `json:"victory"`
+	Points  int      `json:"points"`
+}
