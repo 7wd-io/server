@@ -62,4 +62,10 @@ type (
 		Find(context.Context, RoomId) (*Room, error)
 		FindAll(ctx context.Context) ([]*Room, error)
 	}
+
+	GameClockRepo interface {
+		Save(context.Context, *GameClock) error
+		Delete(context.Context, GameId) error
+		Find(context.Context, GameId) (*GameClock, error)
+	}
 )

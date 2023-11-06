@@ -14,3 +14,10 @@ type GameId int
 type Game struct {
 	Id GameId
 }
+
+type GameClock struct {
+	Id         GameId           `json:"id"`
+	LastMoveAt time.Time        `json:"lastMoveAt"`
+	Turn       Nickname         `json:"turn"`
+	Values     map[Nickname]int `json:"values"`
+}
