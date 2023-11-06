@@ -2,12 +2,15 @@ package di
 
 import (
 	"7wd.io/adapter/clock"
+	"7wd.io/adapter/onliner"
 	"7wd.io/adapter/password"
+	"7wd.io/adapter/pusher"
 	"7wd.io/adapter/repo"
 	"7wd.io/adapter/token"
 	"7wd.io/adapter/tx"
 	"7wd.io/adapter/uuidf"
 	"7wd.io/config"
+	"7wd.io/infra/cent"
 	"7wd.io/infra/pg"
 	"7wd.io/infra/rds"
 	"context"
@@ -15,6 +18,7 @@ import (
 
 func MustNew() *C {
 	pgc := pg.MustNew(context.Background())
+	centfugo := cent.New()
 	rdsc := rds.MustNew()
 
 	return &C{
@@ -29,6 +33,8 @@ func MustNew() *C {
 		TokenFactory: token.New(config.C.Secret),
 		UUIDFactory:  uuidf.New(),
 		Pass:         password.New(),
+		Pusher:       pusher.New(centfugo),
+		Onliner:      onliner.New(centfugo),
 	}
 }
 
@@ -40,6 +46,8 @@ type C struct {
 	TokenFactory token.F
 	UUIDFactory  uuidf.F
 	Pass         *password.Manager
+	Pusher       *pusher.P
+	Onliner      *onliner.O
 }
 
 type Repo struct {

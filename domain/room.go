@@ -35,11 +35,13 @@ func NewRoomService(
 	roomRepo RoomRepo,
 	userRepo UserRepo,
 	uuidf Uuidf,
+	pusher Pusher,
 ) RoomService {
 	return RoomService{
 		roomRepo: roomRepo,
 		userRepo: userRepo,
 		uuidf:    uuidf,
+		pusher:   pusher,
 	}
 }
 
@@ -47,6 +49,7 @@ type RoomService struct {
 	roomRepo RoomRepo
 	userRepo UserRepo
 	uuidf    Uuidf
+	pusher   Pusher
 }
 
 func (dst RoomService) List(ctx context.Context) ([]*Room, error) {
@@ -81,7 +84,7 @@ func (dst RoomService) Create(ctx context.Context, pass Passport, o RoomOptions)
 		return nil, err
 	}
 
-	// @TODO cent
+	go dst.pusher.Push(RoomCreated{Room: room})
 
 	return room, nil
 }
@@ -105,7 +108,7 @@ func (dst RoomService) Delete(ctx context.Context, pass Passport, id RoomId) err
 		return err
 	}
 
-	// @TODO cent
+	go dst.pusher.Push(RoomDeleted{Host: room.Host})
 
 	return nil
 }
@@ -140,7 +143,7 @@ func (dst RoomService) Join(ctx context.Context, pass Passport, id RoomId) error
 		return err
 	}
 
-	// @TODO cent
+	go dst.pusher.Push(RoomUpdated{Room: room})
 
 	return nil
 }
@@ -167,7 +170,7 @@ func (dst RoomService) Leave(ctx context.Context, pass Passport, id RoomId) erro
 		return err
 	}
 
-	// @TODO cent
+	go dst.pusher.Push(RoomUpdated{Room: room})
 
 	return nil
 }
@@ -194,7 +197,7 @@ func (dst RoomService) Kick(ctx context.Context, pass Passport, id RoomId) error
 		return err
 	}
 
-	// @TODO cent
+	go dst.pusher.Push(RoomUpdated{Room: room})
 
 	return nil
 }
