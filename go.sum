@@ -1,3 +1,7 @@
+github.com/7wd-io/engine v0.0.0-20231106185241-e4814621a89a h1:ea5wG9WnKEfwfv5RqX+Tl8jxoYaVrDVzBcWLzcRdDD4=
+github.com/7wd-io/engine v0.0.0-20231106185241-e4814621a89a/go.mod h1:7IPlFrRFTKDyZ9mgXYW2i/LWxyKyALBIUoevGrOI02g=
+github.com/7wd-io/engine v0.0.0-20231106190411-09c6ab02689c h1:gq08iSXTuB/73aGX9mqd+fPV8k8GEC4rm2/5jsmn4YE=
+github.com/7wd-io/engine v0.0.0-20231106190411-09c6ab02689c/go.mod h1:7IPlFrRFTKDyZ9mgXYW2i/LWxyKyALBIUoevGrOI02g=
 github.com/MicahParks/keyfunc/v2 v2.1.0 h1:6ZXKb9Rp6qp1bDbJefnG7cTH8yMN1IC/4nf+GVjO99k=
 github.com/MicahParks/keyfunc/v2 v2.1.0/go.mod h1:rW42fi+xgLJ2FRRXAfNx9ZA8WpD4OeE/yHVMteCkw9k=
 github.com/andybalholm/brotli v1.0.5 h1:8uQZIdzKmjc/iuPu7O2ioW48L81FgatrcpfFmiq/cCs=
