@@ -82,8 +82,8 @@ func (dst *GameLog) UnmarshalJSON(bytes []byte) error {
 			log.Fatalln(err)
 		}
 
-		switch moveId(record.Move["id"].(float64)) {
-		case mPrepare:
+		switch swde.MoveId(record.Move["id"].(float64)) {
+		case swde.MovePrepare:
 			var m1 prepareMove
 
 			if err := json.Unmarshal(rawMove, &m1); err != nil {
