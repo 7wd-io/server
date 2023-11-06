@@ -38,7 +38,7 @@ type (
 		Push(msg interface{})
 	}
 
-	OWatcher interface {
+	Onliner interface {
 		Online() []Nickname
 	}
 )
