@@ -84,145 +84,145 @@ func (dst *GameLog) UnmarshalJSON(bytes []byte) error {
 
 		switch swde.MoveId(record.Move["id"].(float64)) {
 		case swde.MovePrepare:
-			var m1 prepareMove
+			var m1 swde.PrepareMove
 
 			if err := json.Unmarshal(rawMove, &m1); err != nil {
 				panic(fmt.Errorf("moves unmarshal fail: %w", err))
 			}
 
-			out[index] = LogRecord{
+			out[index] = GameLogRecord{
 				Move: m1,
 				Meta: record.Meta,
 			}
-		case mPickWonder:
-			var m2 pickWonderMove
+		case swde.MovePickWonder:
+			var m2 swde.PickWonderMove
 
 			if err := json.Unmarshal(rawMove, &m2); err != nil {
 				panic(fmt.Errorf("moves unmarshal fail: %w", err))
 			}
 
-			out[index] = LogRecord{
+			out[index] = GameLogRecord{
 				Move: m2,
 				Meta: record.Meta,
 			}
-		case mPickBoardToken:
-			var m3 pickBoardTokenMove
+		case swde.MovePickBoardToken:
+			var m3 swde.PickBoardTokenMove
 
 			if err := json.Unmarshal(rawMove, &m3); err != nil {
 				panic(fmt.Errorf("moves unmarshal fail: %w", err))
 			}
 
-			out[index] = LogRecord{
+			out[index] = GameLogRecord{
 				Move: m3,
 				Meta: record.Meta,
 			}
-		case mConstructCard:
-			var m4 constructCardMove
+		case swde.MoveConstructCard:
+			var m4 swde.ConstructCardMove
 
 			if err := json.Unmarshal(rawMove, &m4); err != nil {
 				panic(fmt.Errorf("moves unmarshal fail: %w", err))
 			}
 
-			out[index] = LogRecord{
+			out[index] = GameLogRecord{
 				Move: m4,
 				Meta: record.Meta,
 			}
-		case mConstructWonder:
-			var m5 constructWonderMove
+		case swde.MoveConstructWonder:
+			var m5 swde.ConstructWonderMove
 
 			if err := json.Unmarshal(rawMove, &m5); err != nil {
 				panic(fmt.Errorf("moves unmarshal fail: %w", err))
 			}
 
-			out[index] = LogRecord{
+			out[index] = GameLogRecord{
 				Move: m5,
 				Meta: record.Meta,
 			}
-		case mDiscardCard:
-			var m6 discardCardMove
+		case swde.MoveDiscardCard:
+			var m6 swde.DiscardCardMove
 
 			if err := json.Unmarshal(rawMove, &m6); err != nil {
 				panic(fmt.Errorf("moves unmarshal fail: %w", err))
 			}
 
-			out[index] = LogRecord{
+			out[index] = GameLogRecord{
 				Move: m6,
 				Meta: record.Meta,
 			}
-		case mSelectWhoBeginsTheNextAge:
-			var m7 selectWhoBeginsTheNextAgeMove
+		case swde.MoveSelectWhoBeginsTheNextAge:
+			var m7 swde.SelectWhoBeginsTheNextAgeMove
 
 			if err := json.Unmarshal(rawMove, &m7); err != nil {
 				panic(fmt.Errorf("moves unmarshal fail: %w", err))
 			}
 
-			out[index] = LogRecord{
+			out[index] = GameLogRecord{
 				Move: m7,
 				Meta: record.Meta,
 			}
-		case mBurnCard:
-			var m8 burnCardMove
+		case swde.MoveBurnCard:
+			var m8 swde.BurnCardMove
 
 			if err := json.Unmarshal(rawMove, &m8); err != nil {
 				panic(fmt.Errorf("moves unmarshal fail: %w", err))
 			}
 
-			out[index] = LogRecord{
+			out[index] = GameLogRecord{
 				Move: m8,
 				Meta: record.Meta,
 			}
-		case mPickRandomToken:
-			var m9 pickRandomTokenMove
+		case swde.MovePickRandomToken:
+			var m9 swde.PickRandomTokenMove
 
 			if err := json.Unmarshal(rawMove, &m9); err != nil {
 				panic(fmt.Errorf("moves unmarshal fail: %w", err))
 			}
 
-			out[index] = LogRecord{
+			out[index] = GameLogRecord{
 				Move: m9,
 				Meta: record.Meta,
 			}
-		case mPickTopLineCard:
-			var m10 pickTopLineCardMove
+		case swde.MovePickTopLineCard:
+			var m10 swde.PickTopLineCardMove
 
 			if err := json.Unmarshal(rawMove, &m10); err != nil {
 				panic(fmt.Errorf("moves unmarshal fail: %w", err))
 			}
 
-			out[index] = LogRecord{
+			out[index] = GameLogRecord{
 				Move: m10,
 				Meta: record.Meta,
 			}
-		case mPickDiscardedCard:
-			var m11 pickDiscardedCardMove
+		case swde.MovePickDiscardedCard:
+			var m11 swde.PickDiscardedCardMove
 
 			if err := json.Unmarshal(rawMove, &m11); err != nil {
 				panic(fmt.Errorf("moves unmarshal fail: %w", err))
 			}
 
-			out[index] = LogRecord{
+			out[index] = GameLogRecord{
 				Move: m11,
 				Meta: record.Meta,
 			}
-		case mPickReturnedCards:
-			var m12 pickReturnedCardsMove
+		case swde.MovePickReturnedCards:
+			var m12 swde.PickReturnedCardsMove
 
 			if err := json.Unmarshal(rawMove, &m12); err != nil {
 				panic(fmt.Errorf("moves unmarshal fail: %w", err))
 			}
 
-			out[index] = LogRecord{
+			out[index] = GameLogRecord{
 				Move: m12,
 				Meta: record.Meta,
 			}
-		case mOver:
-			var m13 overMove
+		case swde.MoveOver:
+			var m13 swde.OverMove
 
 			if err := json.Unmarshal(rawMove, &m13); err != nil {
 				panic(fmt.Errorf("moves unmarshal fail: %w", err))
 			}
 
-			out[index] = LogRecord{
+			out[index] = GameLogRecord{
 				Move: m13,
 				Meta: record.Meta,
 			}
