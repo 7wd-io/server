@@ -4,7 +4,7 @@ import (
 	"7wd.io/config"
 	"7wd.io/di"
 	"7wd.io/domain"
-	"7wd.io/infra/http"
+	http2 "7wd.io/http"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"log"
@@ -17,7 +17,7 @@ func main() {
 
 	c := di.MustNew()
 
-	app := http.NewApp()
+	app := http2.NewApp()
 
 	app.Get("/ping", func(c *fiber.Ctx) error {
 		return c.SendString("pong 👋")
@@ -43,8 +43,8 @@ func main() {
 		c.Pusher,
 	)
 
-	http.NewAccount(accountSvc).Bind(app)
-	http.NewRoom(roomSvc).Bind(app)
+	http2.NewAccount(accountSvc).Bind(app)
+	http2.NewRoom(roomSvc).Bind(app)
 
 	log.Fatal(app.Listen(fmt.Sprintf(":%d", config.C.Port)))
 }
