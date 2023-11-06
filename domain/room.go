@@ -15,20 +15,33 @@ type RoomId uuid.UUID
 type Room struct {
 	Id          RoomId      `json:"id"`
 	Host        Nickname    `json:"host"`
-	HostRating  int         `json:"hostRating"`
+	HostRating  Rating      `json:"hostRating"`
 	Guest       Nickname    `json:"guest,omitempty"`
-	GuestRating int         `json:"guestRating,omitempty"`
+	GuestRating Rating      `json:"guestRating,omitempty"`
 	Options     RoomOptions `json:"options"`
 	// set if room converted to game
 	GameId GameId `json:"gameId,omitempty"`
 }
 
 type RoomOptions struct {
-	Fast         bool          `json:"fast,omitempty"`
-	MinRating    int           `json:"minRating,omitempty" validate:"omitempty,max=2000"`
-	Enemy        Nickname      `json:"enemy,omitempty"`
-	PromoWonders bool          `json:"promoWonders"`
-	TimeBank     time.Duration `json:"timeBank,omitempty"`
+	Fast         bool     `json:"fast,omitempty"`
+	MinRating    Rating   `json:"minRating,omitempty" validate:"omitempty,max=2000"`
+	Enemy        Nickname `json:"enemy,omitempty"`
+	PromoWonders bool     `json:"promoWonders"`
+	TimeBank     TimeBank `json:"timeBank,omitempty"`
+}
+
+func (dst RoomOptions) Clock() TimeBank {
+	// replace Fast to exactly time bank in future
+	if dst.TimeBank != 0 {
+		return dst.TimeBank
+	}
+
+	if dst.Fast {
+		return timeBankFast
+	}
+
+	return timeBankDefault
 }
 
 func NewRoomService(

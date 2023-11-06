@@ -26,6 +26,7 @@ func MustNew() *C {
 			User:    repo.NewUser(pgc),
 			Session: repo.NewSession(rdsc),
 			Room:    repo.NewRoom(rdsc),
+			Game:    repo.NewGame(pgc),
 		},
 
 		Clock:        clock.New(),
@@ -54,4 +55,5 @@ type Repo struct {
 	User    repo.UserRepo
 	Session repo.SessionRepo
 	Room    repo.RoomRepo
+	Game    repo.GameRepo
 }

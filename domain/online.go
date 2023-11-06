@@ -7,5 +7,5 @@ type OnlineService struct {
 }
 
 func (dst OnlineService) GetAll(ctx context.Context) {
-	users, err := dst.client.Online(ctx)
+	//users, err := dst.client.Online(ctx)
 }

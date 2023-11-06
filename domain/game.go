@@ -1,29 +1,52 @@
 package domain
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	swde "github.com/7wd-io/engine"
 	"log"
+	"math"
+	"strconv"
 	"time"
 )
 
 const (
-	timeBankDefault = 10 * time.Minute
-	timeBankFast    = 3 * time.Minute
-	timeBankBot     = 30 * time.Minute
-	timeBankIncr    = 5 * time.Second
+	timeBankDefault = TimeBank(10 * time.Minute)
+	timeBankFast    = TimeBank(3 * time.Minute)
+	timeBankBot     = TimeBank(30 * time.Minute)
+	timeBankIncr    = TimeBank(5 * time.Second)
 )
 
 type GameId int
 
+func NewGame(host *User, guest *User, now time.Time) *Game {
+	return &Game{
+		HostNickname:  host.Nickname,
+		HostRating:    host.Rating,
+		HostPoints:    Elo(host.Rating, guest.Rating),
+		GuestNickname: guest.Nickname,
+		GuestRating:   guest.Rating,
+		GuestPoints:   Elo(guest.Rating, host.Rating),
+		Log: GameLog{
+			GameLogRecord{
+				Move: swde.NewMovePrepare(
+					swde.Nickname(host.Nickname),
+					swde.Nickname(guest.Nickname),
+				),
+			},
+		},
+		StartedAt: now,
+	}
+}
+
 type Game struct {
 	Id            GameId
 	HostNickname  Nickname
-	HostRating    int
+	HostRating    Rating
 	HostPoints    int
 	GuestNickname Nickname
-	GuestRating   int
+	GuestRating   Rating
 	GuestPoints   int
 	Winner        *Nickname
 	Victory       *swde.Victory
@@ -32,11 +55,74 @@ type Game struct {
 	FinishedAt    *time.Time
 }
 
+func (dst *Game) State() *swde.State {
+	s := new(swde.State)
+
+	for _, item := range dst.Log {
+		_ = item.Move.Mutate(s)
+	}
+
+	return s
+}
+
+type GameOptions struct {
+	Tx Tx
+	Id GameId
+}
+
+type GameOption func(o *GameOptions)
+
+func WithGameId(v GameId) GameOption {
+	return func(o *GameOptions) {
+		o.Id = v
+	}
+}
+
+type GameService struct {
+	clock         Clock
+	gameRepo      GameRepo
+	gameClockRepo GameClockRepo
+	pusher        Pusher
+}
+
+func (dst GameService) Create(
+	ctx context.Context,
+	host *User,
+	guest *User,
+	o RoomOptions,
+) error {
+	now := dst.clock.Now()
+
+	g := NewGame(host, guest, now)
+
+	if err := dst.gameRepo.Save(ctx, g); err != nil {
+		return err
+	}
+
+	gc := &GameClock{
+		Id:         g.Id,
+		LastMoveAt: now,
+		Turn:       g.State().Me.Name,
+		Values: map[Nickname]TimeBank{
+			host.Nickname:  o.Clock(),
+			guest.Nickname: o.Clock(),
+		},
+	}
+
+	if err := dst.gameClockRepo.Save(ctx, gc); err != nil {
+		return err
+	}
+
+	// @TODO push
+
+	return nil
+}
+
 type GameClock struct {
-	Id         GameId           `json:"id"`
-	LastMoveAt time.Time        `json:"lastMoveAt"`
-	Turn       Nickname         `json:"turn"`
-	Values     map[Nickname]int `json:"values"`
+	Id         GameId                `json:"id"`
+	LastMoveAt time.Time             `json:"lastMoveAt"`
+	Turn       Nickname              `json:"turn"`
+	Values     map[Nickname]TimeBank `json:"values"`
 }
 
 type GameResult struct {
@@ -47,15 +133,6 @@ type GameResult struct {
 }
 
 type GameLog []GameLogRecord
-
-type GameLogRecord struct {
-	Move swde.Mutator `json:"move"`
-	Meta MoveMeta     `json:"meta"`
-}
-
-type MoveMeta struct {
-	Actor Nickname `json:"actor"`
-}
 
 func (dst *GameLog) UnmarshalJSON(bytes []byte) error {
 	var messages []*json.RawMessage
@@ -232,6 +309,33 @@ func (dst *GameLog) UnmarshalJSON(bytes []byte) error {
 	}
 
 	*dst = out
+
+	return nil
+}
+
+type GameLogRecord struct {
+	Move swde.Mutator `json:"move"`
+	Meta MoveMeta     `json:"meta"`
+}
+
+type MoveMeta struct {
+	Actor Nickname `json:"actor"`
+}
+
+type TimeBank time.Duration
+
+func (dst TimeBank) MarshalJSON() ([]byte, error) {
+	return json.Marshal(math.Round(time.Duration(dst).Seconds()))
+}
+
+func (dst *TimeBank) UnmarshalJSON(bytes []byte) error {
+	seconds, err := strconv.Atoi(string(bytes))
+
+	if err != nil {
+		return err
+	}
+
+	*dst = TimeBank(time.Duration(seconds) * time.Second)
 
 	return nil
 }

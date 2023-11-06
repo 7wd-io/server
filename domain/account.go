@@ -28,7 +28,7 @@ type User struct {
 	Nickname  Nickname
 	Password  string
 	Settings  UserSettings
-	Rating    int
+	Rating    Rating
 	CreatedAt time.Time
 }
 
@@ -47,10 +47,10 @@ type SoundsSettings struct {
 }
 
 type UserOptions struct {
+	Tx       Tx
 	Id       UserId
 	Email    Email
 	Nickname Nickname
-	Tx       Tx
 }
 
 type UserOption func(o *UserOptions)
@@ -82,7 +82,7 @@ func WithUserNickname(v Nickname) UserOption {
 type Passport struct {
 	Id       UserId   `json:"id"`
 	Nickname Nickname `json:"nickname"`
-	Rating   int      `json:"rating"`
+	Rating   Rating   `json:"rating"`
 	jwt.RegisteredClaims
 }
 

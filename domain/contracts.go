@@ -63,6 +63,12 @@ type (
 		FindAll(ctx context.Context) ([]*Room, error)
 	}
 
+	GameRepo interface {
+		Save(context.Context, *Game, ...GameOption) error
+		Update(context.Context, *Game, ...GameOption) error
+		Find(context.Context, ...GameOption) (*Game, error)
+	}
+
 	GameClockRepo interface {
 		Save(context.Context, *GameClock) error
 		Delete(context.Context, GameId) error
