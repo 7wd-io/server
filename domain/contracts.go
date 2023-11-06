@@ -39,7 +39,7 @@ type (
 	}
 
 	Onliner interface {
-		Online() []Nickname
+		Online(context.Context) ([]Nickname, error)
 	}
 )
 
