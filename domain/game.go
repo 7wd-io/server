@@ -25,8 +25,8 @@ type GameClock struct {
 }
 
 type GameResult struct {
-	Winner  Nickname       `json:"winner"`
-	Loser   Nickname       `json:"loser"`
-	Victory engine.Victory `json:"victory"`
-	Points  int            `json:"points"`
+	Winner Nickname `json:"winner"`
+	Loser  Nickname `json:"loser"`
+	//Victory engine.Victory `json:"victory"`
+	Points int `json:"points"`
 }

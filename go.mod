@@ -17,7 +17,6 @@ require (
 )
 
 require (
-	github.com/7wd-io/engine v0.0.0-20231106185241-e4814621a89a // indirect
 	github.com/MicahParks/keyfunc/v2 v2.1.0 // indirect
 	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
