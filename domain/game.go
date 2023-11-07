@@ -20,7 +20,7 @@ const (
 
 type GameId int
 
-func NewGame(host *User, guest *User, now time.Time) *Game {
+func newGame(host *User, guest *User, now time.Time) *Game {
 	return &Game{
 		HostNickname:  host.Nickname,
 		HostRating:    host.Rating,
@@ -78,11 +78,28 @@ func WithGameId(v GameId) GameOption {
 	}
 }
 
+func NewGameService(
+	clock Clock,
+	gameRepo GameRepo,
+	gameClockRepo GameClockRepo,
+	pusher Pusher,
+	dispatcher Dispatcher,
+) GameService {
+	return GameService{
+		clock:         clock,
+		gameRepo:      gameRepo,
+		gameClockRepo: gameClockRepo,
+		pusher:        pusher,
+		dispatcher:    dispatcher,
+	}
+}
+
 type GameService struct {
 	clock         Clock
 	gameRepo      GameRepo
 	gameClockRepo GameClockRepo
 	pusher        Pusher
+	dispatcher    Dispatcher
 }
 
 func (dst GameService) Create(
@@ -93,7 +110,7 @@ func (dst GameService) Create(
 ) error {
 	now := dst.clock.Now()
 
-	g := NewGame(host, guest, now)
+	g := newGame(host, guest, now)
 
 	if err := dst.gameRepo.Save(ctx, g); err != nil {
 		return err
@@ -102,7 +119,7 @@ func (dst GameService) Create(
 	gc := &GameClock{
 		Id:         g.Id,
 		LastMoveAt: now,
-		Turn:       g.State().Me.Name,
+		Turn:       Nickname(g.State().Me.Name),
 		Values: map[Nickname]TimeBank{
 			host.Nickname:  o.Clock(),
 			guest.Nickname: o.Clock(),
@@ -113,7 +130,11 @@ func (dst GameService) Create(
 		return err
 	}
 
-	// @TODO push
+	dst.dispatcher.Dispatch(
+		ctx,
+		EventGameCreated,
+		GameCreatedPayload{Game: g},
+	)
 
 	return nil
 }

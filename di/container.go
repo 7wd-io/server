@@ -2,6 +2,7 @@ package di
 
 import (
 	"7wd.io/adapter/clock"
+	"7wd.io/adapter/dispatcher"
 	"7wd.io/adapter/onliner"
 	"7wd.io/adapter/password"
 	"7wd.io/adapter/pusher"
@@ -36,6 +37,7 @@ func MustNew() *C {
 		Pass:         password.New(),
 		Pusher:       pusher.New(centfugo),
 		Onliner:      onliner.New(centfugo),
+		Dispatcher:   dispatcher.New(),
 	}
 }
 
@@ -49,6 +51,7 @@ type C struct {
 	Pass         *password.Manager
 	Pusher       *pusher.P
 	Onliner      *onliner.O
+	Dispatcher   *dispatcher.D
 }
 
 type Repo struct {

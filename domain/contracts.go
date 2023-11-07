@@ -41,6 +41,10 @@ type (
 	Onliner interface {
 		Online(context.Context) ([]Nickname, error)
 	}
+
+	Dispatcher interface {
+		Dispatch(ctx context.Context, event EventId, payload interface{})
+	}
 )
 
 type (
