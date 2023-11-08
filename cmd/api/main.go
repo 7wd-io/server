@@ -40,7 +40,7 @@ func main() {
 		c.Repo.Room,
 		c.Repo.User,
 		c.UUIDFactory,
-		c.Pusher,
+		c.Dispatcher,
 	)
 
 	http2.NewAccount(accountSvc).Bind(app)
