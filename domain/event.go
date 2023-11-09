@@ -1,8 +1,13 @@
 package domain
 
+import swde "github.com/7wd-io/engine"
+
 const (
 	EventGameCreated EventId = iota + 1
 	EventGameUpdated
+	EventGameOver
+	EventAfterGameMove
+	EventBotIsReadyToMove
 )
 
 const (
@@ -24,7 +29,23 @@ type GameCreatedPayload struct {
 }
 
 type GameUpdatedPayload struct {
+	Id       GameId        `json:"id"`
+	State    *swde.State   `json:"state"`
+	Clock    *GameClock    `json:"clock"`
+	LastMove GameLogRecord `json:"lastMove"`
+}
+
+type GameOverPayload struct {
 	Game *Game
+}
+
+type AfterGameMovePayload struct {
+	Game *Game
+}
+
+type BotIsReadyToMovePayload struct {
+	Game GameId
+	Move swde.Mutator
 }
 
 type RoomCreatedPayload struct {

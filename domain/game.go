@@ -3,6 +3,7 @@ package domain
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	swde "github.com/7wd-io/engine"
 	"log"
@@ -65,6 +66,68 @@ func (dst *Game) State() *swde.State {
 	return s
 }
 
+func (dst *Game) Move(u Nickname, move swde.Mutator) (*swde.State, error) {
+	if dst.IsOver() {
+		return nil, ErrGameIsOver
+	}
+
+	s := dst.State()
+
+	switch move := move.(type) {
+	// overMove no have priority
+	case swde.OverMove:
+		if move.Loser != s.Me.Name && move.Loser != s.Enemy.Name {
+			return nil, ErrActionNotAllowed
+		}
+	default:
+		if u != Nickname(s.Me.Name) {
+			return nil, ErrActionNotAllowed
+		}
+	}
+
+	if err := move.Mutate(s); err != nil {
+		return nil, err
+	}
+
+	dst.Log = append(dst.Log, GameLogRecord{
+		Move: move,
+		Meta: MoveMeta{
+			Actor: u,
+		},
+	})
+
+	return s, nil
+}
+
+func (dst *Game) Over(s *swde.State, t time.Time) GameResult {
+	dst.Winner = (*Nickname)(s.Winner)
+	dst.Victory = s.Victory
+	dst.FinishedAt = &t
+
+	r := GameResult{
+		Winner:  Nickname(*s.Winner),
+		Victory: *s.Victory,
+	}
+
+	if *dst.Winner == Nickname(s.Me.Name) {
+		r.Loser = Nickname(s.Enemy.Name)
+	} else {
+		r.Loser = Nickname(s.Me.Name)
+	}
+
+	if r.Winner == dst.HostNickname {
+		r.Points = dst.HostPoints
+	} else {
+		r.Points = dst.GuestPoints
+	}
+
+	return r
+}
+
+func (dst *Game) IsOver() bool {
+	return dst.Winner != nil
+}
+
 type GameOptions struct {
 	Tx Tx
 	Id GameId
@@ -80,15 +143,19 @@ func WithGameId(v GameId) GameOption {
 
 func NewGameService(
 	clock Clock,
+	roomRepo RoomRepo,
 	gameRepo GameRepo,
 	gameClockRepo GameClockRepo,
+	userRepo UserRepo,
 	pusher Pusher,
 	dispatcher Dispatcher,
 ) GameService {
 	return GameService{
 		clock:         clock,
+		roomRepo:      roomRepo,
 		gameRepo:      gameRepo,
 		gameClockRepo: gameClockRepo,
+		userRepo:      userRepo,
 		pusher:        pusher,
 		dispatcher:    dispatcher,
 	}
@@ -96,10 +163,56 @@ func NewGameService(
 
 type GameService struct {
 	clock         Clock
+	roomRepo      RoomRepo
 	gameRepo      GameRepo
 	gameClockRepo GameClockRepo
+	userRepo      UserRepo
 	pusher        Pusher
 	dispatcher    Dispatcher
+}
+
+func (dst GameService) CreateFromRoom(ctx context.Context, pass Passport, id RoomId) error {
+	room, err := dst.roomRepo.Find(ctx, id)
+
+	if err != nil {
+		return err
+	}
+
+	if room.Host != pass.Nickname {
+		return ErrActionNotAllowed
+	}
+
+	if room.Guest == "" {
+		return ErrActionNotAllowed
+	}
+
+	host, err := dst.userRepo.Find(ctx, WithUserNickname(room.Host))
+
+	if err != nil {
+		return err
+	}
+
+	guest, err := dst.userRepo.Find(ctx, WithUserNickname(room.Guest))
+
+	if err != nil {
+		return err
+	}
+
+	game, err := dst.Create(ctx, host, guest, room.Options)
+
+	if err != nil {
+		return err
+	}
+
+	room.GameId = game.Id
+
+	if err = dst.roomRepo.Save(ctx, room); err != nil {
+		return err
+	}
+
+	dst.dispatcher.Dispatch(ctx, EventRoomUpdated, RoomUpdatedPayload{Room: room})
+
+	return nil
 }
 
 func (dst GameService) Create(
@@ -107,19 +220,19 @@ func (dst GameService) Create(
 	host *User,
 	guest *User,
 	o RoomOptions,
-) error {
+) (*Game, error) {
 	now := dst.clock.Now()
 
-	g := newGame(host, guest, now)
+	game := newGame(host, guest, now)
 
-	if err := dst.gameRepo.Save(ctx, g); err != nil {
-		return err
+	if err := dst.gameRepo.Save(ctx, game); err != nil {
+		return nil, err
 	}
 
 	gc := &GameClock{
-		Id:         g.Id,
+		Id:         game.Id,
 		LastMoveAt: now,
-		Turn:       Nickname(g.State().Me.Name),
+		Turn:       Nickname(game.State().Me.Name),
 		Values: map[Nickname]TimeBank{
 			host.Nickname:  o.Clock(),
 			guest.Nickname: o.Clock(),
@@ -127,16 +240,140 @@ func (dst GameService) Create(
 	}
 
 	if err := dst.gameClockRepo.Save(ctx, gc); err != nil {
-		return err
+		return nil, err
 	}
 
 	dst.dispatcher.Dispatch(
 		ctx,
 		EventGameCreated,
-		GameCreatedPayload{Game: g},
+		GameCreatedPayload{Game: game},
 	)
 
-	return nil
+	return game, nil
+}
+
+func (dst GameService) Move(ctx context.Context, u Nickname, id GameId, m swde.Mutator) (*Game, error) {
+	var err error
+
+	g, err := dst.gameRepo.Find(ctx, WithGameId(id))
+
+	if err != nil {
+		return nil, err
+	}
+
+	if g == nil {
+		return nil, ErrGameNotFound
+	}
+
+	if g.IsOver() {
+		return nil, ErrGameIsOver
+	}
+
+	gameClock, err := dst.gameClockRepo.Find(ctx, id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	now := dst.clock.Now()
+
+	timePassed := TimeBank(now.Sub(gameClock.LastMoveAt))
+	gameClock.Values[u] -= timePassed
+
+	var s *swde.State
+
+	if gameClock.Values[u] > 0 {
+		gameClock.Values[u] += timeBankIncr
+		s, err = g.Move(u, m)
+		gameClock.LastMoveAt = now
+	} else {
+		m = swde.NewMoveOver(swde.Nickname(u), swde.Timeout)
+		gameClock.Values[u] = 0
+		s, err = g.Move(u, m)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	gameClock.Turn = Nickname(s.Me.Name)
+
+	// В обработчик roomService
+	if s.IsOver() {
+		//result := g.Over(s, now)
+		//
+		//room, err := dst.roomRepo.Find(ctx, g.HostNickname)
+		//
+		//if err != nil {
+		//	return nil, err
+		//}
+		//
+		//if err = roomRepo.Delete(g.HostNickname); err != nil {
+		//	return nil, err
+		//}
+		//
+		//go pusher.Push(RoomDeleted{Host: g.HostNickname})
+		//
+		//if err = analyzer.AnalyzeGame(result); err != nil {
+		//	return nil, err
+		//}
+		//
+		//if err = playAgainCreator.CreatePlayAgain(g, room.Options); err != nil {
+		//	return nil, err
+		//}
+		//
+		//if g.GuestNickname.IsEqual(account.BotNickname) {
+		//	go func() {
+		//		time.Sleep(account.BotPlayAgainDelay)
+		//
+		//		if err = playAgain(g, account.BotNickname, true); err != nil {
+		//			logger.Errorf("bot agree play again %w", err)
+		//		}
+		//	}()
+		//}
+	}
+
+	if err = dst.gameRepo.Update(ctx, g); err != nil {
+		return nil, err
+	}
+
+	if err = dst.gameClockRepo.Save(ctx, gameClock); err != nil {
+		return nil, err
+	}
+
+	dst.dispatcher.Dispatch(ctx, EventGameUpdated, GameUpdatedPayload{
+		Id:       g.Id,
+		State:    s,
+		Clock:    gameClock,
+		LastMove: g.Log[len(g.Log)-1],
+	})
+
+	dst.dispatcher.Dispatch(ctx, EventAfterGameMove, AfterGameMovePayload{
+		Game: g,
+	})
+
+	//go pusher.Push(GameUpdated{
+	//	Id:       g.Id,
+	//	State:    s,
+	//	Clock:    gameClock,
+	//	LastMove: g.Log[len(g.Log)-1],
+	//})
+	//
+	//dispatcher.Dispatch(EventMoveMade, g)
+
+	return g, nil
+}
+
+func (dst GameService) OnEventBotIsReadyToMove(ctx context.Context, payload interface{}) error {
+	p, ok := payload.(BotIsReadyToMovePayload)
+
+	if !ok {
+		return errors.New("GameService !ok := payload.(BotIsReadyToMovePayload)")
+	}
+
+	_, err := dst.Move(ctx, BotNickname, p.Game, p.Move)
+
+	return err
 }
 
 type GameClock struct {
@@ -359,4 +596,85 @@ func (dst *TimeBank) UnmarshalJSON(bytes []byte) error {
 	*dst = TimeBank(time.Duration(seconds) * time.Second)
 
 	return nil
+}
+
+// UnmarshalMove @TODO полность переделать убрать пересечение с маршалингом списка ходов
+func UnmarshalMove(move []byte) (swde.Mutator, error) {
+	var err error
+
+	var m map[string]interface{}
+
+	if err = json.Unmarshal(move, &m); err != nil {
+		return nil, err
+	}
+
+	switch swde.MoveId(m["id"].(float64)) {
+	case swde.MovePrepare:
+		var m1 swde.PrepareMove
+		err = json.Unmarshal(move, &m1)
+
+		return m1, err
+	case swde.MovePickWonder:
+		var m2 swde.PickWonderMove
+		err = json.Unmarshal(move, &m2)
+
+		return m2, err
+	case swde.MovePickBoardToken:
+		var m3 swde.PickBoardTokenMove
+		err = json.Unmarshal(move, &m3)
+
+		return m3, err
+	case swde.MoveConstructCard:
+		var m4 swde.ConstructCardMove
+		err = json.Unmarshal(move, &m4)
+
+		return m4, err
+	case swde.MoveConstructWonder:
+		var m5 swde.ConstructWonderMove
+		err = json.Unmarshal(move, &m5)
+
+		return m5, err
+	case swde.MoveDiscardCard:
+		var m6 swde.DiscardCardMove
+		err = json.Unmarshal(move, &m6)
+
+		return m6, err
+	case swde.MoveSelectWhoBeginsTheNextAge:
+		var m7 swde.SelectWhoBeginsTheNextAgeMove
+		err = json.Unmarshal(move, &m7)
+
+		return m7, err
+	case swde.MoveBurnCard:
+		var m8 swde.BurnCardMove
+		err = json.Unmarshal(move, &m8)
+
+		return m8, err
+	case swde.MovePickRandomToken:
+		var m9 swde.PickRandomTokenMove
+		err = json.Unmarshal(move, &m9)
+
+		return m9, err
+	case swde.MovePickTopLineCard:
+		var m10 swde.PickTopLineCardMove
+		err = json.Unmarshal(move, &m10)
+
+		return m10, err
+	case swde.MovePickDiscardedCard:
+		var m11 swde.PickDiscardedCardMove
+		err = json.Unmarshal(move, &m11)
+
+		return m11, err
+	case swde.MovePickReturnedCards:
+		var m12 swde.PickReturnedCardsMove
+		err = json.Unmarshal(move, &m12)
+
+		return m12, err
+	case swde.MoveOver:
+		var m13 swde.OverMove
+		err = json.Unmarshal(move, &m13)
+
+		return m13, err
+	default:
+		return nil, errors.New("unknown move")
+	}
 }

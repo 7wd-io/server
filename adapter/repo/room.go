@@ -25,6 +25,12 @@ func (dst RoomRepo) Save(ctx context.Context, r *domain.Room) error {
 		return err
 	}
 
+	if r.GameId != 0 {
+		if err := dst.Set(ctx, dst.keyGameRelation(r.GameId), r.Id, domain.RoomTtl); err != nil {
+			return err
+		}
+	}
+
 	return dst.Set(ctx, dst.keyItem(r.Id), r, domain.RoomTtl)
 }
 
@@ -43,6 +49,8 @@ func (dst RoomRepo) Delete(ctx context.Context, id domain.RoomId) (*domain.Room,
 		return nil, domain.ErrRoomNotFound
 	}
 
+	// @TODO remove relation
+
 	return s, dst.Client.Del(ctx, dst.keyItem(s.Id)).Err()
 }
 
@@ -56,6 +64,16 @@ func (dst RoomRepo) Find(ctx context.Context, id domain.RoomId) (*domain.Room, e
 	}
 
 	return r, nil
+}
+
+func (dst RoomRepo) FindByGame(ctx context.Context, id domain.GameId) (*domain.Room, error) {
+	var roomId domain.RoomId
+
+	if err := dst.Get(ctx, dst.keyGameRelation(id), &roomId); err != nil {
+		return nil, err
+	}
+
+	return dst.Find(ctx, roomId)
 }
 
 func (dst RoomRepo) FindAll(ctx context.Context) ([]*domain.Room, error) {
@@ -82,6 +100,10 @@ func (dst RoomRepo) FindAll(ctx context.Context) ([]*domain.Room, error) {
 
 func (dst RoomRepo) keyItem(id domain.RoomId) string {
 	return fmt.Sprintf("room:%s", id)
+}
+
+func (dst RoomRepo) keyGameRelation(id domain.GameId) string {
+	return fmt.Sprintf("room:game:%d", id)
 }
 
 func (dst RoomRepo) keyList() string {

@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	swde "github.com/7wd-io/engine"
 	"github.com/google/uuid"
 	"time"
 )
@@ -45,6 +46,14 @@ type (
 	Dispatcher interface {
 		Dispatch(ctx context.Context, event EventId, payload interface{})
 	}
+
+	Bot interface {
+		GetMove(*Game) (swde.Mutator, error)
+	}
+
+	Mover interface {
+		Move(ctx context.Context, u Nickname, id GameId, m swde.Mutator) (*Game, error)
+	}
 )
 
 type (
@@ -64,6 +73,7 @@ type (
 		Save(context.Context, *Room) error
 		Delete(context.Context, RoomId) (*Room, error)
 		Find(context.Context, RoomId) (*Room, error)
+		FindByGame(context.Context, GameId) (*Room, error)
 		FindAll(ctx context.Context) ([]*Room, error)
 	}
 

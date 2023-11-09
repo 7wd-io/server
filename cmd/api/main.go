@@ -4,7 +4,7 @@ import (
 	"7wd.io/config"
 	"7wd.io/di"
 	"7wd.io/domain"
-	http2 "7wd.io/http"
+	srv "7wd.io/http"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"log"
@@ -17,7 +17,7 @@ func main() {
 
 	c := di.MustNew()
 
-	app := http2.NewApp()
+	app := srv.New()
 
 	app.Get("/ping", func(c *fiber.Ctx) error {
 		return c.SendString("pong 👋")
@@ -26,6 +26,18 @@ func main() {
 	app.Get("/secret", func(c *fiber.Ctx) error {
 		return c.SendString("love")
 	})
+
+	botSvc := domain.NewBotService(c.Bot, c.Dispatcher)
+
+	gameSvc := domain.NewGameService(
+		c.Clock,
+		c.Repo.Room,
+		c.Repo.Game,
+		c.Repo.GameClock,
+		c.Repo.User,
+		c.Pusher,
+		c.Dispatcher,
+	)
 
 	accountSvc := domain.NewAccountService(
 		c.Repo.User,
@@ -43,8 +55,33 @@ func main() {
 		c.Dispatcher,
 	)
 
-	http2.NewAccount(accountSvc).Bind(app)
-	http2.NewRoom(roomSvc).Bind(app)
+	c.Dispatcher.
+		On(
+			domain.EventGameCreated,
+			botSvc.OnGameCreated,
+		).
+		On(domain.EventGameUpdated).
+		On(
+			domain.EventGameOver,
+			roomSvc.OnGameOver,
+		).
+		On(
+			domain.EventAfterGameMove,
+			botSvc.OnAfterGameMove,
+		).
+		On(
+			domain.EventBotIsReadyToMove,
+			gameSvc.OnEventBotIsReadyToMove,
+		).
+		On(domain.EventRoomCreated).
+		On(domain.EventRoomUpdated).
+		On(domain.EventRoomDeleted).
+		On(domain.EventOnlineUpdated).
+		On(domain.EventPlayAgainUpdated).
+		On(domain.EventPlayAgainApproved)
+
+	app.NewAccount(accountSvc).Bind(app)
+	app.NewRoom(roomSvc).Bind(app)
 
 	log.Fatal(app.Listen(fmt.Sprintf(":%d", config.C.Port)))
 }

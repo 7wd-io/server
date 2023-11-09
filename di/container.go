@@ -1,6 +1,7 @@
 package di
 
 import (
+	"7wd.io/adapter/bot"
 	"7wd.io/adapter/clock"
 	"7wd.io/adapter/dispatcher"
 	"7wd.io/adapter/onliner"
@@ -24,10 +25,11 @@ func MustNew() *C {
 
 	return &C{
 		Repo: Repo{
-			User:    repo.NewUser(pgc),
-			Session: repo.NewSession(rdsc),
-			Room:    repo.NewRoom(rdsc),
-			Game:    repo.NewGame(pgc),
+			User:      repo.NewUser(pgc),
+			Session:   repo.NewSession(rdsc),
+			Room:      repo.NewRoom(rdsc),
+			Game:      repo.NewGame(pgc),
+			GameClock: repo.NewGameClock(rdsc),
 		},
 
 		Clock:        clock.New(),
@@ -38,6 +40,7 @@ func MustNew() *C {
 		Pusher:       pusher.New(centfugo),
 		Onliner:      onliner.New(centfugo),
 		Dispatcher:   dispatcher.New(),
+		Bot:          bot.New(config.C.Bot.Endpoint),
 	}
 }
 
@@ -52,11 +55,13 @@ type C struct {
 	Pusher       *pusher.P
 	Onliner      *onliner.O
 	Dispatcher   *dispatcher.D
+	Bot          bot.B
 }
 
 type Repo struct {
-	User    repo.UserRepo
-	Session repo.SessionRepo
-	Room    repo.RoomRepo
-	Game    repo.GameRepo
+	User      repo.UserRepo
+	Session   repo.SessionRepo
+	Room      repo.RoomRepo
+	Game      repo.GameRepo
+	GameClock repo.GameClockRepo
 }

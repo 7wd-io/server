@@ -12,10 +12,13 @@ func init() {
 }
 
 type c struct {
-	Env          string `required:"true" envconfig:"SWD_ENV"`
-	Port         int    `required:"true" envconfig:"SWD_PORT"`
-	Secret       string `required:"true" envconfig:"SWD_SECRET"`
-	Domain       string `required:"true" envconfig:"SWD_DOMAIN"`
+	Env    string `required:"true" envconfig:"SWD_ENV"`
+	Port   int    `required:"true" envconfig:"SWD_PORT"`
+	Secret string `required:"true" envconfig:"SWD_SECRET"`
+	Domain string `required:"true" envconfig:"SWD_DOMAIN"`
+	Bot    struct {
+		Endpoint string `required:"true" envconfig:"SWD_BOT_ENDPOINT"`
+	}
 	ClientOrigin string `required:"true" envconfig:"SWD_CLIENT_ORIGIN"`
 	Pg           struct {
 		Host     string `envconfig:"SWD_PG_HOST"`

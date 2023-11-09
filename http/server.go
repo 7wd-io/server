@@ -10,7 +10,7 @@ import (
 	"net/http"
 )
 
-func NewApp() *fiber.App {
+func New() *fiber.App {
 	app := fiber.New(fiber.Config{
 		AppName: "7wd",
 		ErrorHandler: func(ctx *fiber.Ctx, err error) error {

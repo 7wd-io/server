@@ -2,6 +2,8 @@ package domain
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"github.com/google/uuid"
 	"time"
 )
@@ -207,8 +209,6 @@ func (dst RoomService) Leave(ctx context.Context, pass Passport, id RoomId) erro
 		RoomUpdatedPayload{Room: room},
 	)
 
-	//go dst.pusher.Push(RoomUpdated{Room: room})
-
 	return nil
 }
 
@@ -240,7 +240,35 @@ func (dst RoomService) Kick(ctx context.Context, pass Passport, id RoomId) error
 		RoomUpdatedPayload{Room: room},
 	)
 
-	//go dst.pusher.Push(RoomUpdated{Room: room})
+	return nil
+}
+
+func (dst RoomService) OnGameOver(ctx context.Context, payload interface{}) error {
+	p, ok := payload.(GameOverPayload)
+
+	if !ok {
+		return errors.New("\"func (dst RoomService) OnGameOver !ok := payload.(GameOverPayload)")
+	}
+
+	room, err := dst.roomRepo.FindByGame(ctx, p.Game.Id)
+
+	if err != nil {
+		return fmt.Errorf("func (dst RoomService) OnGameOver: %w", err)
+	}
+
+	if room == nil {
+		return nil
+	}
+
+	if _, err = dst.roomRepo.Delete(ctx, room.Id); err != nil {
+		return fmt.Errorf("dst.roomRepo.Delete(ctx, room.Id): %w", err)
+	}
+
+	dst.dispatcher.Dispatch(
+		ctx,
+		EventRoomDeleted,
+		RoomDeletedPayload{Room: room},
+	)
 
 	return nil
 }

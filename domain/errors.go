@@ -15,6 +15,8 @@ var (
 	ErrJoinToTheRoomRestricted  = rr.New("join to the room restricted")
 	ErrRoomPlayerNotFound       = rr.New("room player not found")
 	ErrGameClockNotFound        = rr.New("game clock not found")
+	ErrGameIsOver               = rr.New("game is over")
+	ErrActionNotAllowed         = rr.New("action not allowed")
 )
 
 // account errors
