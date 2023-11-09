@@ -206,7 +206,7 @@ func (dst Room) list() fiber.Handler {
 func (dst Room) create() fiber.Handler {
 	type request struct {
 		Fast         bool            `json:"fast,omitempty"`
-		MinRating    int             `json:"minRating,omitempty" validate:"omitempty,max=2000"`
+		MinRating    domain.Rating   `json:"minRating,omitempty" validate:"omitempty,max=2000"`
 		Enemy        domain.Nickname `json:"enemy,omitempty" validate:"omitempty,nickname"`
 		PromoWonders bool            `json:"promoWonders"`
 	}

@@ -80,8 +80,8 @@ func main() {
 		On(domain.EventPlayAgainUpdated).
 		On(domain.EventPlayAgainApproved)
 
-	app.NewAccount(accountSvc).Bind(app)
-	app.NewRoom(roomSvc).Bind(app)
+	srv.NewAccount(accountSvc).Bind(app)
+	srv.NewRoom(roomSvc).Bind(app)
 
 	log.Fatal(app.Listen(fmt.Sprintf(":%d", config.C.Port)))
 }
