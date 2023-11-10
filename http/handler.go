@@ -300,6 +300,7 @@ func (dst Game) Bind(app *fiber.App) {
 
 	g.Get("/:id", dst.get())
 	g.Get("/units", dst.units())
+	g.Get("/:id/state/:index", dst.state())
 	//g.Delete("/:id", dst.delete())
 	//g.Post("/join/:id", dst.join())
 	//g.Post("/leave/:id", dst.leave())
@@ -376,6 +377,41 @@ func (dst Game) units() fiber.Handler {
 		return ctx.JSON(response{
 			Cards:   swde.R.Cards,
 			Wonders: swde.R.Wonders,
+		})
+	}
+}
+
+func (dst Game) state() fiber.Handler {
+	type request struct {
+		Id    domain.GameId `param:"id" validate:"required,gid"`
+		Index int           `param:"index"`
+	}
+
+	type response struct {
+		State swde.State `json:"state"`
+	}
+
+	return func(ctx *fiber.Ctx) error {
+		id, err := ctx.ParamsInt("id")
+
+		if err != nil {
+			return err
+		}
+
+		index, err := ctx.ParamsInt("index")
+
+		if err != nil {
+			return err
+		}
+
+		state, err := dst.svc.State(ctx.Context(), domain.GameId(id), index)
+
+		if err != nil {
+			return err
+		}
+
+		return ctx.JSON(response{
+			State: *state,
 		})
 	}
 }

@@ -177,6 +177,22 @@ func (dst GameService) Clock(ctx context.Context, id GameId) (*GameClock, error)
 	return dst.gameClockRepo.Find(ctx, id)
 }
 
+func (dst GameService) State(ctx context.Context, id GameId, index int) (*swde.State, error) {
+	game, err := dst.gameRepo.Find(ctx, WithGameId(id))
+
+	if err != nil {
+		return nil, err
+	}
+
+	s := new(swde.State)
+
+	for _, item := range game.Log[:index+1] {
+		_ = item.Move.Mutate(s)
+	}
+
+	return s, nil
+}
+
 func (dst GameService) Create(
 	ctx context.Context,
 	host *User,
