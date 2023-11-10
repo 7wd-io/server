@@ -147,7 +147,6 @@ func NewGameService(
 	gameRepo GameRepo,
 	gameClockRepo GameClockRepo,
 	userRepo UserRepo,
-	pusher Pusher,
 	dispatcher Dispatcher,
 ) GameService {
 	return GameService{
@@ -156,7 +155,6 @@ func NewGameService(
 		gameRepo:      gameRepo,
 		gameClockRepo: gameClockRepo,
 		userRepo:      userRepo,
-		pusher:        pusher,
 		dispatcher:    dispatcher,
 	}
 }
@@ -169,50 +167,6 @@ type GameService struct {
 	userRepo      UserRepo
 	pusher        Pusher
 	dispatcher    Dispatcher
-}
-
-func (dst GameService) CreateFromRoom(ctx context.Context, pass Passport, id RoomId) error {
-	room, err := dst.roomRepo.Find(ctx, id)
-
-	if err != nil {
-		return err
-	}
-
-	if room.Host != pass.Nickname {
-		return ErrActionNotAllowed
-	}
-
-	if room.Guest == "" {
-		return ErrActionNotAllowed
-	}
-
-	host, err := dst.userRepo.Find(ctx, WithUserNickname(room.Host))
-
-	if err != nil {
-		return err
-	}
-
-	guest, err := dst.userRepo.Find(ctx, WithUserNickname(room.Guest))
-
-	if err != nil {
-		return err
-	}
-
-	game, err := dst.Create(ctx, host, guest, room.Options)
-
-	if err != nil {
-		return err
-	}
-
-	room.GameId = game.Id
-
-	if err = dst.roomRepo.Save(ctx, room); err != nil {
-		return err
-	}
-
-	dst.dispatcher.Dispatch(ctx, EventRoomUpdated, RoomUpdatedPayload{Room: room})
-
-	return nil
 }
 
 func (dst GameService) Create(
@@ -374,6 +328,34 @@ func (dst GameService) OnEventBotIsReadyToMove(ctx context.Context, payload inte
 	_, err := dst.Move(ctx, BotNickname, p.Game, p.Move)
 
 	return err
+}
+
+func (dst GameService) OnRoomStarted(ctx context.Context, payload interface{}) error {
+	p, ok := payload.(RoomStartedPayload)
+
+	if !ok {
+		return errors.New("GameService !ok := payload.(RoomStartedPayload)")
+	}
+
+	game, err := dst.Create(ctx, p.Host, p.Guest, p.Room.Options)
+
+	if err != nil {
+		return err
+	}
+
+	p.Room.GameId = game.Id
+
+	if err = dst.roomRepo.Save(ctx, p.Room); err != nil {
+		return err
+	}
+
+	dst.dispatcher.Dispatch(
+		ctx,
+		EventRoomUpdated,
+		RoomUpdatedPayload{Room: p.Room},
+	)
+
+	return nil
 }
 
 type GameClock struct {

@@ -11,6 +11,10 @@ import (
 
 // @TODO mapping to own structs
 
+func New() P {
+	return P{}
+}
+
 type P struct {
 	cent *gocent.Client
 }

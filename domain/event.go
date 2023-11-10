@@ -14,6 +14,7 @@ const (
 	EventRoomCreated = iota + 100
 	EventRoomUpdated
 	EventRoomDeleted
+	EventRoomStarted
 )
 
 const (
@@ -58,6 +59,12 @@ type RoomDeletedPayload struct {
 
 type RoomUpdatedPayload struct {
 	Room *Room
+}
+
+type RoomStartedPayload struct {
+	Host  *User
+	Guest *User
+	Room  *Room
 }
 
 type OnlineUpdatedPayload struct {

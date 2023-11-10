@@ -212,6 +212,46 @@ func (dst RoomService) Leave(ctx context.Context, pass Passport, id RoomId) erro
 	return nil
 }
 
+func (dst RoomService) Start(ctx context.Context, pass Passport, id RoomId) error {
+	room, err := dst.roomRepo.Find(ctx, id)
+
+	if err != nil {
+		return err
+	}
+
+	if room.Host != pass.Nickname {
+		return ErrActionNotAllowed
+	}
+
+	if room.Guest == "" {
+		return ErrActionNotAllowed
+	}
+
+	host, err := dst.userRepo.Find(ctx, WithUserNickname(room.Host))
+
+	if err != nil {
+		return err
+	}
+
+	guest, err := dst.userRepo.Find(ctx, WithUserNickname(room.Guest))
+
+	if err != nil {
+		return err
+	}
+
+	dst.dispatcher.Dispatch(
+		ctx,
+		EventRoomStarted,
+		RoomStartedPayload{
+			Host:  host,
+			Guest: guest,
+			Room:  room,
+		},
+	)
+
+	return nil
+}
+
 func (dst RoomService) Kick(ctx context.Context, pass Passport, id RoomId) error {
 	room, err := dst.roomRepo.Find(ctx, id)
 

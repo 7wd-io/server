@@ -1,10 +1,12 @@
 package main
 
 import (
+	"7wd.io/adapter/pusher"
 	"7wd.io/config"
 	"7wd.io/di"
 	"7wd.io/domain"
 	srv "7wd.io/http"
+	"7wd.io/infra/cent"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"log"
@@ -35,9 +37,10 @@ func main() {
 		c.Repo.Game,
 		c.Repo.GameClock,
 		c.Repo.User,
-		c.Pusher,
 		c.Dispatcher,
 	)
+
+	push := pusher.New(cent.New())
 
 	accountSvc := domain.NewAccountService(
 		c.Repo.User,
@@ -73,9 +76,22 @@ func main() {
 			domain.EventBotIsReadyToMove,
 			gameSvc.OnEventBotIsReadyToMove,
 		).
-		On(domain.EventRoomCreated).
-		On(domain.EventRoomUpdated).
-		On(domain.EventRoomDeleted).
+		On(
+			domain.EventRoomCreated,
+			push.OnRoomCreated,
+		).
+		On(
+			domain.EventRoomUpdated,
+			push.OnRoomUpdated,
+		).
+		On(
+			domain.EventRoomDeleted,
+			push.OnRoomDeleted,
+		).
+		On(
+			domain.EventRoomStarted,
+			gameSvc.OnRoomStarted,
+		).
 		On(domain.EventOnlineUpdated).
 		On(domain.EventPlayAgainUpdated).
 		On(domain.EventPlayAgainApproved)

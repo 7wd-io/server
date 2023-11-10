@@ -6,7 +6,6 @@ import (
 	"7wd.io/adapter/dispatcher"
 	"7wd.io/adapter/onliner"
 	"7wd.io/adapter/password"
-	"7wd.io/adapter/pusher"
 	"7wd.io/adapter/repo"
 	"7wd.io/adapter/token"
 	"7wd.io/adapter/tx"
@@ -37,7 +36,6 @@ func MustNew() *C {
 		TokenFactory: token.New(config.C.Secret),
 		UUIDFactory:  uuidf.New(),
 		Pass:         password.New(),
-		Pusher:       pusher.New(centfugo),
 		Onliner:      onliner.New(centfugo),
 		Dispatcher:   dispatcher.New(),
 		Bot:          bot.New(config.C.Bot.Endpoint),
@@ -52,7 +50,6 @@ type C struct {
 	TokenFactory token.F
 	UUIDFactory  uuidf.F
 	Pass         *password.Manager
-	Pusher       *pusher.P
 	Onliner      *onliner.O
 	Dispatcher   *dispatcher.D
 	Bot          bot.B
