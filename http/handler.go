@@ -443,5 +443,22 @@ func (dst Game) state() fiber.Handler {
 //	}
 //}
 
+func NewOnline(svc domain.OnlineService) Online {
+	return Online{svc: svc}
+}
+
 type Online struct {
+	svc domain.OnlineService
+}
+
+func (dst Online) Bind(app *fiber.App) {
+	g := app.Group("/online")
+
+	g.Get("/")
+}
+
+func (dst Online) get() fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		return nil
+	}
 }

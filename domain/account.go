@@ -32,6 +32,8 @@ type User struct {
 	CreatedAt time.Time
 }
 
+type UsersPreview map[Nickname]Rating
+
 type UserSettings struct {
 	Game   GameSettings   `json:"game"`
 	Sounds SoundsSettings `json:"sounds"`

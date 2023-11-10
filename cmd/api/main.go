@@ -58,6 +58,8 @@ func main() {
 		c.Dispatcher,
 	)
 
+	onlineSvc := domain.NewOnlineService(c.Onliner)
+
 	c.Dispatcher.
 		On(
 			domain.EventGameCreated,
@@ -98,6 +100,7 @@ func main() {
 
 	srv.NewAccount(accountSvc).Bind(app)
 	srv.NewRoom(roomSvc).Bind(app)
+	srv.NewOnline(onlineSvc).Bind(app)
 
 	log.Fatal(app.Listen(fmt.Sprintf(":%d", config.C.Port)))
 }
