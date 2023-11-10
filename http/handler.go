@@ -299,6 +299,7 @@ func (dst Game) Bind(app *fiber.App) {
 	g := app.Group("/game")
 
 	g.Get("/:id", dst.get())
+	g.Get("/units", dst.units())
 	//g.Delete("/:id", dst.delete())
 	//g.Post("/join/:id", dst.join())
 	//g.Post("/leave/:id", dst.leave())
@@ -362,6 +363,20 @@ func (dst Game) get() fiber.Handler {
 		}
 
 		return ctx.JSON(res)
+	}
+}
+
+func (dst Game) units() fiber.Handler {
+	type response struct {
+		Cards   swde.CardMap   `json:"cards"`
+		Wonders swde.WonderMap `json:"wonders"`
+	}
+
+	return func(ctx *fiber.Ctx) error {
+		return ctx.JSON(response{
+			Cards:   swde.R.Cards,
+			Wonders: swde.R.Wonders,
+		})
 	}
 }
 
