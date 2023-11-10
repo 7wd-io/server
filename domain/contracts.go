@@ -54,6 +54,12 @@ type (
 	Mover interface {
 		Move(ctx context.Context, u Nickname, id GameId, m swde.Mutator) (*Game, error)
 	}
+
+	Analyst interface {
+		Top(context.Context) (Top, error)
+		Update(context.Context, GameResult) error
+		Ratings(context.Context, ...Nickname) (UsersPreview, error)
+	}
 )
 
 type (
