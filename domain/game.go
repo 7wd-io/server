@@ -169,6 +169,14 @@ type GameService struct {
 	dispatcher    Dispatcher
 }
 
+func (dst GameService) Get(ctx context.Context, id GameId) (*Game, error) {
+	return dst.gameRepo.Find(ctx, WithGameId(id))
+}
+
+func (dst GameService) Clock(ctx context.Context, id GameId) (*GameClock, error) {
+	return dst.gameClockRepo.Find(ctx, id)
+}
+
 func (dst GameService) Create(
 	ctx context.Context,
 	host *User,

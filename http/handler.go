@@ -2,6 +2,7 @@ package http
 
 import (
 	"7wd.io/domain"
+	swde "github.com/7wd-io/engine"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
@@ -297,10 +298,71 @@ type Game struct {
 func (dst Game) Bind(app *fiber.App) {
 	g := app.Group("/game")
 
-	//g.Post("/:roomId", dst.create())
+	g.Get("/:id", dst.get())
 	//g.Delete("/:id", dst.delete())
 	//g.Post("/join/:id", dst.join())
 	//g.Post("/leave/:id", dst.leave())
+}
+
+func (dst Game) get() fiber.Handler {
+	type player struct {
+		Name   domain.Nickname `json:"name"`
+		Rating domain.Rating   `json:"rating"`
+		Points int             `json:"points"`
+	}
+
+	type response struct {
+		Id       domain.GameId     `json:"id"`
+		Host     player            `json:"host"`
+		Guest    player            `json:"guest"`
+		Clock    *domain.GameClock `json:"clock,omitempty"`
+		State    *swde.State       `json:"state"`
+		Finished bool              `json:"finished"`
+		Log      domain.GameLog    `json:"log"`
+	}
+
+	return func(ctx *fiber.Ctx) error {
+		id, err := ctx.ParamsInt("id")
+
+		if err != nil {
+			return err
+		}
+
+		game, err := dst.svc.Get(ctx.Context(), domain.GameId(id))
+
+		if err != nil {
+			return err
+		}
+
+		res := response{
+			Id: game.Id,
+			Host: player{
+				Name:   game.HostNickname,
+				Rating: game.HostRating,
+				Points: game.HostPoints,
+			},
+			Guest: player{
+				Name:   game.GuestNickname,
+				Rating: game.GuestRating,
+				Points: game.GuestPoints,
+			},
+			State:    game.State(),
+			Finished: game.IsOver(),
+			Log:      game.Log[1:],
+		}
+
+		if !game.IsOver() {
+			gc, err := dst.svc.Clock(ctx.Context(), game.Id)
+
+			if err != nil {
+				return err
+			}
+
+			res.Clock = gc
+		}
+
+		return ctx.JSON(res)
+	}
 }
 
 //func (dst Game) create() fiber.Handler {
