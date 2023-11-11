@@ -58,7 +58,7 @@ func main() {
 		c.Dispatcher,
 	)
 
-	onlineSvc := domain.NewOnlineService(c.Onliner)
+	onlineSvc := domain.NewOnlineService(c.Onliner, c.Analyst)
 
 	c.Dispatcher.
 		On(

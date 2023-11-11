@@ -1,6 +1,7 @@
 package di
 
 import (
+	"7wd.io/adapter/analyst"
 	"7wd.io/adapter/bot"
 	"7wd.io/adapter/clock"
 	"7wd.io/adapter/dispatcher"
@@ -39,6 +40,7 @@ func MustNew() *C {
 		Onliner:      onliner.New(centfugo),
 		Dispatcher:   dispatcher.New(),
 		Bot:          bot.New(config.C.Bot.Endpoint),
+		Analyst:      analyst.New(),
 	}
 }
 
@@ -53,6 +55,7 @@ type C struct {
 	Onliner      *onliner.O
 	Dispatcher   *dispatcher.D
 	Bot          bot.B
+	Analyst      analyst.A
 }
 
 type Repo struct {

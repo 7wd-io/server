@@ -301,9 +301,6 @@ func (dst Game) Bind(app *fiber.App) {
 	g.Get("/:id", dst.get())
 	g.Get("/units", dst.units())
 	g.Get("/:id/state/:index", dst.state())
-	//g.Delete("/:id", dst.delete())
-	//g.Post("/join/:id", dst.join())
-	//g.Post("/leave/:id", dst.leave())
 }
 
 func (dst Game) get() fiber.Handler {
@@ -416,33 +413,6 @@ func (dst Game) state() fiber.Handler {
 	}
 }
 
-//func (dst Game) create() fiber.Handler {
-//	type request struct {
-//		Fast         bool            `json:"fast,omitempty"`
-//		MinRating    domain.Rating   `json:"minRating,omitempty" validate:"omitempty,max=2000"`
-//		Enemy        domain.Nickname `json:"enemy,omitempty" validate:"omitempty,nickname"`
-//		PromoWonders bool            `json:"promoWonders"`
-//	}
-//
-//	type response struct {
-//		Id domain.RoomId `json:"id"`
-//	}
-//
-//	return func(ctx *fiber.Ctx) error {
-//		r := new(request)
-//
-//		if err := useBodyRequest(ctx, r); err != nil {
-//			return err
-//		}
-//
-//		id := domain.RoomId(uuid.MustParse(ctx.Params("id")))
-//
-//		pass, _ := usePassport(ctx)
-//
-//		return dst.svc.CreateFromRoom(ctx.Context(), pass, id)
-//	}
-//}
-
 func NewOnline(svc domain.OnlineService) Online {
 	return Online{svc: svc}
 }
@@ -458,7 +428,17 @@ func (dst Online) Bind(app *fiber.App) {
 }
 
 func (dst Online) get() fiber.Handler {
+	type response struct {
+		Data domain.UsersPreview `json:"data"`
+	}
+
 	return func(ctx *fiber.Ctx) error {
-		return nil
+		users, err := dst.svc.GetAll(ctx.Context())
+
+		if err != nil {
+			return err
+		}
+
+		return ctx.JSON(response{Data: users})
 	}
 }
