@@ -11,7 +11,7 @@ import (
 
 func NewGameClock(c *redis.Client) GameClockRepo {
 	return GameClockRepo{
-		R: rds.R{Client: c},
+		R: rds.R{Rds: c},
 	}
 }
 
@@ -39,7 +39,7 @@ func (dst GameClockRepo) Find(ctx context.Context, id domain.GameId) (*domain.Ga
 }
 
 func (dst GameClockRepo) Delete(ctx context.Context, id domain.GameId) error {
-	return dst.Client.Del(ctx, dst.k(id)).Err()
+	return dst.Rds.Del(ctx, dst.k(id)).Err()
 }
 
 func (dst GameClockRepo) k(id domain.GameId) string {

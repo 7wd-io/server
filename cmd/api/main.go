@@ -49,6 +49,7 @@ func main() {
 		c.TokenFactory,
 		c.UUIDFactory,
 		c.Repo.Session,
+		c.Analyst,
 	)
 
 	roomSvc := domain.NewRoomService(

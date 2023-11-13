@@ -8,7 +8,7 @@ import (
 )
 
 type R struct {
-	Client *redis.Client
+	Rds *redis.Client
 }
 
 func (dst R) Set(ctx context.Context, key string, value interface{}, ttl time.Duration) error {
@@ -18,11 +18,11 @@ func (dst R) Set(ctx context.Context, key string, value interface{}, ttl time.Du
 		return nil
 	}
 
-	return dst.Client.Set(ctx, key, v, ttl).Err()
+	return dst.Rds.Set(ctx, key, v, ttl).Err()
 }
 
 func (dst R) Get(ctx context.Context, key string, dest interface{}) error {
-	v, err := dst.Client.Get(ctx, key).Bytes()
+	v, err := dst.Rds.Get(ctx, key).Bytes()
 
 	if err != nil {
 		return err

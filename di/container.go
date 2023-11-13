@@ -40,7 +40,7 @@ func MustNew() *C {
 		Onliner:      onliner.New(centfugo),
 		Dispatcher:   dispatcher.New(),
 		Bot:          bot.New(config.C.Bot.Endpoint),
-		Analyst:      analyst.New(),
+		Analyst:      analyst.New(rdsc, pgc),
 	}
 }
 

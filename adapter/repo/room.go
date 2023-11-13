@@ -11,7 +11,7 @@ import (
 
 func NewRoom(c *redis.Client) RoomRepo {
 	return RoomRepo{
-		R: rds.R{Client: c},
+		R: rds.R{Rds: c},
 	}
 }
 
@@ -21,7 +21,7 @@ type RoomRepo struct {
 
 func (dst RoomRepo) Save(ctx context.Context, r *domain.Room) error {
 	// @TODO transaction
-	if err := dst.Client.SAdd(ctx, dst.keyList(), r.Id).Err(); err != nil {
+	if err := dst.Rds.SAdd(ctx, dst.keyList(), r.Id).Err(); err != nil {
 		return err
 	}
 
@@ -35,7 +35,7 @@ func (dst RoomRepo) Save(ctx context.Context, r *domain.Room) error {
 }
 
 func (dst RoomRepo) Delete(ctx context.Context, id domain.RoomId) (*domain.Room, error) {
-	if err := dst.Client.SRem(ctx, dst.keyList(), uuid.UUID(id).String()).Err(); err != nil {
+	if err := dst.Rds.SRem(ctx, dst.keyList(), uuid.UUID(id).String()).Err(); err != nil {
 		return nil, err
 	}
 
@@ -51,7 +51,7 @@ func (dst RoomRepo) Delete(ctx context.Context, id domain.RoomId) (*domain.Room,
 
 	// @TODO remove relation
 
-	return s, dst.Client.Del(ctx, dst.keyItem(s.Id)).Err()
+	return s, dst.Rds.Del(ctx, dst.keyItem(s.Id)).Err()
 }
 
 func (dst RoomRepo) Find(ctx context.Context, id domain.RoomId) (*domain.Room, error) {
@@ -77,7 +77,7 @@ func (dst RoomRepo) FindByGame(ctx context.Context, id domain.GameId) (*domain.R
 }
 
 func (dst RoomRepo) FindAll(ctx context.Context) ([]*domain.Room, error) {
-	members, err := dst.Client.SMembers(ctx, dst.keyList()).Result()
+	members, err := dst.Rds.SMembers(ctx, dst.keyList()).Result()
 
 	if err != nil {
 		return nil, err

@@ -25,6 +25,8 @@ func (dst Account) Bind(app *fiber.App) {
 	g.Post("/logout", dst.logout())
 	g.Post("/refresh", dst.refresh())
 	g.Put("/settings", dst.updateSettings())
+	g.Get("/:nickname", dst.profile())
+	g.Get("/:nickname1/vs/:nickname2", dst.getVersus())
 }
 
 func (dst Account) signup() fiber.Handler {
@@ -165,6 +167,30 @@ func (dst Account) updateSettings() fiber.Handler {
 		}
 
 		return ctx.JSON(nil)
+	}
+}
+
+func (dst Account) profile() fiber.Handler {
+	type response struct {
+		Profile domain.UserProfile `json:"profile"`
+	}
+
+	return func(ctx *fiber.Ctx) error {
+		nickname := domain.Nickname(ctx.Params("nickname"))
+
+		p, err := dst.svc.Profile(ctx.Context(), nickname)
+
+		if err != nil {
+			return err
+		}
+
+		return ctx.JSON(response{Profile: *p})
+	}
+}
+
+func (dst Account) getVersus() fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		return nil
 	}
 }
 

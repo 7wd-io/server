@@ -59,6 +59,9 @@ type (
 		Top(context.Context) (Top, error)
 		Update(context.Context, GameResult) error
 		Ratings(context.Context, ...Nickname) (UsersPreview, error)
+		GamesReport(context.Context, Nickname) (*GamesReport, error)
+		Rank(context.Context, Nickname) (int, error)
+		Rating(context.Context, Nickname) (Rating, error)
 	}
 )
 

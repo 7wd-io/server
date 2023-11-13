@@ -34,6 +34,13 @@ type User struct {
 
 type UsersPreview map[Nickname]Rating
 
+type UserProfile struct {
+	Nickname    Nickname
+	Rank        int    `json:"rank"`
+	Rating      Rating `json:"rating"`
+	GamesReport `json:"games"`
+}
+
 type UserSettings struct {
 	Game   GameSettings   `json:"game"`
 	Sounds SoundsSettings `json:"sounds"`
@@ -106,6 +113,7 @@ func NewAccountService(
 	tokenf Tokenf,
 	uuidf Uuidf,
 	sessionRepo SessionRepo,
+	analyst Analyst,
 ) AccountService {
 	return AccountService{
 		userRepo:    userRepo,
@@ -114,6 +122,7 @@ func NewAccountService(
 		tokenf:      tokenf,
 		uuidf:       uuidf,
 		sessionRepo: sessionRepo,
+		analyst:     analyst,
 	}
 }
 
@@ -124,6 +133,7 @@ type AccountService struct {
 	tokenf      Tokenf
 	uuidf       Uuidf
 	sessionRepo SessionRepo
+	analyst     Analyst
 }
 
 func (dst AccountService) Signup(ctx context.Context, email Email, password string, nickname Nickname) error {
@@ -231,6 +241,33 @@ func (dst AccountService) UpdateSettings(ctx context.Context, pass Passport, s U
 	user.Settings = s
 
 	return dst.userRepo.Update(ctx, user)
+}
+
+func (dst AccountService) Profile(ctx context.Context, u Nickname) (*UserProfile, error) {
+	gr, err := dst.analyst.GamesReport(ctx, u)
+
+	if err != nil {
+		return nil, err
+	}
+
+	rank, err := dst.analyst.Rank(ctx, u)
+
+	if err != nil {
+		return nil, err
+	}
+
+	rating, err := dst.analyst.Rating(ctx, u)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &UserProfile{
+		Nickname:    u,
+		Rank:        rank,
+		Rating:      rating,
+		GamesReport: *gr,
+	}, nil
 }
 
 func (dst AccountService) token(ctx context.Context, u *User, fingerprint uuid.UUID) (*Token, error) {

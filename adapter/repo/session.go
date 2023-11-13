@@ -12,7 +12,7 @@ import (
 
 func NewSession(c *redis.Client) SessionRepo {
 	return SessionRepo{
-		R: rds.R{Client: c},
+		R: rds.R{Rds: c},
 	}
 }
 
@@ -35,7 +35,7 @@ func (dst SessionRepo) Delete(ctx context.Context, fingerprint uuid.UUID) (*doma
 		return nil, domain.ErrSessionNotFound
 	}
 
-	return s, dst.Client.Del(ctx, dst.k(s.Fingerprint)).Err()
+	return s, dst.Rds.Del(ctx, dst.k(s.Fingerprint)).Err()
 }
 
 func (dst SessionRepo) Find(ctx context.Context, fingerprint uuid.UUID) (*domain.Session, error) {
