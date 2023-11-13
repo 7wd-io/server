@@ -75,6 +75,73 @@ func (dst A) GamesReport(ctx context.Context, u domain.Nickname) (*domain.GamesR
 	return gr, nil
 }
 
+func (dst A) GamesReportVersus(ctx context.Context, me domain.Nickname, enemy domain.Nickname) (*domain.GamesReport, error) {
+	const sql = `
+WITH games as (
+    SELECT *
+    FROM game
+    WHERE
+        (host_nickname = $1 AND guest_nickname = $2)
+        OR (host_nickname = $2 AND guest_nickname = $1)
+		AND winner IS NOT NULL
+), won as (
+    SELECT
+       COUNT(id) as total,
+       COUNT(CASE WHEN victory = $3 THEN id END) as points,
+       COUNT(CASE WHEN victory = $4 THEN id END) as military,
+       COUNT(CASE WHEN victory = $5 THEN id END) as science,
+       COUNT(CASE WHEN victory = $6 THEN id END) as resign,
+       COUNT(CASE WHEN victory = $7 THEN id END) as timeout
+    FROM games
+    WHERE winner = $1
+), lose as (
+    SELECT
+       COUNT(id) as total,
+       COUNT(CASE WHEN victory = $3 THEN id END) as points,
+       COUNT(CASE WHEN victory = $4 THEN id END) as military,
+       COUNT(CASE WHEN victory = $5 THEN id END) as science,
+       COUNT(CASE WHEN victory = $6 THEN id END) as resign,
+       COUNT(CASE WHEN victory = $7 THEN id END) as timeout
+    FROM games
+    WHERE winner != $1
+)
+    SELECT * FROM won, lose
+`
+	gr := new(domain.GamesReport)
+
+	err := dst.pg.QueryRow(
+		ctx,
+		sql,
+		me,
+		enemy,
+		swde.Civilian,
+		swde.MilitarySupremacy,
+		swde.ScienceSupremacy,
+		swde.Resign,
+		swde.Timeout,
+	).
+		Scan(
+			&gr.Won.Total,
+			&gr.Won.Points,
+			&gr.Won.Military,
+			&gr.Won.Science,
+			&gr.Won.Resign,
+			&gr.Won.Timeout,
+			&gr.Lose.Total,
+			&gr.Lose.Points,
+			&gr.Lose.Military,
+			&gr.Lose.Science,
+			&gr.Lose.Resign,
+			&gr.Lose.Timeout,
+		)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return gr, nil
+}
+
 func (dst A) Rank(ctx context.Context, u domain.Nickname) (int, error) {
 	rank, err := dst.rds.ZRevRank(ctx, dst.key, string(u)).Result()
 
