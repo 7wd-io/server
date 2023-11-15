@@ -202,7 +202,11 @@ func (dst AccountService) Logout(ctx context.Context, pass Passport, fingerprint
 	}
 
 	if session.UserId != pass.Id {
-		slog.Warn("try logout by user=%d for user=%d", pass.Id, session.UserId)
+		slog.Warn(
+			"AccountService.Logout session.UserId != pass.Id",
+			slog.Int("from", int(pass.Id)),
+			slog.Int("for", int(session.UserId)),
+		)
 		return nil
 	}
 
