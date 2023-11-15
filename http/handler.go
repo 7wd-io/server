@@ -27,6 +27,7 @@ func (dst Account) Bind(app *fiber.App) {
 	g.Put("/settings", dst.updateSettings())
 	g.Get("/:nickname", dst.profile())
 	g.Get("/:nickname1/vs/:nickname2", dst.profileVersus())
+	g.Get("/top", dst.top())
 }
 
 func (dst Account) signup() fiber.Handler {
@@ -204,6 +205,23 @@ func (dst Account) profileVersus() fiber.Handler {
 		}
 
 		return ctx.JSON(response{Profile: *p})
+	}
+}
+
+func (dst Account) top() fiber.Handler {
+	// @TODO rename
+	type response struct {
+		Players domain.Top `json:"players"`
+	}
+
+	return func(ctx *fiber.Ctx) error {
+		top, err := dst.svc.Top(ctx.Context())
+
+		if err != nil {
+			return err
+		}
+
+		return ctx.JSON(response{Players: top})
 	}
 }
 

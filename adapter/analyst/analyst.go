@@ -29,8 +29,41 @@ type A struct {
 }
 
 func (dst A) Top(ctx context.Context) (domain.Top, error) {
-	//TODO implement me
-	panic("implement me")
+	members, err := dst.rds.ZRangeArgsWithScores(ctx, redis.ZRangeArgs{
+		Key:   dst.key,
+		Start: 0,
+		Stop:  7, // show top 7, but +1 slot for bot
+		Rev:   true,
+	}).Result()
+
+	if err != nil {
+		return nil, err
+	}
+
+	var top domain.Top
+
+	var hasBot bool
+
+	for _, m := range members {
+		nickname := domain.Nickname(m.Member.(string))
+
+		// bot is not in any ratings, skip
+		if nickname == domain.BotNickname {
+			hasBot = true
+			continue
+		}
+
+		top = append(top, domain.TopMember{
+			Name:   nickname,
+			Rating: domain.Rating(m.Score),
+		})
+	}
+
+	if !hasBot {
+		top = top[:len(top)-1]
+	}
+
+	return top, nil
 }
 
 func (dst A) Update(ctx context.Context, result domain.GameResult) error {

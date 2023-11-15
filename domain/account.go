@@ -274,6 +274,10 @@ func (dst AccountService) ProfileVersus(ctx context.Context, me Nickname, enemy 
 	return dst.analyst.GamesReportVersus(ctx, me, enemy)
 }
 
+func (dst AccountService) Top(ctx context.Context) (Top, error) {
+	return dst.analyst.Top(ctx)
+}
+
 func (dst AccountService) token(ctx context.Context, u *User, fingerprint uuid.UUID) (*Token, error) {
 	refresh := dst.uuidf.Uuid()
 
