@@ -463,7 +463,7 @@ type Online struct {
 func (dst Online) Bind(app *fiber.App) {
 	g := app.Group("/online")
 
-	g.Get("/")
+	g.Get("/", dst.get())
 }
 
 func (dst Online) get() fiber.Handler {
