@@ -279,10 +279,20 @@ func (dst GameService) Move(ctx context.Context, u Nickname, id GameId, m swde.M
 	if s.IsOver() {
 		result := g.Over(s, now)
 
+		room, err := dst.roomRepo.FindByGame(ctx, g.Id)
+
+		if err != nil {
+			return nil, err
+		}
+
 		dst.dispatcher.Dispatch(
 			ctx,
 			EventGameOver,
-			GameOverPayload{Game: g, Result: result},
+			GameOverPayload{
+				Game:    *g,
+				Result:  result,
+				Options: room.Options,
+			},
 		)
 	}
 

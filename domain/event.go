@@ -37,8 +37,9 @@ type GameUpdatedPayload struct {
 }
 
 type GameOverPayload struct {
-	Game   *Game
-	Result GameResult
+	Game    Game
+	Result  GameResult
+	Options RoomOptions
 }
 
 type AfterGameMovePayload struct {

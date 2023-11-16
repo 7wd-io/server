@@ -61,6 +61,8 @@ func main() {
 
 	onlineSvc := domain.NewOnlineService(c.Onliner, c.Analyst)
 
+	playAgainSvc := domain.NewPlayAgainService(c.PlayAgain)
+
 	c.Dispatcher.
 		On(
 			domain.EventGameCreated,
@@ -71,6 +73,7 @@ func main() {
 			domain.EventGameOver,
 			roomSvc.OnGameOver,
 			accountSvc.OnGameOver,
+			playAgainSvc.OnGameOver,
 		).
 		On(
 			domain.EventAfterGameMove,

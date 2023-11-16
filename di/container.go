@@ -7,6 +7,7 @@ import (
 	"7wd.io/adapter/dispatcher"
 	"7wd.io/adapter/onliner"
 	"7wd.io/adapter/password"
+	"7wd.io/adapter/playagain"
 	"7wd.io/adapter/repo"
 	"7wd.io/adapter/token"
 	"7wd.io/adapter/tx"
@@ -41,6 +42,7 @@ func MustNew() *C {
 		Dispatcher:   dispatcher.New(),
 		Bot:          bot.New(config.C.Bot.Endpoint),
 		Analyst:      analyst.New(rdsc, pgc),
+		PlayAgain:    playagain.New(rdsc),
 	}
 }
 
@@ -56,6 +58,7 @@ type C struct {
 	Dispatcher   *dispatcher.D
 	Bot          bot.B
 	Analyst      analyst.A
+	PlayAgain    playagain.PA
 }
 
 type Repo struct {

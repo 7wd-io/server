@@ -64,6 +64,11 @@ type (
 		Rank(context.Context, Nickname) (int, error)
 		Rating(context.Context, Nickname) (Rating, error)
 	}
+
+	PlayAgainStore interface {
+		Create(context.Context, Game, RoomOptions) error
+		Update(context.Context, GameId, Nickname, bool) (*PlayAgainAgreement, error)
+	}
 )
 
 type (
