@@ -105,8 +105,6 @@ func (dst RoomService) Create(ctx context.Context, pass Passport, o RoomOptions)
 		RoomCreatedPayload{Room: room},
 	)
 
-	//go dst.pusher.Push(RoomCreated{Room: room})
-
 	return room, nil
 }
 
@@ -128,8 +126,6 @@ func (dst RoomService) Delete(ctx context.Context, pass Passport, id RoomId) err
 	if _, err := dst.roomRepo.Delete(ctx, id); err != nil {
 		return err
 	}
-
-	//go dst.pusher.Push(RoomDeleted{Host: room.Host})
 
 	dst.dispatcher.Dispatch(
 		ctx,
@@ -173,10 +169,8 @@ func (dst RoomService) Join(ctx context.Context, pass Passport, id RoomId) error
 	dst.dispatcher.Dispatch(
 		ctx,
 		EventRoomUpdated,
-		RoomUpdatedPayload{Room: room},
+		RoomUpdatedPayload{Room: *room},
 	)
-
-	//go dst.pusher.Push(RoomUpdated{Room: room})
 
 	return nil
 }
@@ -206,7 +200,7 @@ func (dst RoomService) Leave(ctx context.Context, pass Passport, id RoomId) erro
 	dst.dispatcher.Dispatch(
 		ctx,
 		EventRoomUpdated,
-		RoomUpdatedPayload{Room: room},
+		RoomUpdatedPayload{Room: *room},
 	)
 
 	return nil
@@ -243,9 +237,9 @@ func (dst RoomService) Start(ctx context.Context, pass Passport, id RoomId) erro
 		ctx,
 		EventRoomStarted,
 		RoomStartedPayload{
-			Host:  host,
-			Guest: guest,
-			Room:  room,
+			Host:  *host,
+			Guest: *guest,
+			Room:  *room,
 		},
 	)
 
@@ -277,7 +271,7 @@ func (dst RoomService) Kick(ctx context.Context, pass Passport, id RoomId) error
 	dst.dispatcher.Dispatch(
 		ctx,
 		EventRoomUpdated,
-		RoomUpdatedPayload{Room: room},
+		RoomUpdatedPayload{Room: *room},
 	)
 
 	return nil
@@ -308,6 +302,50 @@ func (dst RoomService) OnGameOver(ctx context.Context, payload interface{}) erro
 		ctx,
 		EventRoomDeleted,
 		RoomDeletedPayload{Room: room},
+	)
+
+	return nil
+}
+
+func (dst RoomService) OnPlayAgainApproved(ctx context.Context, payload interface{}) error {
+	p, ok := payload.(PlayAgainApprovedPayload)
+
+	if !ok {
+		return errors.New("func (dst RoomService) OnPlayAgainApproved !ok := payload.(PlayAgainApprovedPayload)")
+	}
+
+	// reset options that don't make sense
+	if p.Options.MinRating != 0 {
+		p.Options.MinRating = 0
+	}
+
+	room := &Room{
+		Id:          RoomId(dst.uuidf.Uuid()),
+		Host:        p.Host.Nickname,
+		HostRating:  p.Host.Rating,
+		Guest:       p.Guest.Nickname,
+		GuestRating: p.Guest.Rating,
+		Options:     p.Options,
+	}
+
+	if err := dst.roomRepo.Save(ctx, room); err != nil {
+		return err
+	}
+
+	dst.dispatcher.Dispatch(
+		ctx,
+		EventRoomCreated,
+		RoomCreatedPayload{Room: room},
+	)
+
+	dst.dispatcher.Dispatch(
+		ctx,
+		EventRoomStarted,
+		RoomStartedPayload{
+			Host:  p.Host,
+			Guest: p.Guest,
+			Room:  *room,
+		},
 	)
 
 	return nil

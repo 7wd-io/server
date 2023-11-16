@@ -15,17 +15,109 @@ type PlayAgainAgreement struct {
 	Options RoomOptions        `json:"options"`
 }
 
-func NewPlayAgainService(store PlayAgainStore) PlayAgainService {
+func NewPlayAgainService(
+	store PlayAgainStore,
+	dispatcher Dispatcher,
+	userRepo UserRepo,
+	roomRepo RoomRepo,
+	game GameCreator,
+) PlayAgainService {
 	return PlayAgainService{
-		store: store,
+		store:      store,
+		dispatcher: dispatcher,
+		userRepo:   userRepo,
+		roomRepo:   roomRepo,
+		game:       game,
 	}
 }
 
 type PlayAgainService struct {
-	store PlayAgainStore
+	store      PlayAgainStore
+	dispatcher Dispatcher
+	userRepo   UserRepo
+	roomRepo   RoomRepo
+	game       GameCreator
 }
 
 func (dst PlayAgainService) Update(ctx context.Context, game Game, u Nickname, value bool) error {
+	pag, err := dst.store.Update(ctx, game.Id, u, value)
+
+	if err != nil {
+		return err
+	}
+
+	dst.dispatcher.Dispatch(
+		ctx,
+		EventPlayAgainUpdated,
+		PlayAgainUpdatedPayload{
+			Game:   game.Id,
+			User:   u,
+			Answer: value,
+		},
+	)
+
+	agreement := true
+
+	for _, answer := range pag.Answers {
+		if answer == nil || *answer != true {
+			agreement = false
+			break
+		}
+	}
+
+	if agreement {
+		host, err := dst.userRepo.Find(ctx, WithUserNickname(game.HostNickname))
+
+		if err != nil {
+			return err
+		}
+
+		guest, err := dst.userRepo.Find(ctx, WithUserNickname(game.GuestNickname))
+
+		if err != nil {
+			return err
+		}
+
+		// reset options that don't make sense
+		if pag.Options.MinRating != 0 {
+			pag.Options.MinRating = 0
+		}
+
+		nextGame, err := dst.game.Create(ctx, *host, *guest, pag.Options)
+
+		if err != nil {
+			return err
+		}
+
+		room := &Room{
+			GameId:      nextGame.Id,
+			Host:        host.Nickname,
+			HostRating:  host.Rating,
+			Guest:       guest.Nickname,
+			GuestRating: guest.Rating,
+			Options:     pag.Options,
+		}
+
+		if err = dst.roomRepo.Save(ctx, room); err != nil {
+			return err
+		}
+
+		dst.dispatcher.Dispatch(
+			ctx,
+			EventRoomCreated,
+			RoomCreatedPayload{Room: room},
+		)
+
+		dst.dispatcher.Dispatch(
+			ctx,
+			EventPlayAgainApproved,
+			PlayAgainApprovedPayload{
+				Id:   game.Id,
+				Next: nextGame.Id,
+			},
+		)
+	}
+
 	return nil
 }
 

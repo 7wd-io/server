@@ -60,13 +60,13 @@ type RoomDeletedPayload struct {
 }
 
 type RoomUpdatedPayload struct {
-	Room *Room
+	Room Room
 }
 
 type RoomStartedPayload struct {
-	Host  *User
-	Guest *User
-	Room  *Room
+	Host  User
+	Guest User
+	Room  Room
 }
 
 type OnlineUpdatedPayload struct {
@@ -74,9 +74,14 @@ type OnlineUpdatedPayload struct {
 }
 
 type PlayAgainUpdatedPayload struct {
+	Game   GameId
+	User   Nickname
+	Answer bool
 }
 
 type PlayAgainApprovedPayload struct {
+	Id   GameId `json:"id"`
+	Next GameId `json:"next"`
 }
 
 type RoomCreated struct {

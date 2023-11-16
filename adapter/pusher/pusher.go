@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/centrifugal/gocent/v3"
-	"log/slog"
 )
 
 func New(cent *gocent.Client) P {
@@ -87,25 +86,19 @@ func (dst P) OnOnlineUpdated(ctx context.Context, payload interface{}) error {
 func (dst P) OnPlayAgainUpdated(ctx context.Context, payload interface{}) error {
 	p, _ := payload.(domain.PlayAgainUpdatedPayload)
 
-	fmt.Println(p)
-
-	return nil
+	return dst.publish(ctx, fmt.Sprintf("upd_play_again_%d", p.Game), payload)
 }
 
 func (dst P) OnPlayAgainApproved(ctx context.Context, payload interface{}) error {
 	p, _ := payload.(domain.PlayAgainApprovedPayload)
 
-	fmt.Println(p)
-
-	return nil
+	return dst.publish(ctx, fmt.Sprintf("play_again_approved_%d", p.Game), payload)
 }
 
-func (dst P) publish(ctx context.Context, channel string, data interface{}) {
+func (dst P) publish(ctx context.Context, channel string, data interface{}) error {
 	msg, _ := json.Marshal(data)
 
 	_, err := dst.cent.Publish(ctx, channel, msg)
 
-	if err != nil {
-		slog.Error("push.publish", slog.String("err", err.Error()))
-	}
+	return err
 }

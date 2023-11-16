@@ -21,7 +21,7 @@ const (
 
 type GameId int
 
-func newGame(host *User, guest *User, now time.Time) *Game {
+func newGame(host User, guest User, now time.Time) *Game {
 	return &Game{
 		HostNickname:  host.Nickname,
 		HostRating:    host.Rating,
@@ -195,8 +195,8 @@ func (dst GameService) State(ctx context.Context, id GameId, index int) (*swde.S
 
 func (dst GameService) Create(
 	ctx context.Context,
-	host *User,
-	guest *User,
+	host User,
+	guest User,
 	o RoomOptions,
 ) (*Game, error) {
 	now := dst.clock.Now()
@@ -322,7 +322,7 @@ func (dst GameService) OnEventBotIsReadyToMove(ctx context.Context, payload inte
 	p, ok := payload.(BotIsReadyToMovePayload)
 
 	if !ok {
-		return errors.New("GameService !ok := payload.(BotIsReadyToMovePayload)")
+		return errors.New("func (dst GameService) OnEventBotIsReadyToMove !ok := payload.(BotIsReadyToMovePayload)")
 	}
 
 	_, err := dst.Move(ctx, BotNickname, p.Game, p.Move)
@@ -334,7 +334,7 @@ func (dst GameService) OnRoomStarted(ctx context.Context, payload interface{}) e
 	p, ok := payload.(RoomStartedPayload)
 
 	if !ok {
-		return errors.New("GameService !ok := payload.(RoomStartedPayload)")
+		return errors.New("func (dst GameService) OnRoomStarted !ok := payload.(RoomStartedPayload)")
 	}
 
 	game, err := dst.Create(ctx, p.Host, p.Guest, p.Room.Options)
@@ -345,7 +345,7 @@ func (dst GameService) OnRoomStarted(ctx context.Context, payload interface{}) e
 
 	p.Room.GameId = game.Id
 
-	if err = dst.roomRepo.Save(ctx, p.Room); err != nil {
+	if err = dst.roomRepo.Save(ctx, &p.Room); err != nil {
 		return err
 	}
 

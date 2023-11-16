@@ -69,6 +69,10 @@ type (
 		Create(context.Context, Game, RoomOptions) error
 		Update(context.Context, GameId, Nickname, bool) (*PlayAgainAgreement, error)
 	}
+
+	GameCreator interface {
+		Create(ctx context.Context, host User, guest User, o RoomOptions) (*Game, error)
+	}
 )
 
 type (

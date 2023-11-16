@@ -61,7 +61,13 @@ func main() {
 
 	onlineSvc := domain.NewOnlineService(c.Onliner, c.Analyst)
 
-	playAgainSvc := domain.NewPlayAgainService(c.PlayAgain)
+	playAgainSvc := domain.NewPlayAgainService(
+		c.PlayAgain,
+		c.Dispatcher,
+		c.Repo.User,
+		c.Repo.Room,
+		gameSvc,
+	)
 
 	c.Dispatcher.
 		On(
@@ -100,8 +106,15 @@ func main() {
 			gameSvc.OnRoomStarted,
 		).
 		On(domain.EventOnlineUpdated).
-		On(domain.EventPlayAgainUpdated).
-		On(domain.EventPlayAgainApproved)
+		On(
+			domain.EventPlayAgainUpdated,
+			push.OnPlayAgainUpdated,
+		).
+		On(
+			domain.EventPlayAgainApproved,
+			roomSvc.OnPlayAgainApproved,
+			push.OnPlayAgainApproved,
+		)
 
 	srv.NewAccount(accountSvc).Bind(app)
 	srv.NewRoom(roomSvc).Bind(app)
