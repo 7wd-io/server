@@ -21,66 +21,33 @@ type P struct {
 func (dst P) OnRoomCreated(ctx context.Context, payload interface{}) error {
 	p, _ := payload.(domain.RoomCreatedPayload)
 
-	dst.publish(ctx, "new_room", p.Room)
-
-	return nil
+	return dst.publish(ctx, "new_room", p.Room)
 }
 
 func (dst P) OnRoomDeleted(ctx context.Context, payload interface{}) error {
 	p, _ := payload.(domain.RoomDeletedPayload)
 
-	dst.publish(ctx, "del_room", struct {
+	return dst.publish(ctx, "del_room", struct {
 		Host domain.Nickname `json:"host"`
 	}{
 		Host: p.Room.Host,
 	})
-
-	return nil
 }
 
 func (dst P) OnRoomUpdated(ctx context.Context, payload interface{}) error {
 	p, _ := payload.(domain.RoomUpdatedPayload)
 
-	dst.publish(ctx, "upd_room", p.Room)
-
-	return nil
-}
-
-func (dst P) OnGameCreated(ctx context.Context, payload interface{}) error {
-	p, _ := payload.(domain.GameCreatedPayload)
-
-	fmt.Println(p)
-
-	return nil
+	return dst.publish(ctx, "upd_room", p.Room)
 }
 
 func (dst P) OnGameUpdated(ctx context.Context, payload interface{}) error {
 	p, _ := payload.(domain.GameUpdatedPayload)
 
-	fmt.Println(p)
-
-	return nil
-
-	//dst.publish(
-	//	fmt.Sprintf("upd_game_%d", p.Game.Id),
-	//	struct {
-	//		State    *game.State    `json:"state"`
-	//		Clock    *domain.GameClock    `json:"clock"`
-	//		LastMove domain.GameLogRecord `json:"lastMove"`
-	//	}{
-	//		State:    msg.State,
-	//		Clock:    msg.Clock,
-	//		LastMove: msg.LastMove,
-	//	},
-	//)
+	return dst.publish(ctx, fmt.Sprintf("upd_game_%d", p.Id), payload)
 }
 
 func (dst P) OnOnlineUpdated(ctx context.Context, payload interface{}) error {
-	p, _ := payload.(domain.OnlineUpdatedPayload)
-
-	fmt.Println(p)
-
-	return nil
+	return dst.publish(ctx, "online", payload)
 }
 
 func (dst P) OnPlayAgainUpdated(ctx context.Context, payload interface{}) error {

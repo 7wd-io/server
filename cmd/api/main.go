@@ -74,7 +74,10 @@ func main() {
 			domain.EventGameCreated,
 			botSvc.OnGameCreated,
 		).
-		On(domain.EventGameUpdated).
+		On(
+			domain.EventGameUpdated,
+			push.OnGameUpdated,
+		).
 		On(
 			domain.EventGameOver,
 			roomSvc.OnGameOver,
@@ -105,7 +108,10 @@ func main() {
 			domain.EventRoomStarted,
 			gameSvc.OnRoomStarted,
 		).
-		On(domain.EventOnlineUpdated).
+		On(
+			domain.EventOnlineUpdated,
+			push.OnOnlineUpdated,
+		).
 		On(
 			domain.EventPlayAgainUpdated,
 			push.OnPlayAgainUpdated,
