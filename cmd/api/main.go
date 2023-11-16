@@ -112,7 +112,6 @@ func main() {
 		).
 		On(
 			domain.EventPlayAgainApproved,
-			roomSvc.OnPlayAgainApproved,
 			push.OnPlayAgainApproved,
 		)
 

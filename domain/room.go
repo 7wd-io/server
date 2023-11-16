@@ -307,50 +307,6 @@ func (dst RoomService) OnGameOver(ctx context.Context, payload interface{}) erro
 	return nil
 }
 
-func (dst RoomService) OnPlayAgainApproved(ctx context.Context, payload interface{}) error {
-	p, ok := payload.(PlayAgainApprovedPayload)
-
-	if !ok {
-		return errors.New("func (dst RoomService) OnPlayAgainApproved !ok := payload.(PlayAgainApprovedPayload)")
-	}
-
-	// reset options that don't make sense
-	if p.Options.MinRating != 0 {
-		p.Options.MinRating = 0
-	}
-
-	room := &Room{
-		Id:          RoomId(dst.uuidf.Uuid()),
-		Host:        p.Host.Nickname,
-		HostRating:  p.Host.Rating,
-		Guest:       p.Guest.Nickname,
-		GuestRating: p.Guest.Rating,
-		Options:     p.Options,
-	}
-
-	if err := dst.roomRepo.Save(ctx, room); err != nil {
-		return err
-	}
-
-	dst.dispatcher.Dispatch(
-		ctx,
-		EventRoomCreated,
-		RoomCreatedPayload{Room: room},
-	)
-
-	dst.dispatcher.Dispatch(
-		ctx,
-		EventRoomStarted,
-		RoomStartedPayload{
-			Host:  p.Host,
-			Guest: p.Guest,
-			Room:  *room,
-		},
-	)
-
-	return nil
-}
-
 func (dst RoomService) alreadyJoin(ctx context.Context, pass Passport) error {
 	rooms, err := dst.roomRepo.FindAll(ctx)
 

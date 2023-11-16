@@ -92,7 +92,7 @@ func (dst P) OnPlayAgainUpdated(ctx context.Context, payload interface{}) error 
 func (dst P) OnPlayAgainApproved(ctx context.Context, payload interface{}) error {
 	p, _ := payload.(domain.PlayAgainApprovedPayload)
 
-	return dst.publish(ctx, fmt.Sprintf("play_again_approved_%d", p.Game), payload)
+	return dst.publish(ctx, fmt.Sprintf("play_again_approved_%d", p.Id), payload)
 }
 
 func (dst P) publish(ctx context.Context, channel string, data interface{}) error {
