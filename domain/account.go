@@ -282,6 +282,51 @@ func (dst AccountService) Top(ctx context.Context) (Top, error) {
 	return dst.analyst.Top(ctx)
 }
 
+func (dst AccountService) OnGameOver(ctx context.Context, payload interface{}) error {
+	p, ok := payload.(GameOverPayload)
+
+	if !ok {
+		return errors.New("func (dst AccountService) OnGameOver !ok := payload.(GameOverPayload)")
+	}
+
+	var err error
+
+	wBot := p.Result.Winner == BotNickname
+	lBot := p.Result.Loser == BotNickname
+
+	botGame := wBot || lBot
+
+	if !botGame {
+		err = dst.updateRating(ctx, p.Result.Winner, p.Result.Points)
+
+		if err != nil {
+			return err
+		}
+
+		err = dst.updateRating(ctx, p.Result.Loser, -p.Result.Points)
+
+		if err != nil {
+			return err
+		}
+	} else {
+		bot := p.Result.Winner
+		points := p.Result.Points
+
+		if lBot {
+			bot = p.Result.Loser
+			points = -points
+		}
+
+		err = dst.updateRating(ctx, bot, points)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (dst AccountService) token(ctx context.Context, u *User, fingerprint uuid.UUID) (*Token, error) {
 	refresh := dst.uuidf.Uuid()
 
@@ -313,4 +358,22 @@ func (dst AccountService) token(ctx context.Context, u *User, fingerprint uuid.U
 		Access:  access,
 		Refresh: refresh,
 	}, nil
+}
+
+func (dst AccountService) updateRating(ctx context.Context, u Nickname, points int) error {
+	var err error
+
+	// @TODO SELECT FOR UPDATE
+	user, _ := dst.userRepo.Find(ctx, WithUserNickname(u))
+	user.Rating += Rating(points)
+
+	if err = dst.userRepo.Update(ctx, user); err != nil {
+		return err
+	}
+
+	if err = dst.analyst.UpdateRatings(ctx, user); err != nil {
+		return err
+	}
+
+	return nil
 }

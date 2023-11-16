@@ -57,7 +57,7 @@ type (
 
 	Analyst interface {
 		Top(context.Context) (Top, error)
-		Update(context.Context, GameResult) error
+		UpdateRatings(context.Context, *User) error
 		Ratings(context.Context, ...Nickname) (UsersPreview, error)
 		GamesReport(context.Context, Nickname) (*GamesReport, error)
 		GamesReportVersus(context.Context, Nickname, Nickname) (*GamesReport, error)

@@ -70,6 +70,7 @@ func main() {
 		On(
 			domain.EventGameOver,
 			roomSvc.OnGameOver,
+			accountSvc.OnGameOver,
 		).
 		On(
 			domain.EventAfterGameMove,

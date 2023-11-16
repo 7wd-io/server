@@ -276,39 +276,14 @@ func (dst GameService) Move(ctx context.Context, u Nickname, id GameId, m swde.M
 
 	gameClock.Turn = Nickname(s.Me.Name)
 
-	// В обработчик roomService
 	if s.IsOver() {
-		//result := g.Over(s, now)
-		//
-		//room, err := dst.roomRepo.Find(ctx, g.HostNickname)
-		//
-		//if err != nil {
-		//	return nil, err
-		//}
-		//
-		//if err = roomRepo.Delete(g.HostNickname); err != nil {
-		//	return nil, err
-		//}
-		//
-		//go pusher.Push(RoomDeleted{Host: g.HostNickname})
-		//
-		//if err = analyzer.AnalyzeGame(result); err != nil {
-		//	return nil, err
-		//}
-		//
-		//if err = playAgainCreator.CreatePlayAgain(g, room.Options); err != nil {
-		//	return nil, err
-		//}
-		//
-		//if g.GuestNickname.IsEqual(account.BotNickname) {
-		//	go func() {
-		//		time.Sleep(account.BotPlayAgainDelay)
-		//
-		//		if err = playAgain(g, account.BotNickname, true); err != nil {
-		//			logger.Errorf("bot agree play again %w", err)
-		//		}
-		//	}()
-		//}
+		result := g.Over(s, now)
+
+		dst.dispatcher.Dispatch(
+			ctx,
+			EventGameOver,
+			GameOverPayload{Game: g, Result: result},
+		)
 	}
 
 	if err = dst.gameRepo.Update(ctx, g); err != nil {
@@ -329,15 +304,6 @@ func (dst GameService) Move(ctx context.Context, u Nickname, id GameId, m swde.M
 	dst.dispatcher.Dispatch(ctx, EventAfterGameMove, AfterGameMovePayload{
 		Game: g,
 	})
-
-	//go pusher.Push(GameUpdated{
-	//	Id:       g.Id,
-	//	State:    s,
-	//	Clock:    gameClock,
-	//	LastMove: g.Log[len(g.Log)-1],
-	//})
-	//
-	//dispatcher.Dispatch(EventMoveMade, g)
 
 	return g, nil
 }

@@ -66,9 +66,15 @@ func (dst A) Top(ctx context.Context) (domain.Top, error) {
 	return top, nil
 }
 
-func (dst A) Update(ctx context.Context, result domain.GameResult) error {
-	//TODO implement me
-	panic("implement me")
+func (dst A) UpdateRatings(ctx context.Context, u *domain.User) error {
+	if err := dst.rds.Del(ctx, dst.kGames(u.Nickname)).Err(); err != nil {
+		return nil
+	}
+
+	return dst.rds.ZAdd(ctx, dst.key, redis.Z{
+		Score:  float64(u.Rating),
+		Member: string(u.Nickname),
+	}).Err()
 }
 
 func (dst A) Ratings(ctx context.Context, nickname ...domain.Nickname) (domain.UsersPreview, error) {

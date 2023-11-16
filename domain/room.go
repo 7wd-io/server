@@ -287,7 +287,7 @@ func (dst RoomService) OnGameOver(ctx context.Context, payload interface{}) erro
 	p, ok := payload.(GameOverPayload)
 
 	if !ok {
-		return errors.New("\"func (dst RoomService) OnGameOver !ok := payload.(GameOverPayload)")
+		return errors.New("func (dst RoomService) OnGameOver !ok := payload.(GameOverPayload)")
 	}
 
 	room, err := dst.roomRepo.FindByGame(ctx, p.Game.Id)
