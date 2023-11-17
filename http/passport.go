@@ -22,6 +22,6 @@ func usePassport(c *fiber.Ctx) (p domain.Passport, err error) {
 	return domain.Passport{
 		Id:       domain.UserId(claims["id"].(float64)),
 		Nickname: domain.Nickname(claims["nickname"].(string)),
-		Rating:   claims["rating"].(int),
+		Rating:   claims["rating"].(domain.Rating),
 	}, nil
 }

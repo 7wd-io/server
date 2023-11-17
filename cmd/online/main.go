@@ -28,106 +28,104 @@ func main() {
 	anl := analyst.New(rdsc, pgc)
 	watcher := onliner.New(cfgo)
 
-	go func() {
-		var err error
-		var players []domain.Nickname
-		var rooms []*domain.Room
+	var err error
+	var players []domain.Nickname
+	var rooms []*domain.Room
 
-		for {
-			players, err = watcher.Online(ctx)
+	for {
+		players, err = watcher.Online(ctx)
 
-			if err != nil {
-				slog.Error(err.Error())
-				continue
-			}
+		if err != nil {
+			slog.Error(err.Error())
+			continue
+		}
 
-			rooms, err = roomRepo.FindAll(ctx)
+		rooms, err = roomRepo.FindAll(ctx)
 
-			if err != nil {
-				slog.Error(err.Error())
-				continue
-			}
+		if err != nil {
+			slog.Error(err.Error())
+			continue
+		}
 
-			var playersSearch map[domain.Nickname]struct{}
+		playersSearch := make(map[domain.Nickname]struct{}, len(players))
 
-			for _, v := range players {
-				playersSearch[v] = struct{}{}
-			}
+		for _, v := range players {
+			playersSearch[v] = struct{}{}
+		}
 
-			for _, room := range rooms {
-				_, isHostOnline := playersSearch[room.Host]
+		for _, room := range rooms {
+			_, isHostOnline := playersSearch[room.Host]
 
-				// not empty gameId means game started and room must be show to support observe/play opportunity
-				if !isHostOnline && room.GameId == 0 {
-					_, err = roomRepo.Delete(ctx, room.Id)
-
-					if err != nil {
-						slog.Error(err.Error())
-						continue
-					}
-
-					go func() {
-						err = psh.Publish(
-							ctx,
-							"del_room",
-							struct {
-								Id domain.RoomId `json:"id"`
-							}{
-								Id: room.Id,
-							},
-						)
-
-						if err != nil {
-							slog.Error(err.Error())
-						}
-					}()
-
-				}
-
-				// kick if guest not online
-				if room.GameId == 0 && room.Guest != "" {
-					_, isGuestOnline := playersSearch[room.Guest]
-
-					if !isGuestOnline {
-						room.Guest = ""
-						room.GuestRating = 0
-
-						if err = roomRepo.Save(ctx, room); err != nil {
-							slog.Error(err.Error())
-							continue
-						}
-
-						go func() {
-							err = psh.Publish(ctx, "upd_room", room)
-
-							if err != nil {
-								slog.Error(err.Error())
-							}
-						}()
-					}
-				}
-			}
-
-			var online domain.UsersPreview
-
-			if len(players) > 0 {
-				online, err = anl.Ratings(ctx, players...)
+			// not empty gameId means game started and room must be show to support observe/play opportunity
+			if !isHostOnline && room.GameId == 0 {
+				_, err = roomRepo.Delete(ctx, room.Id)
 
 				if err != nil {
 					slog.Error(err.Error())
 					continue
 				}
+
+				go func() {
+					err = psh.Publish(
+						ctx,
+						"del_room",
+						struct {
+							Id domain.RoomId `json:"id"`
+						}{
+							Id: room.Id,
+						},
+					)
+
+					if err != nil {
+						slog.Error(err.Error())
+					}
+				}()
+
 			}
 
-			go func() {
-				err = psh.Publish(ctx, "online", online)
+			// kick if guest not online
+			if room.GameId == 0 && room.Guest != "" {
+				_, isGuestOnline := playersSearch[room.Guest]
 
-				if err != nil {
-					slog.Error(err.Error())
+				if !isGuestOnline {
+					room.Guest = ""
+					room.GuestRating = 0
+
+					if err = roomRepo.Save(ctx, room); err != nil {
+						slog.Error(err.Error())
+						continue
+					}
+
+					go func() {
+						err = psh.Publish(ctx, "upd_room", room)
+
+						if err != nil {
+							slog.Error(err.Error())
+						}
+					}()
 				}
-			}()
-
-			time.Sleep(time.Second * 3)
+			}
 		}
-	}()
+
+		var online domain.UsersPreview
+
+		if len(players) > 0 {
+			online, err = anl.Ratings(ctx, players...)
+
+			if err != nil {
+				slog.Error(err.Error())
+				continue
+			}
+		}
+
+		go func() {
+			err = psh.Publish(ctx, "online", online)
+
+			if err != nil {
+				slog.Error(err.Error())
+			}
+		}()
+
+		time.Sleep(time.Second * 3)
+	}
 }
