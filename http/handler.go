@@ -358,6 +358,20 @@ func (dst Game) Bind(app *fiber.App) {
 	g.Get("/:id", dst.get())
 	g.Get("/units", dst.units())
 	g.Get("/:id/state/:index", dst.state())
+
+	g.Post("/move/construct-card", dst.constructCard())
+	g.Post("/move/construct-wonder", dst.constructWonder())
+	g.Post("/move/discard-card", dst.discardCard())
+	g.Post("/move/select-move", dst.selectWhoBeginsTheNextAge())
+	g.Post("/move/pick-wonder", dst.pickWonder())
+	g.Post("/move/pick-board-token", dst.pickBoardToken())
+	g.Post("/move/pick-random-token", dst.pickRandomToken())
+	g.Post("/move/burn-card", dst.burnCard())
+	g.Post("/move/pick-discarded-card", dst.pickDiscardedCard())
+	g.Post("/move/pick-topline-card", dst.pickTopLineCard())
+	g.Post("/move/pick-returned-cards", dst.pickReturnedCards())
+	g.Post("/move/resign", dst.resign())
+	g.Post("/:id/play-again", dst.playAgain())
 }
 
 func (dst Game) get() fiber.Handler {
@@ -462,6 +476,396 @@ func (dst Game) state() fiber.Handler {
 		return ctx.JSON(response{
 			State: *state,
 		})
+	}
+}
+
+func (dst Game) constructCard() fiber.Handler {
+	type request struct {
+		Gid domain.GameId `json:"gid" validate:"required"`
+		Cid swde.CardId   `json:"cid" validate:"required"`
+	}
+
+	return func(ctx *fiber.Ctx) error {
+		r := new(request)
+
+		if err := useBodyRequest(ctx, r); err != nil {
+			return err
+		}
+
+		pass, _ := usePassport(ctx)
+
+		_, err := dst.svc.Move(
+			ctx.Context(),
+			pass.Nickname,
+			r.Gid,
+			swde.NewMoveConstructCard(r.Cid),
+		)
+
+		if err != nil {
+			return err
+		}
+
+		return ctx.JSON(nil)
+	}
+}
+
+func (dst Game) constructWonder() fiber.Handler {
+	type request struct {
+		Gid domain.GameId `json:"gid" validate:"required"`
+		Cid swde.CardId   `json:"cid" validate:"required"`
+	}
+
+	return func(ctx *fiber.Ctx) error {
+		r := new(request)
+
+		if err := useBodyRequest(ctx, r); err != nil {
+			return err
+		}
+
+		pass, _ := usePassport(ctx)
+
+		_, err := dst.svc.Move(
+			ctx.Context(),
+			pass.Nickname,
+			r.Gid,
+			swde.NewMoveConstructCard(r.Cid),
+		)
+
+		if err != nil {
+			return err
+		}
+
+		return ctx.JSON(nil)
+	}
+}
+
+func (dst Game) discardCard() fiber.Handler {
+	type request struct {
+		Gid domain.GameId `json:"gid" validate:"required"`
+		Cid swde.CardId   `json:"cid" validate:"required"`
+	}
+
+	return func(ctx *fiber.Ctx) error {
+		r := new(request)
+
+		if err := useBodyRequest(ctx, r); err != nil {
+			return err
+		}
+
+		pass, _ := usePassport(ctx)
+
+		_, err := dst.svc.Move(
+			ctx.Context(),
+			pass.Nickname,
+			r.Gid,
+			swde.NewMoveConstructCard(r.Cid),
+		)
+
+		if err != nil {
+			return err
+		}
+
+		return ctx.JSON(nil)
+	}
+}
+
+func (dst Game) selectWhoBeginsTheNextAge() fiber.Handler {
+	type request struct {
+		Gid domain.GameId `json:"gid" validate:"required"`
+		Cid swde.CardId   `json:"cid" validate:"required"`
+	}
+
+	return func(ctx *fiber.Ctx) error {
+		r := new(request)
+
+		if err := useBodyRequest(ctx, r); err != nil {
+			return err
+		}
+
+		pass, _ := usePassport(ctx)
+
+		_, err := dst.svc.Move(
+			ctx.Context(),
+			pass.Nickname,
+			r.Gid,
+			swde.NewMoveConstructCard(r.Cid),
+		)
+
+		if err != nil {
+			return err
+		}
+
+		return ctx.JSON(nil)
+	}
+}
+
+func (dst Game) pickWonder() fiber.Handler {
+	type request struct {
+		Gid domain.GameId `json:"gid" validate:"required"`
+		Cid swde.CardId   `json:"cid" validate:"required"`
+	}
+
+	return func(ctx *fiber.Ctx) error {
+		r := new(request)
+
+		if err := useBodyRequest(ctx, r); err != nil {
+			return err
+		}
+
+		pass, _ := usePassport(ctx)
+
+		_, err := dst.svc.Move(
+			ctx.Context(),
+			pass.Nickname,
+			r.Gid,
+			swde.NewMoveConstructCard(r.Cid),
+		)
+
+		if err != nil {
+			return err
+		}
+
+		return ctx.JSON(nil)
+	}
+}
+
+func (dst Game) pickBoardToken() fiber.Handler {
+	type request struct {
+		Gid domain.GameId `json:"gid" validate:"required"`
+		Cid swde.CardId   `json:"cid" validate:"required"`
+	}
+
+	return func(ctx *fiber.Ctx) error {
+		r := new(request)
+
+		if err := useBodyRequest(ctx, r); err != nil {
+			return err
+		}
+
+		pass, _ := usePassport(ctx)
+
+		_, err := dst.svc.Move(
+			ctx.Context(),
+			pass.Nickname,
+			r.Gid,
+			swde.NewMoveConstructCard(r.Cid),
+		)
+
+		if err != nil {
+			return err
+		}
+
+		return ctx.JSON(nil)
+	}
+}
+
+func (dst Game) pickRandomToken() fiber.Handler {
+	type request struct {
+		Gid domain.GameId `json:"gid" validate:"required"`
+		Cid swde.CardId   `json:"cid" validate:"required"`
+	}
+
+	return func(ctx *fiber.Ctx) error {
+		r := new(request)
+
+		if err := useBodyRequest(ctx, r); err != nil {
+			return err
+		}
+
+		pass, _ := usePassport(ctx)
+
+		_, err := dst.svc.Move(
+			ctx.Context(),
+			pass.Nickname,
+			r.Gid,
+			swde.NewMoveConstructCard(r.Cid),
+		)
+
+		if err != nil {
+			return err
+		}
+
+		return ctx.JSON(nil)
+	}
+}
+
+func (dst Game) burnCard() fiber.Handler {
+	type request struct {
+		Gid domain.GameId `json:"gid" validate:"required"`
+		Cid swde.CardId   `json:"cid" validate:"required"`
+	}
+
+	return func(ctx *fiber.Ctx) error {
+		r := new(request)
+
+		if err := useBodyRequest(ctx, r); err != nil {
+			return err
+		}
+
+		pass, _ := usePassport(ctx)
+
+		_, err := dst.svc.Move(
+			ctx.Context(),
+			pass.Nickname,
+			r.Gid,
+			swde.NewMoveConstructCard(r.Cid),
+		)
+
+		if err != nil {
+			return err
+		}
+
+		return ctx.JSON(nil)
+	}
+}
+
+func (dst Game) pickDiscardedCard() fiber.Handler {
+	type request struct {
+		Gid domain.GameId `json:"gid" validate:"required"`
+		Cid swde.CardId   `json:"cid" validate:"required"`
+	}
+
+	return func(ctx *fiber.Ctx) error {
+		r := new(request)
+
+		if err := useBodyRequest(ctx, r); err != nil {
+			return err
+		}
+
+		pass, _ := usePassport(ctx)
+
+		_, err := dst.svc.Move(
+			ctx.Context(),
+			pass.Nickname,
+			r.Gid,
+			swde.NewMoveConstructCard(r.Cid),
+		)
+
+		if err != nil {
+			return err
+		}
+
+		return ctx.JSON(nil)
+	}
+}
+
+func (dst Game) pickTopLineCard() fiber.Handler {
+	type request struct {
+		Gid domain.GameId `json:"gid" validate:"required"`
+		Cid swde.CardId   `json:"cid" validate:"required"`
+	}
+
+	return func(ctx *fiber.Ctx) error {
+		r := new(request)
+
+		if err := useBodyRequest(ctx, r); err != nil {
+			return err
+		}
+
+		pass, _ := usePassport(ctx)
+
+		_, err := dst.svc.Move(
+			ctx.Context(),
+			pass.Nickname,
+			r.Gid,
+			swde.NewMoveConstructCard(r.Cid),
+		)
+
+		if err != nil {
+			return err
+		}
+
+		return ctx.JSON(nil)
+	}
+}
+
+func (dst Game) pickReturnedCards() fiber.Handler {
+	type request struct {
+		Gid domain.GameId `json:"gid" validate:"required"`
+		Cid swde.CardId   `json:"cid" validate:"required"`
+	}
+
+	return func(ctx *fiber.Ctx) error {
+		r := new(request)
+
+		if err := useBodyRequest(ctx, r); err != nil {
+			return err
+		}
+
+		pass, _ := usePassport(ctx)
+
+		_, err := dst.svc.Move(
+			ctx.Context(),
+			pass.Nickname,
+			r.Gid,
+			swde.NewMoveConstructCard(r.Cid),
+		)
+
+		if err != nil {
+			return err
+		}
+
+		return ctx.JSON(nil)
+	}
+}
+
+func (dst Game) resign() fiber.Handler {
+	type request struct {
+		Gid domain.GameId `json:"gid" validate:"required"`
+		Cid swde.CardId   `json:"cid" validate:"required"`
+	}
+
+	return func(ctx *fiber.Ctx) error {
+		r := new(request)
+
+		if err := useBodyRequest(ctx, r); err != nil {
+			return err
+		}
+
+		pass, _ := usePassport(ctx)
+
+		_, err := dst.svc.Move(
+			ctx.Context(),
+			pass.Nickname,
+			r.Gid,
+			swde.NewMoveConstructCard(r.Cid),
+		)
+
+		if err != nil {
+			return err
+		}
+
+		return ctx.JSON(nil)
+	}
+}
+
+func (dst Game) playAgain() fiber.Handler {
+	type request struct {
+		Gid domain.GameId `json:"gid" validate:"required"`
+		Cid swde.CardId   `json:"cid" validate:"required"`
+	}
+
+	return func(ctx *fiber.Ctx) error {
+		r := new(request)
+
+		if err := useBodyRequest(ctx, r); err != nil {
+			return err
+		}
+
+		pass, _ := usePassport(ctx)
+
+		_, err := dst.svc.Move(
+			ctx.Context(),
+			pass.Nickname,
+			r.Gid,
+			swde.NewMoveConstructCard(r.Cid),
+		)
+
+		if err != nil {
+			return err
+		}
+
+		return ctx.JSON(nil)
 	}
 }
 
