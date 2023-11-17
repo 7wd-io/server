@@ -21,6 +21,7 @@ func NewPlayAgainService(
 	userRepo UserRepo,
 	roomRepo RoomRepo,
 	game GameCreator,
+	gameRepo GameRepo,
 ) PlayAgainService {
 	return PlayAgainService{
 		store:      store,
@@ -28,6 +29,7 @@ func NewPlayAgainService(
 		userRepo:   userRepo,
 		roomRepo:   roomRepo,
 		game:       game,
+		gameRepo:   gameRepo,
 	}
 }
 
@@ -37,6 +39,17 @@ type PlayAgainService struct {
 	userRepo   UserRepo
 	roomRepo   RoomRepo
 	game       GameCreator
+	gameRepo   GameRepo
+}
+
+func (dst PlayAgainService) UpdateById(ctx context.Context, id GameId, u Nickname, value bool) error {
+	game, err := dst.gameRepo.Find(ctx, WithGameId(id))
+
+	if err != nil {
+		return err
+	}
+
+	return dst.Update(ctx, *game, u, value)
 }
 
 func (dst PlayAgainService) Update(ctx context.Context, game Game, u Nickname, value bool) error {

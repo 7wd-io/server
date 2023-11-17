@@ -67,6 +67,7 @@ func main() {
 		c.Repo.User,
 		c.Repo.Room,
 		gameSvc,
+		c.Repo.Game,
 	)
 
 	c.Dispatcher.
@@ -124,7 +125,7 @@ func main() {
 	srv.NewAccount(accountSvc).Bind(app)
 	srv.NewRoom(roomSvc).Bind(app)
 	srv.NewOnline(onlineSvc).Bind(app)
-	srv.NewGame(gameSvc).Bind(app)
+	srv.NewGame(gameSvc, playAgainSvc).Bind(app)
 
 	log.Fatal(app.Listen(fmt.Sprintf(":%d", config.C.Port)))
 }
