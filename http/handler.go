@@ -436,11 +436,6 @@ func (dst Game) units() fiber.Handler {
 }
 
 func (dst Game) state() fiber.Handler {
-	type request struct {
-		Id    domain.GameId `param:"id" validate:"required,gid"`
-		Index int           `param:"index"`
-	}
-
 	type response struct {
 		State swde.State `json:"state"`
 	}
