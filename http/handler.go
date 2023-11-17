@@ -27,7 +27,7 @@ func (dst Account) Bind(app *fiber.App) {
 	g.Put("/settings", dst.updateSettings())
 	g.Get("/:nickname", dst.profile())
 	g.Get("/:nickname1/vs/:nickname2", dst.profileVersus())
-	g.Get("/top", dst.top())
+	app.Get("/top", dst.top())
 }
 
 func (dst Account) signup() fiber.Handler {
