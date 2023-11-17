@@ -36,7 +36,7 @@ func New() *fiber.App {
 	app.Use(recover.New())
 
 	app.Use(useJWT())
-	app.Use(useCORS())
+	//app.Use(useCORS())
 
 	return app
 }

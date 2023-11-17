@@ -89,9 +89,10 @@ func WithUserNickname(v Nickname) UserOption {
 }
 
 type Passport struct {
-	Id       UserId   `json:"id"`
-	Nickname Nickname `json:"nickname"`
-	Rating   Rating   `json:"rating"`
+	Id       UserId       `json:"id"`
+	Nickname Nickname     `json:"nickname"`
+	Rating   Rating       `json:"rating"`
+	Settings UserSettings `json:"settings"`
 	jwt.RegisteredClaims
 }
 
@@ -334,6 +335,7 @@ func (dst AccountService) token(ctx context.Context, u *User, fingerprint uuid.U
 		Id:       u.Id,
 		Nickname: u.Nickname,
 		Rating:   u.Rating,
+		Settings: u.Settings,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(dst.clock.Now().Add(accessTokenTtl)),
 			Subject:   string(u.Nickname),
