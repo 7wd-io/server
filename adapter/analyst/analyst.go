@@ -77,9 +77,30 @@ func (dst A) UpdateRatings(ctx context.Context, u *domain.User) error {
 	}).Err()
 }
 
-func (dst A) Ratings(ctx context.Context, nickname ...domain.Nickname) (domain.UsersPreview, error) {
-	//TODO implement me
-	panic("implement me")
+func (dst A) Ratings(ctx context.Context, u ...domain.Nickname) (domain.UsersPreview, error) {
+	if err := dst.checkOrRefresh(ctx); err != nil {
+		return nil, err
+	}
+
+	var members = make([]string, len(u))
+
+	for k, v := range u {
+		members[k] = string(v)
+	}
+
+	scores, err := dst.rds.ZMScore(context.TODO(), dst.key, members...).Result()
+
+	if err != nil {
+		return nil, err
+	}
+
+	var up = make(domain.UsersPreview, len(u))
+
+	for k, v := range u {
+		up[v] = domain.Rating(scores[k])
+	}
+
+	return up, nil
 }
 
 func (dst A) GamesReport(ctx context.Context, u domain.Nickname) (*domain.GamesReport, error) {
@@ -266,6 +287,51 @@ WITH games as (
 	}
 
 	return gr, nil
+}
+
+func (dst A) checkOrRefresh(ctx context.Context) error {
+	found, err := dst.rds.Exists(ctx, dst.key).Result()
+
+	if err != nil {
+		return err
+	}
+
+	if found != 0 {
+		return nil
+	}
+
+	return dst.refreshRatings(ctx)
+}
+
+func (dst A) refreshRatings(ctx context.Context) error {
+	rows, err := dst.pg.Query(ctx, `SELECT "nickname","rating" from "user"`)
+	defer rows.Close()
+
+	if err != nil {
+		return err
+	}
+
+	var nickname domain.Nickname
+	var rating domain.Rating
+
+	var members []redis.Z
+
+	for rows.Next() {
+		if err = rows.Scan(&nickname, &rating); err != nil {
+			return err
+		}
+
+		members = append(members, redis.Z{
+			Score:  float64(rating),
+			Member: string(nickname),
+		})
+	}
+
+	if err = dst.rds.ZAdd(ctx, dst.key, members...).Err(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (dst A) setValue(ctx context.Context, key string, value interface{}, ttl time.Duration) error {
