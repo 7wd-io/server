@@ -23,6 +23,7 @@ services:
     centrifugo:
         container_name: swd_cent_dev
         image: centrifugo/centrifugo:latest
+        restart: always
         volumes:
             - ./centrifugo.dev.json:/centrifugo/config.json
         command: centrifugo -c config.json
