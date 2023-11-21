@@ -119,7 +119,7 @@ func main() {
 		}
 
 		go func() {
-			err = psh.Publish(ctx, "online", online)
+			err = psh.Publish(ctx, domain.ChOnline, online)
 
 			if err != nil {
 				slog.Error(err.Error())

@@ -42,14 +42,11 @@ func (dst A) Top(ctx context.Context) (domain.Top, error) {
 
 	var top domain.Top
 
-	var hasBot bool
-
 	for _, m := range members {
 		nickname := domain.Nickname(m.Member.(string))
 
 		// bot is not in any ratings, skip
 		if nickname == domain.BotNickname {
-			hasBot = true
 			continue
 		}
 
@@ -57,10 +54,6 @@ func (dst A) Top(ctx context.Context) (domain.Top, error) {
 			Name:   nickname,
 			Rating: domain.Rating(m.Score),
 		})
-	}
-
-	if !hasBot {
-		top = top[:len(top)-1]
 	}
 
 	return top, nil

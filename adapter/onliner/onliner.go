@@ -15,7 +15,7 @@ type O struct {
 }
 
 func (dst *O) Online(ctx context.Context) ([]domain.Nickname, error) {
-	result, err := dst.client.Presence(ctx, "stats:online")
+	result, err := dst.client.Presence(ctx, domain.ChOnline)
 
 	if err != nil {
 		return nil, err
