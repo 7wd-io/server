@@ -7,7 +7,7 @@ func New(message string) AppError {
 }
 
 type AppError struct {
-	Message string `json:"errMessage"`
+	Message string `json:"err"`
 }
 
 func (dst AppError) Error() string {

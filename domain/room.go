@@ -14,6 +14,26 @@ const (
 
 type RoomId uuid.UUID
 
+func (dst RoomId) MarshalText() (text []byte, err error) {
+	return []byte(uuid.UUID(dst).String()), nil
+}
+
+func (dst *RoomId) UnmarshalText(text []byte) error {
+	*dst = RoomId(uuid.MustParse(string(text)))
+
+	return nil
+}
+
+func (dst RoomId) MarshalBinary() (data []byte, err error) {
+	return []byte(uuid.UUID(dst).String()), nil
+}
+
+func (dst *RoomId) UnmarshalBinary(data []byte) error {
+	*dst = RoomId(uuid.MustParse(string(data)))
+
+	return nil
+}
+
 type Room struct {
 	Id          RoomId      `json:"id"`
 	Host        Nickname    `json:"host"`

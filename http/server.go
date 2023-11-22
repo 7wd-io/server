@@ -19,7 +19,7 @@ func New() *fiber.App {
 			var fe *fiber.Error
 			if errors.As(err, &fe) {
 				return ctx.Status(fe.Code).JSON(map[string]string{
-					"errMessage": fe.Error(),
+					"err": fe.Error(),
 				})
 			}
 
@@ -28,7 +28,9 @@ func New() *fiber.App {
 				return ctx.Status(http.StatusBadRequest).JSON(er)
 			}
 
-			return ctx.Status(http.StatusInternalServerError).SendString("internal server error")
+			return ctx.Status(http.StatusInternalServerError).JSON(map[string]string{
+				"err": "internal server error",
+			})
 		},
 	})
 
