@@ -116,7 +116,7 @@ func (dst RoomService) Create(ctx context.Context, pass Passport, o RoomOptions)
 	dst.dispatcher.Dispatch(
 		ctx,
 		EventRoomCreated,
-		RoomCreatedPayload{Room: room},
+		RoomCreatedPayload{Room: *room},
 	)
 
 	return room, nil

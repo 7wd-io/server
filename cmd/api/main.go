@@ -110,10 +110,6 @@ func main() {
 			gameSvc.OnRoomStarted,
 		).
 		On(
-			domain.EventOnlineUpdated,
-			push.OnOnlineUpdated,
-		).
-		On(
 			domain.EventPlayAgainUpdated,
 			push.OnPlayAgainUpdated,
 		).

@@ -68,7 +68,7 @@ func main() {
 				go func() {
 					err = psh.Publish(
 						ctx,
-						"del_room",
+						domain.ChRoomDelete,
 						struct {
 							Id domain.RoomId `json:"id"`
 						}{
@@ -97,7 +97,7 @@ func main() {
 					}
 
 					go func() {
-						err = psh.Publish(ctx, "upd_room", room)
+						err = psh.Publish(ctx, domain.ChRoomUpdate, room)
 
 						if err != nil {
 							slog.Error(err.Error())

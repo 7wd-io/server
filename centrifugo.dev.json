@@ -18,23 +18,34 @@
       "presence": true
     },
     {
-      "name": "public",
+      "name": "chat-public",
       "allow_publish_for_client": true,
       "allow_subscribe_for_client": true,
       "allow_history_for_subscriber": true,
       "history_size": 50,
-      "history_ttl": "24h"
+      "history_ttl": "24h",
     },
     {
-      "name": "game",
+      "name": "chat-game",
       "allow_subscribe_for_client": true,
       "allow_publish_for_subscriber": true,
       "allow_history_for_subscriber": true,
       "allow_presence_for_subscriber": true,
       "presence": true,
-
       "history_size": 50,
       "history_ttl": "1200s"
+    },
+    {
+      "name": "room",
+      "allow_subscribe_for_client": true
+    },
+    {
+      "name": "game",
+      "allow_subscribe_for_client": true
+    },
+    {
+      "name": "play-again",
+      "allow_subscribe_for_client": true
     }
   ]
 }

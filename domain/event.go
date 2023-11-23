@@ -18,8 +18,7 @@ const (
 )
 
 const (
-	EventOnlineUpdated = iota + 1000
-	EventPlayAgainUpdated
+	EventPlayAgainUpdated = iota + 1000
 	EventPlayAgainApproved
 )
 
@@ -29,6 +28,7 @@ type GameCreatedPayload struct {
 	Game *Game
 }
 
+// @TODO Id -> Game?
 type GameUpdatedPayload struct {
 	Id       GameId        `json:"id"`
 	State    *swde.State   `json:"state"`
@@ -52,7 +52,7 @@ type BotIsReadyToMovePayload struct {
 }
 
 type RoomCreatedPayload struct {
-	Room *Room
+	Room Room
 }
 
 type RoomDeletedPayload struct {

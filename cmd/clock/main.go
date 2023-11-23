@@ -116,7 +116,7 @@ func main() {
 			go func() {
 				err = psh.Publish(
 					ctx,
-					fmt.Sprintf("upd_game_%d", game.Id),
+					domain.ChGameUpdate(game.Id),
 					domain.GameUpdatedPayload{
 						Id:       game.Id,
 						State:    state,
@@ -138,7 +138,7 @@ func main() {
 			go func() {
 				err = psh.Publish(
 					ctx,
-					"del_room",
+					domain.ChRoomDelete,
 					struct {
 						Id domain.RoomId `json:"id"`
 					}{

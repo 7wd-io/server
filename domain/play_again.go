@@ -118,7 +118,7 @@ func (dst PlayAgainService) Update(ctx context.Context, game Game, u Nickname, v
 		dst.dispatcher.Dispatch(
 			ctx,
 			EventRoomCreated,
-			RoomCreatedPayload{Room: room},
+			RoomCreatedPayload{Room: *room},
 		)
 
 		dst.dispatcher.Dispatch(
