@@ -24,14 +24,8 @@ func (dst *RoomId) UnmarshalText(text []byte) error {
 	return nil
 }
 
-func (dst RoomId) MarshalBinary() (data []byte, err error) {
-	return []byte(uuid.UUID(dst).String()), nil
-}
-
-func (dst *RoomId) UnmarshalBinary(data []byte) error {
-	*dst = RoomId(uuid.MustParse(string(data)))
-
-	return nil
+func (dst RoomId) String() string {
+	return uuid.UUID(dst).String()
 }
 
 type Room struct {
@@ -49,7 +43,7 @@ type RoomOptions struct {
 	Fast         bool     `json:"fast,omitempty"`
 	MinRating    Rating   `json:"minRating,omitempty" validate:"omitempty,max=2000"`
 	Enemy        Nickname `json:"enemy,omitempty"`
-	PromoWonders bool     `json:"promoWonders"`
+	PromoWonders bool     `json:"promoWonders,omitempty"`
 	TimeBank     TimeBank `json:"timeBank,omitempty"`
 }
 

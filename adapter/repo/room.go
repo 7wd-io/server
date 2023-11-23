@@ -21,7 +21,7 @@ type RoomRepo struct {
 
 func (dst RoomRepo) Save(ctx context.Context, r *domain.Room) error {
 	// @TODO transaction
-	if err := dst.Rds.SAdd(ctx, dst.keyList(), r.Id).Err(); err != nil {
+	if err := dst.Rds.SAdd(ctx, dst.keyList(), r.Id.String()).Err(); err != nil {
 		return err
 	}
 
@@ -35,7 +35,7 @@ func (dst RoomRepo) Save(ctx context.Context, r *domain.Room) error {
 }
 
 func (dst RoomRepo) Delete(ctx context.Context, id domain.RoomId) (*domain.Room, error) {
-	if err := dst.Rds.SRem(ctx, dst.keyList(), uuid.UUID(id).String()).Err(); err != nil {
+	if err := dst.Rds.SRem(ctx, dst.keyList(), id.String()).Err(); err != nil {
 		return nil, err
 	}
 
