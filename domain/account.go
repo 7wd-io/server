@@ -159,11 +159,15 @@ func (dst AccountService) Signup(ctx context.Context, email Email, password stri
 				MyTurn:         false,
 			},
 		},
-		Rating:    1500,
+		Rating:    DefaultElo,
 		CreatedAt: dst.clock.Now(),
 	}
 
-	return dst.userRepo.Save(ctx, user)
+	if err = dst.userRepo.Save(ctx, user); err != nil {
+		return err
+	}
+
+	return dst.analyst.UpdateRatings(ctx, user)
 }
 
 func (dst AccountService) Signin(ctx context.Context, login string, pass string, fingerprint uuid.UUID) (*Token, error) {
