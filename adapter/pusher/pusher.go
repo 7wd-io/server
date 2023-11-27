@@ -35,9 +35,9 @@ func (dst P) OnRoomDeleted(ctx context.Context, payload interface{}) error {
 	p, _ := payload.(domain.RoomDeletedPayload)
 
 	return dst.Publish(ctx, domain.ChRoomDelete, struct {
-		Host domain.Nickname `json:"host"`
+		Id domain.RoomId `json:"id"`
 	}{
-		Host: p.Room.Host,
+		Id: p.Room.Id,
 	})
 }
 

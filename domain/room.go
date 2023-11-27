@@ -137,14 +137,14 @@ func (dst RoomService) Delete(ctx context.Context, pass Passport, id RoomId) err
 		return ErrCantRemoveInProgressRoom
 	}
 
-	if _, err := dst.roomRepo.Delete(ctx, id); err != nil {
+	if _, err = dst.roomRepo.Delete(ctx, id); err != nil {
 		return err
 	}
 
 	dst.dispatcher.Dispatch(
 		ctx,
 		EventRoomDeleted,
-		RoomDeletedPayload{Room: room},
+		RoomDeletedPayload{Room: *room},
 	)
 
 	return nil
@@ -271,8 +271,8 @@ func (dst RoomService) Kick(ctx context.Context, pass Passport, id RoomId) error
 		return ErrCantLeaveInProgressRoom
 	}
 
-	if room.Guest != pass.Nickname {
-		return ErrRoomPlayerNotFound
+	if pass.Nickname != room.Host {
+		return ErrOnlyHostKick
 	}
 
 	room.Guest = ""
@@ -315,7 +315,7 @@ func (dst RoomService) OnGameOver(ctx context.Context, payload interface{}) erro
 	dst.dispatcher.Dispatch(
 		ctx,
 		EventRoomDeleted,
-		RoomDeletedPayload{Room: room},
+		RoomDeletedPayload{Room: *room},
 	)
 
 	return nil

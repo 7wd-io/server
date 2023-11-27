@@ -56,7 +56,7 @@ type RoomCreatedPayload struct {
 }
 
 type RoomDeletedPayload struct {
-	Room *Room
+	Room Room
 }
 
 type RoomUpdatedPayload struct {

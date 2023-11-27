@@ -4,6 +4,7 @@ import (
 	"7wd.io/adapter/repo/internal/rds"
 	"7wd.io/domain"
 	"context"
+	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
@@ -83,16 +84,21 @@ func (dst RoomRepo) FindAll(ctx context.Context) ([]*domain.Room, error) {
 		return nil, err
 	}
 
-	rooms := make([]*domain.Room, len(members))
+	rooms := []*domain.Room{}
 
-	for k, v := range members {
+	for _, v := range members {
 		room := new(domain.Room)
 
 		if err = dst.Get(ctx, dst.keyItem(domain.RoomId(uuid.MustParse(v))), room); err != nil {
+			// if no activity, room will be remove by ttl, but not from set, skip
+			if errors.Is(err, redis.Nil) {
+				continue
+			}
+
 			return nil, err
 		}
 
-		rooms[k] = room
+		rooms = append(rooms, room)
 	}
 
 	return rooms, nil
