@@ -81,7 +81,7 @@ func (dst A) Ratings(ctx context.Context, u ...domain.Nickname) (domain.UsersPre
 		members[k] = string(v)
 	}
 
-	scores, err := dst.rds.ZMScore(context.TODO(), dst.key, members...).Result()
+	scores, err := dst.rds.ZMScore(ctx, dst.key, members...).Result()
 
 	if err != nil {
 		return nil, err
@@ -196,13 +196,14 @@ WITH games as (
 }
 
 func (dst A) Rank(ctx context.Context, u domain.Nickname) (int, error) {
+	// 0-based
 	rank, err := dst.rds.ZRevRank(ctx, dst.key, string(u)).Result()
 
 	if err != nil {
 		return 0, err
 	}
 
-	return int(rank), nil
+	return int(rank) + 1, nil
 }
 
 func (dst A) Rating(ctx context.Context, u domain.Nickname) (domain.Rating, error) {
