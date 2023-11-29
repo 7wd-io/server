@@ -387,7 +387,7 @@ func (dst Game) Bind(app *fiber.App) {
 	g.Post("/move/pick-topline-card", dst.pickTopLineCard())
 	g.Post("/move/pick-returned-cards", dst.pickReturnedCards())
 	g.Post("/move/resign", dst.resign())
-	g.Post("/:id/play-again", dst.playAgain())
+	g.Post("/play-again", dst.playAgain())
 }
 
 func (dst Game) get() fiber.Handler {
@@ -858,7 +858,7 @@ func (dst Game) resign() fiber.Handler {
 
 func (dst Game) playAgain() fiber.Handler {
 	type request struct {
-		Id     domain.GameId `json:"id" validate:"required"`
+		Game   domain.GameId `json:"gameId" validate:"required"`
 		Answer bool          `json:"answer"`
 	}
 
@@ -871,13 +871,7 @@ func (dst Game) playAgain() fiber.Handler {
 
 		pass, _ := usePassport(ctx)
 
-		err := dst.pa.UpdateById(ctx.Context(), r.Id, pass.Nickname, r.Answer)
-
-		if err != nil {
-			return err
-		}
-
-		return ctx.JSON(nil)
+		return dst.pa.UpdateById(ctx.Context(), r.Game, pass.Nickname, r.Answer)
 	}
 }
 

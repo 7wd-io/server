@@ -74,9 +74,9 @@ type OnlineUpdatedPayload struct {
 }
 
 type PlayAgainUpdatedPayload struct {
-	Game   GameId
-	User   Nickname
-	Answer bool
+	Game   GameId   `json:"game"`
+	User   Nickname `json:"user"`
+	Answer bool     `json:"answer"`
 }
 
 type PlayAgainApprovedPayload struct {
