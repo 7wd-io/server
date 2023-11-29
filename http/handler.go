@@ -497,8 +497,8 @@ func (dst Game) state() fiber.Handler {
 
 func (dst Game) constructCard() fiber.Handler {
 	type request struct {
-		Gid domain.GameId `json:"gid" validate:"required"`
-		Cid swde.CardId   `json:"cid" validate:"required"`
+		Game domain.GameId `json:"gameId" validate:"required"`
+		Card swde.CardId   `json:"cardId" validate:"required"`
 	}
 
 	return func(ctx *fiber.Ctx) error {
@@ -513,8 +513,8 @@ func (dst Game) constructCard() fiber.Handler {
 		_, err := dst.game.Move(
 			ctx.Context(),
 			pass.Nickname,
-			r.Gid,
-			swde.NewMoveConstructCard(r.Cid),
+			r.Game,
+			swde.NewMoveConstructCard(r.Card),
 		)
 
 		if err != nil {
@@ -527,9 +527,9 @@ func (dst Game) constructCard() fiber.Handler {
 
 func (dst Game) constructWonder() fiber.Handler {
 	type request struct {
-		Gid domain.GameId `json:"gid" validate:"required"`
-		Wid swde.WonderId `json:"wid" validate:"required"`
-		Cid swde.CardId   `json:"cid" validate:"required"`
+		Game   domain.GameId `json:"gameId" validate:"required"`
+		Wonder swde.WonderId `json:"wonderId" validate:"required"`
+		Card   swde.CardId   `json:"cardId" validate:"required"`
 	}
 
 	return func(ctx *fiber.Ctx) error {
@@ -544,8 +544,8 @@ func (dst Game) constructWonder() fiber.Handler {
 		_, err := dst.game.Move(
 			ctx.Context(),
 			pass.Nickname,
-			r.Gid,
-			swde.NewMoveConstructWonder(r.Wid, r.Cid),
+			r.Game,
+			swde.NewMoveConstructWonder(r.Wonder, r.Card),
 		)
 
 		if err != nil {
@@ -558,8 +558,8 @@ func (dst Game) constructWonder() fiber.Handler {
 
 func (dst Game) discardCard() fiber.Handler {
 	type request struct {
-		Gid domain.GameId `json:"gid" validate:"required"`
-		Cid swde.CardId   `json:"cid" validate:"required"`
+		Game domain.GameId `json:"gameId" validate:"required"`
+		Card swde.CardId   `json:"cardId" validate:"required"`
 	}
 
 	return func(ctx *fiber.Ctx) error {
@@ -574,8 +574,8 @@ func (dst Game) discardCard() fiber.Handler {
 		_, err := dst.game.Move(
 			ctx.Context(),
 			pass.Nickname,
-			r.Gid,
-			swde.NewMoveDiscardCard(r.Cid),
+			r.Game,
+			swde.NewMoveDiscardCard(r.Card),
 		)
 
 		if err != nil {
@@ -588,8 +588,8 @@ func (dst Game) discardCard() fiber.Handler {
 
 func (dst Game) selectWhoBeginsTheNextAge() fiber.Handler {
 	type request struct {
-		Gid    domain.GameId `json:"gid" validate:"required"`
-		Player swde.Nickname `json:"player" validate:"required"`
+		Game domain.GameId `json:"gameId" validate:"required"`
+		User swde.Nickname `json:"user" validate:"required"`
 	}
 
 	return func(ctx *fiber.Ctx) error {
@@ -604,8 +604,8 @@ func (dst Game) selectWhoBeginsTheNextAge() fiber.Handler {
 		_, err := dst.game.Move(
 			ctx.Context(),
 			pass.Nickname,
-			r.Gid,
-			swde.NewMoveSelectWhoBeginsTheNextAge(r.Player),
+			r.Game,
+			swde.NewMoveSelectWhoBeginsTheNextAge(r.User),
 		)
 
 		if err != nil {
@@ -618,8 +618,8 @@ func (dst Game) selectWhoBeginsTheNextAge() fiber.Handler {
 
 func (dst Game) pickWonder() fiber.Handler {
 	type request struct {
-		Gid domain.GameId `json:"gid" validate:"required"`
-		Wid swde.WonderId `json:"wid" validate:"required"`
+		Game   domain.GameId `json:"gameId" validate:"required"`
+		Wonder swde.WonderId `json:"wonderId" validate:"required"`
 	}
 
 	return func(ctx *fiber.Ctx) error {
@@ -634,8 +634,8 @@ func (dst Game) pickWonder() fiber.Handler {
 		_, err := dst.game.Move(
 			ctx.Context(),
 			pass.Nickname,
-			r.Gid,
-			swde.NewMovePickWonder(r.Wid),
+			r.Game,
+			swde.NewMovePickWonder(r.Wonder),
 		)
 
 		if err != nil {
@@ -648,8 +648,8 @@ func (dst Game) pickWonder() fiber.Handler {
 
 func (dst Game) pickBoardToken() fiber.Handler {
 	type request struct {
-		Gid domain.GameId `json:"gid" validate:"required"`
-		Tid swde.TokenId  `json:"tid" validate:"required"`
+		Game  domain.GameId `json:"gameId" validate:"required"`
+		Token swde.TokenId  `json:"tokenId" validate:"required"`
 	}
 
 	return func(ctx *fiber.Ctx) error {
@@ -664,8 +664,8 @@ func (dst Game) pickBoardToken() fiber.Handler {
 		_, err := dst.game.Move(
 			ctx.Context(),
 			pass.Nickname,
-			r.Gid,
-			swde.NewMovePickBoardToken(r.Tid),
+			r.Game,
+			swde.NewMovePickBoardToken(r.Token),
 		)
 
 		if err != nil {
@@ -678,8 +678,8 @@ func (dst Game) pickBoardToken() fiber.Handler {
 
 func (dst Game) pickRandomToken() fiber.Handler {
 	type request struct {
-		Gid domain.GameId `json:"gid" validate:"required"`
-		Tid swde.TokenId  `json:"tid" validate:"required"`
+		Game  domain.GameId `json:"gameId" validate:"required"`
+		Token swde.TokenId  `json:"tokenId" validate:"required"`
 	}
 
 	return func(ctx *fiber.Ctx) error {
@@ -694,8 +694,8 @@ func (dst Game) pickRandomToken() fiber.Handler {
 		_, err := dst.game.Move(
 			ctx.Context(),
 			pass.Nickname,
-			r.Gid,
-			swde.NewMovePickRandomToken(r.Tid),
+			r.Game,
+			swde.NewMovePickRandomToken(r.Token),
 		)
 
 		if err != nil {
@@ -708,8 +708,8 @@ func (dst Game) pickRandomToken() fiber.Handler {
 
 func (dst Game) burnCard() fiber.Handler {
 	type request struct {
-		Gid domain.GameId `json:"gid" validate:"required"`
-		Cid swde.CardId   `json:"cid" validate:"required"`
+		Game domain.GameId `json:"gameId" validate:"required"`
+		Card swde.CardId   `json:"cardId" validate:"required"`
 	}
 
 	return func(ctx *fiber.Ctx) error {
@@ -724,8 +724,8 @@ func (dst Game) burnCard() fiber.Handler {
 		_, err := dst.game.Move(
 			ctx.Context(),
 			pass.Nickname,
-			r.Gid,
-			swde.NewMoveBurnCard(r.Cid),
+			r.Game,
+			swde.NewMoveBurnCard(r.Card),
 		)
 
 		if err != nil {
@@ -738,8 +738,8 @@ func (dst Game) burnCard() fiber.Handler {
 
 func (dst Game) pickDiscardedCard() fiber.Handler {
 	type request struct {
-		Gid domain.GameId `json:"gid" validate:"required"`
-		Cid swde.CardId   `json:"cid" validate:"required"`
+		Game domain.GameId `json:"gameId" validate:"required"`
+		Card swde.CardId   `json:"cardId" validate:"required"`
 	}
 
 	return func(ctx *fiber.Ctx) error {
@@ -754,8 +754,8 @@ func (dst Game) pickDiscardedCard() fiber.Handler {
 		_, err := dst.game.Move(
 			ctx.Context(),
 			pass.Nickname,
-			r.Gid,
-			swde.NewMovePickDiscardedCard(r.Cid),
+			r.Game,
+			swde.NewMovePickDiscardedCard(r.Card),
 		)
 
 		if err != nil {
@@ -768,8 +768,8 @@ func (dst Game) pickDiscardedCard() fiber.Handler {
 
 func (dst Game) pickTopLineCard() fiber.Handler {
 	type request struct {
-		Gid domain.GameId `json:"gid" validate:"required"`
-		Cid swde.CardId   `json:"cid" validate:"required"`
+		Game domain.GameId `json:"gameId" validate:"required"`
+		Card swde.CardId   `json:"cardId" validate:"required"`
 	}
 
 	return func(ctx *fiber.Ctx) error {
@@ -784,8 +784,8 @@ func (dst Game) pickTopLineCard() fiber.Handler {
 		_, err := dst.game.Move(
 			ctx.Context(),
 			pass.Nickname,
-			r.Gid,
-			swde.NewMovePickTopLineCard(r.Cid),
+			r.Game,
+			swde.NewMovePickTopLineCard(r.Card),
 		)
 
 		if err != nil {
@@ -798,9 +798,9 @@ func (dst Game) pickTopLineCard() fiber.Handler {
 
 func (dst Game) pickReturnedCards() fiber.Handler {
 	type request struct {
-		Gid  domain.GameId `json:"gid" validate:"required"`
-		Pick swde.CardId   `json:"pick" validate:"required"`
-		Give swde.CardId   `json:"give" validate:"required"`
+		Game domain.GameId `json:"gameId" validate:"required"`
+		Pick swde.CardId   `json:"pickCardId" validate:"required"`
+		Give swde.CardId   `json:"giveCardId" validate:"required"`
 	}
 
 	return func(ctx *fiber.Ctx) error {
@@ -815,7 +815,7 @@ func (dst Game) pickReturnedCards() fiber.Handler {
 		_, err := dst.game.Move(
 			ctx.Context(),
 			pass.Nickname,
-			r.Gid,
+			r.Game,
 			swde.NewMovePickReturnedCards(r.Pick, r.Give),
 		)
 
@@ -829,7 +829,7 @@ func (dst Game) pickReturnedCards() fiber.Handler {
 
 func (dst Game) resign() fiber.Handler {
 	type request struct {
-		Gid domain.GameId `json:"gid" validate:"required"`
+		Game domain.GameId `json:"gameId" validate:"required"`
 	}
 
 	return func(ctx *fiber.Ctx) error {
@@ -844,7 +844,7 @@ func (dst Game) resign() fiber.Handler {
 		_, err := dst.game.Move(
 			ctx.Context(),
 			pass.Nickname,
-			r.Gid,
+			r.Game,
 			swde.NewMoveOver(swde.Nickname(pass.Nickname), swde.Resign),
 		)
 
