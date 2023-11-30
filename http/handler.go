@@ -371,6 +371,7 @@ type Game struct {
 func (dst Game) Bind(app *fiber.App) {
 	g := app.Group("/game")
 
+	g.Post("/", dst.createWithBot())
 	g.Get("/:id", dst.get())
 	g.Get("/units", dst.units())
 	g.Get("/:id/state/:index", dst.state())
@@ -388,6 +389,14 @@ func (dst Game) Bind(app *fiber.App) {
 	g.Post("/move/pick-returned-cards", dst.pickReturnedCards())
 	g.Post("/move/resign", dst.resign())
 	g.Post("/play-again", dst.playAgain())
+}
+
+func (dst Game) createWithBot() fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		pass, _ := usePassport(ctx)
+
+		return dst.game.CreateWithBot(ctx.Context(), pass)
+	}
 }
 
 func (dst Game) get() fiber.Handler {

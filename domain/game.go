@@ -230,6 +230,55 @@ func (dst GameService) Create(
 	return game, nil
 }
 
+func (dst GameService) CreateWithBot(ctx context.Context, pass Passport) error {
+	if err := dst.alreadyJoin(ctx, pass); err != nil {
+		return err
+	}
+
+	user, err := dst.userRepo.Find(ctx, WithUserNickname(pass.Nickname))
+
+	if err != nil {
+		return err
+	}
+
+	bot, err := dst.userRepo.Find(ctx, WithUserNickname(BotNickname))
+
+	if err != nil {
+		return err
+	}
+
+	options := RoomOptions{
+		TimeBank: timeBankBot,
+	}
+
+	game, err := dst.Create(ctx, *user, *bot, options)
+
+	if err != nil {
+		return err
+	}
+
+	room := &Room{
+		Host:        game.HostNickname,
+		HostRating:  game.HostRating,
+		Guest:       game.GuestNickname,
+		GuestRating: game.GuestRating,
+		Options:     options,
+		GameId:      game.Id,
+	}
+
+	if err = dst.roomRepo.Save(ctx, room); err != nil {
+		return err
+	}
+
+	dst.dispatcher.Dispatch(
+		ctx,
+		EventRoomCreated,
+		RoomCreatedPayload{Room: *room},
+	)
+
+	return nil
+}
+
 func (dst GameService) Move(ctx context.Context, u Nickname, id GameId, m swde.Mutator) (*Game, error) {
 	var err error
 
@@ -354,6 +403,22 @@ func (dst GameService) OnRoomStarted(ctx context.Context, payload interface{}) e
 		EventRoomUpdated,
 		RoomUpdatedPayload{Room: p.Room},
 	)
+
+	return nil
+}
+
+func (dst GameService) alreadyJoin(ctx context.Context, pass Passport) error {
+	rooms, err := dst.roomRepo.FindAll(ctx)
+
+	if err != nil {
+		return err
+	}
+
+	for _, v := range rooms {
+		if pass.Nickname == v.Host || pass.Nickname == v.Guest {
+			return ErrOneRoomPerPlayer
+		}
+	}
 
 	return nil
 }
