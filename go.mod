@@ -3,6 +3,7 @@ module 7wd.io
 go 1.21
 
 require (
+	github.com/7wd-io/engine v0.0.1
 	github.com/centrifugal/gocent/v3 v3.2.0
 	github.com/go-playground/validator/v10 v10.15.5
 	github.com/gofiber/contrib/jwt v1.0.7
@@ -17,7 +18,6 @@ require (
 )
 
 require (
-	github.com/7wd-io/engine v0.0.0-20231106214629-63d3b45e48aa // indirect
 	github.com/MicahParks/keyfunc/v2 v2.1.0 // indirect
 	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
