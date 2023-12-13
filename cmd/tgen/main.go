@@ -127,6 +127,89 @@ PrepareMove{
 				`NewMovePickWonder(%s)`,
 				wmap[wid],
 			))
+		case engine.MovePickBoardToken:
+			tid, _ := m["token"].(float64)
+
+			out = append(out, fmt.Sprintf(
+				`NewMovePickBoardToken(%s)`,
+				tmap[tid],
+			))
+		case engine.MoveConstructCard:
+			cid, _ := m["card"].(float64)
+
+			out = append(out, fmt.Sprintf(
+				`NewMoveConstructCard(%s)`,
+				cmap[cid],
+			))
+		case engine.MoveConstructWonder:
+			cid, _ := m["card"].(float64)
+			wid, _ := m["wonder"].(float64)
+
+			out = append(out, fmt.Sprintf(
+				`NewMoveConstructWonder(%s, %s)`,
+				wmap[wid],
+				cmap[cid],
+			))
+		case engine.MoveDiscardCard:
+			cid, _ := m["card"].(float64)
+
+			out = append(out, fmt.Sprintf(
+				`NewMoveDiscardCard(%s)`,
+				cmap[cid],
+			))
+		case engine.MoveSelectWhoBeginsTheNextAge:
+			p, _ := m["player"].(string)
+
+			out = append(out, fmt.Sprintf(
+				`NewMoveSelectWhoBeginsTheNextAge("%s")`,
+				p,
+			))
+		case engine.MoveBurnCard:
+			cid, _ := m["card"].(float64)
+
+			out = append(out, fmt.Sprintf(
+				`NewMoveBurnCard(%s)`,
+				cmap[cid],
+			))
+		case engine.MovePickRandomToken:
+			tid, _ := m["token"].(float64)
+
+			out = append(out, fmt.Sprintf(
+				`NewMovePickRandomToken(%s)`,
+				tmap[tid],
+			))
+		case engine.MovePickTopLineCard:
+			cid, _ := m["card"].(float64)
+
+			out = append(out, fmt.Sprintf(
+				`NewMovePickTopLineCard(%s)`,
+				cmap[cid],
+			))
+		case engine.MovePickDiscardedCard:
+			cid, _ := m["card"].(float64)
+
+			out = append(out, fmt.Sprintf(
+				`NewMovePickDiscardedCard(%s)`,
+				cmap[cid],
+			))
+		case engine.MovePickReturnedCards:
+			pick, _ := m["pick"].(float64)
+			give, _ := m["give"].(float64)
+
+			out = append(out, fmt.Sprintf(
+				`NewMovePickReturnedCards(%s, %s)`,
+				cmap[pick],
+				cmap[give],
+			))
+		case engine.MoveOver:
+			loser, _ := m["loser"].(string)
+			reason, _ := m["reason"].(float64)
+
+			out = append(out, fmt.Sprintf(
+				`NewMoveOver("%s", %s)`,
+				loser,
+				vmap[reason],
+			))
 		}
 	}
 

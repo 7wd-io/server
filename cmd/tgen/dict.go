@@ -108,3 +108,11 @@ var tmap = map[float64]string{
 	9:  "Theology",
 	10: "Urbanism",
 }
+
+var vmap = map[float64]string{
+	1: "Civilian",
+	2: "MilitarySupremacy",
+	3: "ScienceSupremacy",
+	4: "Resign",
+	5: "Timeout",
+}
