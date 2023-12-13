@@ -20,14 +20,6 @@ func main() {
 		panic("parse log1 panic")
 	}
 
-	//var moves []engine.Mutator
-	//
-	//for _, v := range log {
-	//	moves = append(moves, v.Move)
-	//}
-
-	//fmt.Printf("%#v \n", log[0])
-
 	var out []string
 
 	for _, v := range log {
@@ -43,7 +35,7 @@ func main() {
 			for _, widRaw := range wondersRaw {
 				wid := widRaw.(float64)
 
-				wonders = append(wonders, fmt.Sprint(wid))
+				wonders = append(wonders, wmap[wid])
 			}
 
 			tokensRaw, _ := m["tokens"].([]interface{})
@@ -52,7 +44,7 @@ func main() {
 			for _, tidRaw := range tokensRaw {
 				tid := tidRaw.(float64)
 
-				tokens = append(tokens, fmt.Sprint(tid))
+				tokens = append(tokens, tmap[tid])
 			}
 
 			rtokensRaw, _ := m["randomTokens"].([]interface{})
@@ -61,7 +53,7 @@ func main() {
 			for _, rtidRaw := range rtokensRaw {
 				rtid := rtidRaw.(float64)
 
-				rtokens = append(rtokens, fmt.Sprint(rtid))
+				rtokens = append(rtokens, tmap[rtid])
 			}
 
 			cardsRaw, _ := m["cards"].(map[string]interface{})
@@ -77,19 +69,19 @@ func main() {
 			for _, cid1Raw := range rawcards1 {
 				cid := cid1Raw.(float64)
 
-				cards1 = append(cards1, fmt.Sprint(cid))
+				cards1 = append(cards1, cmap[cid])
 			}
 
 			for _, cid2Raw := range rawcards2 {
 				cid := cid2Raw.(float64)
 
-				cards2 = append(cards2, fmt.Sprint(cid))
+				cards2 = append(cards2, cmap[cid])
 			}
 
 			for _, cid3Raw := range rawcards3 {
 				cid := cid3Raw.(float64)
 
-				cards3 = append(cards3, fmt.Sprint(cid))
+				cards3 = append(cards3, cmap[cid])
 			}
 
 			out = append(out, fmt.Sprintf(
@@ -117,8 +109,7 @@ PrepareMove{
 		ageIII: {
 			%s,
 		},
-	}
-`,
+	}`,
 				m["p1"],
 				m["p2"],
 				strings.Join(wonders, ", \n"),
@@ -129,6 +120,13 @@ PrepareMove{
 				strings.Join(cards3, ", \n"),
 			),
 			)
+		case engine.MovePickWonder:
+			wid, _ := m["wonder"].(float64)
+
+			out = append(out, fmt.Sprintf(
+				`NewMovePickWonder(%s)`,
+				wmap[wid],
+			))
 		}
 	}
 
