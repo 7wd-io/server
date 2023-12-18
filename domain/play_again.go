@@ -152,7 +152,7 @@ func (dst PlayAgainService) OnGameOver(ctx context.Context, payload interface{})
 			time.Sleep(BotPlayAgainDelay)
 
 			if err = dst.Update(ctx, p.Game, BotNickname, true); err != nil {
-				slog.Error(fmt.Sprintf("bot agree play again %w", err))
+				slog.Error(fmt.Sprintf("bot agree play again %s", err))
 			}
 		}()
 	}

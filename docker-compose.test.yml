@@ -14,7 +14,5 @@ services:
         container_name: swd_redis_test
         image: redis
         restart: always
-        build:
-            context: deployments/dev/docker/redis
         ports:
             - "${SWD_REDIS_PORT}:6379"

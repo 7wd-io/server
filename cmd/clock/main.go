@@ -83,7 +83,7 @@ func main() {
 			game, err := gameRepo.Find(ctx, domain.WithGameId(room.GameId))
 
 			if err != nil {
-				slog.Error(fmt.Sprintf("game clock: failed during gameRepo.Find: %w", err))
+				slog.Error(fmt.Sprintf("game clock: failed during gameRepo.Find: %s", err))
 				continue
 			}
 
@@ -92,14 +92,14 @@ func main() {
 			state, err := game.Move(gc.Turn, move)
 
 			if err != nil {
-				slog.Error(fmt.Sprintf("game clock: failed during moveOver: %w", err))
+				slog.Error(fmt.Sprintf("game clock: failed during moveOver: %s", err))
 				continue
 			}
 
 			result := game.Over(state, now)
 
 			if err := gameRepo.Update(ctx, game); err != nil {
-				slog.Error(fmt.Sprintf("game clock: failed during update game: %w", err))
+				slog.Error(fmt.Sprintf("game clock: failed during update game: %s", err))
 				continue
 			}
 
@@ -110,7 +110,7 @@ func main() {
 			})
 
 			if err != nil {
-				slog.Error(fmt.Sprintf("game clock: accountSvc.OnGameOver failed: %w", err))
+				slog.Error(fmt.Sprintf("game clock: accountSvc.OnGameOver failed: %s", err))
 			}
 
 			go func() {
@@ -131,7 +131,7 @@ func main() {
 			}()
 
 			if _, err = roomRepo.Delete(ctx, room.Id); err != nil {
-				slog.Error(fmt.Sprintf("game clock: failed during delete room: %w", err))
+				slog.Error(fmt.Sprintf("game clock: failed during delete room: %s", err))
 				continue
 			}
 
@@ -152,12 +152,12 @@ func main() {
 			}()
 
 			if err = gameClockRepo.Delete(ctx, room.GameId); err != nil {
-				slog.Error(fmt.Sprintf("game clock: failed during delete clock: %w", err))
+				slog.Error(fmt.Sprintf("game clock: failed during delete clock: %s", err))
 				continue
 			}
 
 			if err := playAgainStore.Create(ctx, *game, room.Options); err != nil {
-				slog.Error(fmt.Sprintf("game clock: cant create playAgain: %w", err))
+				slog.Error(fmt.Sprintf("game clock: cant create playAgain: %s", err))
 				continue
 			}
 		}

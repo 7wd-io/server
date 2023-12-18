@@ -96,13 +96,13 @@ func main() {
 						continue
 					}
 
-					go func() {
-						err = psh.Publish(ctx, domain.ChRoomUpdate, room)
+					go func(r *domain.Room) {
+						err = psh.Publish(ctx, domain.ChRoomUpdate, r)
 
 						if err != nil {
 							slog.Error(err.Error())
 						}
-					}()
+					}(room)
 				}
 			}
 		}

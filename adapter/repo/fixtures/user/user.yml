@@ -1,0 +1,12 @@
+- id: 10
+  nickname: User10
+  rating: 1500
+  email: user10@gmail.com
+  password: "12345678"
+  settings:
+      game:
+          animationSpeed: 3
+      sounds:
+          myTurn: false
+          opponentJoined: true
+  created_at: 2024-01-01 10:00:00
