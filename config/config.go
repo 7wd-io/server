@@ -16,6 +16,7 @@ type c struct {
 	Port   int    `required:"true" envconfig:"SWD_PORT"`
 	Secret string `required:"true" envconfig:"SWD_SECRET"`
 	Domain string `required:"true" envconfig:"SWD_DOMAIN"`
+	Path   string `required:"true" envconfig:"SWD_PATH"`
 	Bot    struct {
 		Endpoint string `required:"true" envconfig:"SWD_BOT_ENDPOINT"`
 	}
@@ -40,6 +41,10 @@ type c struct {
 		User     string `required:"true" envconfig:"SWD_MAILER_LOGIN"`
 		Password string `required:"true" envconfig:"SWD_MAILER_PASSWORD"`
 	}
+}
+
+func (dst c) IsTest() bool {
+	return dst.Env == "test"
 }
 
 func (dst c) PgDsn() string {
