@@ -12,19 +12,19 @@ import (
 	"strings"
 )
 
-type Suite struct {
+type S struct {
 	C *pgxpool.Pool
 }
 
-func (dst *Suite) SetupSuite() {
+func (dst *S) SetupSuite() {
 	dst.C = pg.MustNew(context.Background())
 }
 
-func (dst *Suite) TearDownSuite() {
+func (dst *S) TearDownSuite() {
 	dst.C.Close()
 }
 
-func (dst *Suite) SetupTest(o TestOptions) {
+func (dst *S) SetupTest(o Options) {
 	if o.Path != "" {
 		dir := path.Join(config.C.Path, o.Path)
 
@@ -34,15 +34,15 @@ func (dst *Suite) SetupTest(o TestOptions) {
 	}
 }
 
-func (dst *Suite) TearDownTest() {
+func (dst *S) TearDownTest() {
 	dst.clear()
 }
 
-type TestOptions struct {
+type Options struct {
 	Path string
 }
 
-func (dst *Suite) clear() {
+func (dst *S) clear() {
 	tables := []string{
 		`"user"`,
 		`"game"`,

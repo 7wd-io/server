@@ -353,19 +353,12 @@ func (dst Room) start() fiber.Handler {
 	}
 }
 
-func NewGame(
-	game domain.GameService,
-	pa domain.PlayAgainService,
-) Game {
-	return Game{
-		game: game,
-		pa:   pa,
-	}
+func NewGame(svc domain.GameService) Game {
+	return Game{svc: svc}
 }
 
 type Game struct {
-	game domain.GameService
-	pa   domain.PlayAgainService
+	svc domain.GameService
 }
 
 func (dst Game) Bind(app *fiber.App) {
@@ -388,14 +381,13 @@ func (dst Game) Bind(app *fiber.App) {
 	g.Post("/move/pick-topline-card", dst.pickTopLineCard())
 	g.Post("/move/pick-returned-cards", dst.pickReturnedCards())
 	g.Post("/move/resign", dst.resign())
-	g.Post("/play-again", dst.playAgain())
 }
 
 func (dst Game) createWithBot() fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		pass, _ := usePassport(ctx)
 
-		return dst.game.CreateWithBot(ctx.Context(), pass)
+		return dst.svc.CreateWithBot(ctx.Context(), pass)
 	}
 }
 
@@ -423,7 +415,7 @@ func (dst Game) get() fiber.Handler {
 			return err
 		}
 
-		game, err := dst.game.Get(ctx.Context(), domain.GameId(id))
+		game, err := dst.svc.Get(ctx.Context(), domain.GameId(id))
 
 		if err != nil {
 			return err
@@ -447,7 +439,7 @@ func (dst Game) get() fiber.Handler {
 		}
 
 		if !game.IsOver() {
-			gc, err := dst.game.Clock(ctx.Context(), game.Id)
+			gc, err := dst.svc.Clock(ctx.Context(), game.Id)
 
 			if err != nil {
 				return err
@@ -492,7 +484,7 @@ func (dst Game) state() fiber.Handler {
 			return err
 		}
 
-		state, err := dst.game.State(ctx.Context(), domain.GameId(id), index)
+		state, err := dst.svc.State(ctx.Context(), domain.GameId(id), index)
 
 		if err != nil {
 			return err
@@ -519,7 +511,7 @@ func (dst Game) constructCard() fiber.Handler {
 
 		pass, _ := usePassport(ctx)
 
-		_, err := dst.game.Move(
+		_, err := dst.svc.Move(
 			ctx.Context(),
 			pass.Nickname,
 			r.Game,
@@ -550,7 +542,7 @@ func (dst Game) constructWonder() fiber.Handler {
 
 		pass, _ := usePassport(ctx)
 
-		_, err := dst.game.Move(
+		_, err := dst.svc.Move(
 			ctx.Context(),
 			pass.Nickname,
 			r.Game,
@@ -580,7 +572,7 @@ func (dst Game) discardCard() fiber.Handler {
 
 		pass, _ := usePassport(ctx)
 
-		_, err := dst.game.Move(
+		_, err := dst.svc.Move(
 			ctx.Context(),
 			pass.Nickname,
 			r.Game,
@@ -610,7 +602,7 @@ func (dst Game) selectWhoBeginsTheNextAge() fiber.Handler {
 
 		pass, _ := usePassport(ctx)
 
-		_, err := dst.game.Move(
+		_, err := dst.svc.Move(
 			ctx.Context(),
 			pass.Nickname,
 			r.Game,
@@ -640,7 +632,7 @@ func (dst Game) pickWonder() fiber.Handler {
 
 		pass, _ := usePassport(ctx)
 
-		_, err := dst.game.Move(
+		_, err := dst.svc.Move(
 			ctx.Context(),
 			pass.Nickname,
 			r.Game,
@@ -670,7 +662,7 @@ func (dst Game) pickBoardToken() fiber.Handler {
 
 		pass, _ := usePassport(ctx)
 
-		_, err := dst.game.Move(
+		_, err := dst.svc.Move(
 			ctx.Context(),
 			pass.Nickname,
 			r.Game,
@@ -700,7 +692,7 @@ func (dst Game) pickRandomToken() fiber.Handler {
 
 		pass, _ := usePassport(ctx)
 
-		_, err := dst.game.Move(
+		_, err := dst.svc.Move(
 			ctx.Context(),
 			pass.Nickname,
 			r.Game,
@@ -730,7 +722,7 @@ func (dst Game) burnCard() fiber.Handler {
 
 		pass, _ := usePassport(ctx)
 
-		_, err := dst.game.Move(
+		_, err := dst.svc.Move(
 			ctx.Context(),
 			pass.Nickname,
 			r.Game,
@@ -760,7 +752,7 @@ func (dst Game) pickDiscardedCard() fiber.Handler {
 
 		pass, _ := usePassport(ctx)
 
-		_, err := dst.game.Move(
+		_, err := dst.svc.Move(
 			ctx.Context(),
 			pass.Nickname,
 			r.Game,
@@ -790,7 +782,7 @@ func (dst Game) pickTopLineCard() fiber.Handler {
 
 		pass, _ := usePassport(ctx)
 
-		_, err := dst.game.Move(
+		_, err := dst.svc.Move(
 			ctx.Context(),
 			pass.Nickname,
 			r.Game,
@@ -821,7 +813,7 @@ func (dst Game) pickReturnedCards() fiber.Handler {
 
 		pass, _ := usePassport(ctx)
 
-		_, err := dst.game.Move(
+		_, err := dst.svc.Move(
 			ctx.Context(),
 			pass.Nickname,
 			r.Game,
@@ -850,7 +842,7 @@ func (dst Game) resign() fiber.Handler {
 
 		pass, _ := usePassport(ctx)
 
-		_, err := dst.game.Move(
+		_, err := dst.svc.Move(
 			ctx.Context(),
 			pass.Nickname,
 			r.Game,
@@ -862,25 +854,6 @@ func (dst Game) resign() fiber.Handler {
 		}
 
 		return ctx.JSON(nil)
-	}
-}
-
-func (dst Game) playAgain() fiber.Handler {
-	type request struct {
-		Game   domain.GameId `json:"gameId" validate:"required"`
-		Answer bool          `json:"answer"`
-	}
-
-	return func(ctx *fiber.Ctx) error {
-		r := new(request)
-
-		if err := useBodyRequest(ctx, r); err != nil {
-			return err
-		}
-
-		pass, _ := usePassport(ctx)
-
-		return dst.pa.UpdateById(ctx.Context(), r.Game, pass.Nickname, r.Answer)
 	}
 }
 
@@ -911,5 +884,36 @@ func (dst Online) get() fiber.Handler {
 		}
 
 		return ctx.JSON(response{Data: users})
+	}
+}
+
+func NewPlayAgain(svc domain.PlayAgainService) PlayAgain {
+	return PlayAgain{svc: svc}
+}
+
+type PlayAgain struct {
+	svc domain.PlayAgainService
+}
+
+func (dst PlayAgain) Bind(app *fiber.App) {
+	app.Post("/play-again", dst.answer())
+}
+
+func (dst PlayAgain) answer() fiber.Handler {
+	type request struct {
+		Game   domain.GameId `json:"gameId" validate:"required"`
+		Answer bool          `json:"answer"`
+	}
+
+	return func(ctx *fiber.Ctx) error {
+		r := new(request)
+
+		if err := useBodyRequest(ctx, r); err != nil {
+			return err
+		}
+
+		pass, _ := usePassport(ctx)
+
+		return dst.svc.UpdateById(ctx.Context(), r.Game, pass.Nickname, r.Answer)
 	}
 }

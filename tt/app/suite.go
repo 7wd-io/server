@@ -1,15 +1,15 @@
 package app
 
 import (
-	"7wd.io/tt/pg"
 	"7wd.io/tt/suite/http"
+	"7wd.io/tt/suite/pg"
 	"github.com/stretchr/testify/suite"
 	"path"
 )
 
 type Suite struct {
 	suite.Suite
-	pg          pg.Suite
+	pg          pg.S
 	API         http.Suite
 	fixturesDir string
 }
@@ -33,7 +33,7 @@ func (dst *Suite) TearDownSuite() {
 func (dst *Suite) SetupTest(o TestOptions) {
 	dst.API.SetupTest()
 
-	pgOptions := pg.TestOptions{}
+	pgOptions := pg.Options{}
 
 	if o.Fixtures != "" {
 		pgOptions.Path = path.Join(dst.fixturesDir, o.Fixtures)

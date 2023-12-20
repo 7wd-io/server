@@ -121,7 +121,8 @@ func main() {
 	srv.NewAccount(accountSvc).Bind(app)
 	srv.NewRoom(roomSvc).Bind(app)
 	srv.NewOnline(onlineSvc).Bind(app)
-	srv.NewGame(gameSvc, playAgainSvc).Bind(app)
+	srv.NewGame(gameSvc).Bind(app)
+	srv.NewPlayAgain(playAgainSvc).Bind(app)
 
 	log.Fatal(app.Listen(fmt.Sprintf(":%d", config.C.Port)))
 }

@@ -3,7 +3,7 @@ package repo
 import (
 	"7wd.io/domain"
 	"7wd.io/tt/data"
-	"7wd.io/tt/pg"
+	"7wd.io/tt/suite/pg"
 	"context"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -17,7 +17,7 @@ func Test_User(t *testing.T) {
 
 type userSuite struct {
 	suite.Suite
-	pg pg.Suite
+	pg pg.S
 	r  UserRepo
 }
 
@@ -32,7 +32,7 @@ func (dst *userSuite) TearDownSuite() {
 }
 
 func (dst *userSuite) SetupTest() {
-	dst.pg.SetupTest(pg.TestOptions{
+	dst.pg.SetupTest(pg.Options{
 		Path: path.Join("adapter", "repo", "fixtures", "user"),
 	})
 }

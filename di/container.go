@@ -17,6 +17,9 @@ import (
 	"7wd.io/infra/pg"
 	"7wd.io/infra/rds"
 	"context"
+	"github.com/centrifugal/gocent/v3"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/redis/go-redis/v9"
 )
 
 func MustNew() *C {
@@ -25,6 +28,11 @@ func MustNew() *C {
 	rdsc := rds.MustNew()
 
 	return &C{
+		Client: Client{
+			Pg:   pgc,
+			Rds:  rdsc,
+			Cent: centfugo,
+		},
 		Repo: Repo{
 			User:      repo.NewUser(pgc),
 			Session:   repo.NewSession(rdsc),
@@ -47,7 +55,8 @@ func MustNew() *C {
 }
 
 type C struct {
-	Repo Repo
+	Client Client
+	Repo   Repo
 
 	Clock        clock.Clock
 	Tx           *tx.Tx
@@ -67,4 +76,10 @@ type Repo struct {
 	Room      repo.RoomRepo
 	Game      repo.GameRepo
 	GameClock repo.GameClockRepo
+}
+
+type Client struct {
+	Pg   *pgxpool.Pool
+	Rds  *redis.Client
+	Cent *gocent.Client
 }
