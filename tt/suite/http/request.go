@@ -1,16 +1,13 @@
-package api
+package http
 
 import (
-	"7wd.io/domain"
 	"7wd.io/rr"
 	"bytes"
 	"encoding/json"
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/suite"
 	"net/http"
 	"net/http/httptest"
-	"time"
 )
 
 type Req struct {
@@ -37,26 +34,32 @@ func (dst *Req) WithParams(p map[string]interface{}) *Req {
 	return dst
 }
 
-func (dst *Req) WithAutoPassport() *Req {
-	p := &domain.Passport{
-		Id:       1,
-		Nickname: "autoUser",
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),
-			Subject:   "autoUser",
-		},
-	}
-
-	return dst.WithPassport(p)
-}
-
-func (dst *Req) WithPassport(p *domain.Passport) *Req {
-	token, _ := tokenf.Token(p)
-
-	dst.headers.Set("Authorization", "Bearer "+token)
+func (dst *Req) WithToken(t string) *Req {
+	dst.headers.Set("Authorization", "Bearer "+t)
 
 	return dst
 }
+
+//func (dst *Req) WithAutoPassport() *Req {
+//	p := &domain.Passport{
+//		Id:       1,
+//		Nickname: "autoUser",
+//		RegisteredClaims: jwt.RegisteredClaims{
+//			ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),
+//			Subject:   "autoUser",
+//		},
+//	}
+//
+//	return dst.WithPassport(p)
+//}
+//
+//func (dst *Req) WithPassport(p *domain.Passport) *Req {
+//	token, _ := tokenf.Token(p)
+//
+//	dst.headers.Set("Authorization", "Bearer "+token)
+//
+//	return dst
+//}
 
 func (dst *Req) WithAssertErr(expected error) *Req {
 	dst.asserts = append(dst.asserts, func(res *http.Response) {
