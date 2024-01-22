@@ -54,10 +54,10 @@ func (dst RoomOptions) Clock() TimeBank {
 	}
 
 	if dst.Fast {
-		return timeBankFast
+		return TimeBankFast
 	}
 
-	return timeBankDefault
+	return TimeBankDefault
 }
 
 func NewRoomService(

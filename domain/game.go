@@ -13,10 +13,10 @@ import (
 )
 
 const (
-	timeBankDefault = TimeBank(10 * time.Minute)
-	timeBankFast    = TimeBank(3 * time.Minute)
-	timeBankBot     = TimeBank(30 * time.Minute)
-	timeBankIncr    = TimeBank(5 * time.Second)
+	TimeBankDefault = TimeBank(10 * time.Minute)
+	TimeBankFast    = TimeBank(3 * time.Minute)
+	TimeBankBot     = TimeBank(30 * time.Minute)
+	TimeBankIncr    = TimeBank(5 * time.Second)
 )
 
 type GameId int
@@ -248,7 +248,7 @@ func (dst GameService) CreateWithBot(ctx context.Context, pass Passport) error {
 	}
 
 	options := RoomOptions{
-		TimeBank: timeBankBot,
+		TimeBank: TimeBankBot,
 	}
 
 	game, err := dst.Create(ctx, *user, *bot, options)
@@ -310,7 +310,7 @@ func (dst GameService) Move(ctx context.Context, u Nickname, id GameId, m swde.M
 	var s *swde.State
 
 	if gameClock.Values[u] > 0 {
-		gameClock.Values[u] += timeBankIncr
+		gameClock.Values[u] += TimeBankIncr
 		s, err = g.Move(u, m)
 		gameClock.LastMoveAt = now
 	} else {

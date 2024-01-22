@@ -3,7 +3,7 @@ module 7wd.io
 go 1.21
 
 require (
-	github.com/7wd-io/engine v0.0.1
+	github.com/7wd-io/engine v0.0.3
 	github.com/centrifugal/gocent/v3 v3.2.0
 	github.com/go-playground/validator/v10 v10.15.5
 	github.com/go-testfixtures/testfixtures/v3 v3.9.0
