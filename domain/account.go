@@ -11,9 +11,9 @@ import (
 )
 
 const (
-	accessTokenTtl  = 24 * 30 * time.Hour
-	refreshTokenTtl = 30 * 24 * time.Hour
-	passwordCost    = 10
+	AccessTokenTtl  = 24 * 30 * time.Hour
+	RefreshTokenTtl = 30 * 24 * time.Hour
+	PasswordCost    = 10
 )
 
 type Email string
@@ -140,7 +140,7 @@ type AccountService struct {
 func (dst AccountService) Signup(ctx context.Context, email Email, password string, nickname Nickname) error {
 	var err error
 
-	password, err = dst.pass.Hash(password, passwordCost)
+	password, err = dst.pass.Hash(password, PasswordCost)
 
 	if err != nil {
 		return err
@@ -341,7 +341,7 @@ func (dst AccountService) token(ctx context.Context, u *User, fingerprint uuid.U
 		Rating:   u.Rating,
 		Settings: u.Settings,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(dst.clock.Now().Add(accessTokenTtl)),
+			ExpiresAt: jwt.NewNumericDate(dst.clock.Now().Add(AccessTokenTtl)),
 			Subject:   string(u.Nickname),
 		},
 	})
@@ -356,7 +356,7 @@ func (dst AccountService) token(ctx context.Context, u *User, fingerprint uuid.U
 		Fingerprint:  fingerprint,
 	}
 
-	if err = dst.sessionRepo.Save(ctx, session, refreshTokenTtl); err != nil {
+	if err = dst.sessionRepo.Save(ctx, session, RefreshTokenTtl); err != nil {
 		return nil, err
 	}
 

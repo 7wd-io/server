@@ -4,10 +4,11 @@ import (
 	"7wd.io/di"
 	"7wd.io/domain"
 	"7wd.io/tt/data"
+	"7wd.io/tt/suite/api"
 	pgsuite "7wd.io/tt/suite/pg"
 	"context"
 	swde "github.com/7wd-io/engine"
-	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/suite"
 	"path"
 	"testing"
@@ -19,17 +20,16 @@ func Test_game(t *testing.T) {
 
 type gameSuite struct {
 	suite.Suite
-	pgs *pgsuite.S
-	c   *di.C
-	srv *fiber.App
-	svc domain.GameService
+	pgs  *pgsuite.S
+	apis *api.S
+	c    *di.C
+	//srv *fiber.App
+	//svc domain.GameService
 }
 
 func (dst *gameSuite) SetupSuite() {
-	dst.pgs.SetupSuite()
-
 	c := di.MustNew()
-	srv := New()
+	//srv := New()
 
 	gameSvc := domain.NewGameService(
 		c.Clock,
@@ -40,11 +40,15 @@ func (dst *gameSuite) SetupSuite() {
 		c.Dispatcher,
 	)
 
-	NewGame(gameSvc).Bind(srv)
+	dst.pgs.SetupSuite()
+	dst.apis.SetupSuite(api.SuiteOptions{
+		Svc:   NewGame(gameSvc),
+		Suite: &dst.Suite,
+	})
 
 	dst.c = c
-	dst.srv = srv
-	dst.svc = gameSvc
+	//dst.srv = srv
+	//dst.svc = gameSvc
 
 	// создать сервер
 	// привязать роуты
@@ -55,17 +59,21 @@ func (dst *gameSuite) SetupSuite() {
 
 func (dst *gameSuite) TearDownSuite() {
 	dst.pgs.TearDownSuite()
+	dst.apis.TearDownSuite()
 }
 
 func (dst *gameSuite) SetupTest() {
 	dst.pgs.SetupTest(pgsuite.Options{
-		Path: path.Join("http", "fixtures"),
+		Path: path.Join("http", "fixtures", "game"),
 	})
+
+	dst.apis.SetupTest()
 }
 
 func (dst *gameSuite) TearDownTest() {
 	dst.pgs.TearDownTest()
 	dst.c.Client.Rds.FlushDB(context.Background())
+	dst.apis.TearDownTest()
 }
 
 func (dst *gameSuite) Test_Game1() {
@@ -246,5 +254,45 @@ func (dst *gameSuite) Test_Game1() {
 	//	}
 	//}
 
-	//dst.srv.Test(dst.srv)
+	user10Token, _ := dst.c.TokenFactory.Token(&domain.Passport{
+		Id:       user10.Id,
+		Nickname: user10.Nickname,
+		Rating:   user10.Rating,
+		Settings: user10.Settings,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(now.Add(domain.AccessTokenTtl)),
+			Subject:   string(user10.Nickname),
+		},
+	})
+
+	user11Token, _ := dst.c.TokenFactory.Token(&domain.Passport{
+		Id:       user11.Id,
+		Nickname: user11.Nickname,
+		Rating:   user11.Rating,
+		Settings: user11.Settings,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(now.Add(domain.AccessTokenTtl)),
+			Subject:   string(user11.Nickname),
+		},
+	})
+
+	dst.apis.
+		POST("/game/pick-wonder").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId":   game.Id,
+			"wonderId": swde.TheTempleOfArtemis,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/pick-wonder").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId":   game.Id,
+			"wonderId": swde.TheHangingGardens,
+		}).
+		WithAssertStatusOk().
+		Send()
 }

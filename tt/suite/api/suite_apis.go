@@ -1,4 +1,4 @@
-package http
+package api
 
 import (
 	srv "7wd.io/http"
@@ -8,32 +8,32 @@ import (
 	"net/http/httptest"
 )
 
-type Suite struct {
+type S struct {
 	App *fiber.App
 	Srv *httptest.Server
 	ss  *suite.Suite
 }
 
-func (dst *Suite) SetupSuite(o SuiteOptions) {
+func (dst *S) SetupSuite(o SuiteOptions) {
 	dst.App = srv.New()
 	dst.ss = o.Suite
 
 	o.Svc.Bind(dst.App)
 }
 
-func (dst *Suite) TearDownSuite() {
+func (dst *S) TearDownSuite() {
 	//defer dst.Srv.Close()
 }
 
-func (dst *Suite) SetupTest() {
+func (dst *S) SetupTest() {
 	// mute
 }
 
-func (dst *Suite) TearDownTest() {
+func (dst *S) TearDownTest() {
 	// mute
 }
 
-func (dst *Suite) GET(path string) *Req {
+func (dst *S) GET(path string) *Req {
 	return &Req{
 		method:  "GET",
 		path:    path,
@@ -44,7 +44,7 @@ func (dst *Suite) GET(path string) *Req {
 	}
 }
 
-func (dst *Suite) POST(path string) *Req {
+func (dst *S) POST(path string) *Req {
 	return &Req{
 		method:  "POST",
 		path:    path,
