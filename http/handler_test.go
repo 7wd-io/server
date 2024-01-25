@@ -3,7 +3,6 @@ package http
 import (
 	"7wd.io/di"
 	"7wd.io/domain"
-	"7wd.io/tt/data"
 	pgsuite "7wd.io/tt/suite/pg"
 	"context"
 	swde "github.com/7wd-io/engine"
@@ -11,6 +10,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"path"
 	"testing"
+	"time"
 )
 
 func Test_game(t *testing.T) {
@@ -102,7 +102,8 @@ func (dst *gameSuite) Test_Game1() {
 		dst.FailNow("game 1: user2 not found")
 	}
 
-	now := data.Now()
+	//now := data.Now()
+	now := time.Now()
 
 	o := domain.RoomOptions{
 		TimeBank: domain.TimeBankDefault,
@@ -235,23 +236,18 @@ func (dst *gameSuite) Test_Game1() {
 		dst.FailNow(err.Error())
 	}
 
-	// Send always last called. All asserts before
-	//func (dst *Req) Send() {
-	//	//res, err := dst.app.Test(dst.toHttpReq(), -1)
-	//	res, err := dst.app.Test(dst.toHttpReq())
-	//
-	//	dst.ss.NoError(err)
-	//
-	//	if res == nil {
-	//		dst.ss.FailNow("response nil")
-	//	} else {
-	//		defer res.Body.Close()
-	//	}
-	//
-	//	for _, assert := range dst.asserts {
-	//		assert(res)
-	//	}
-	//}
+	room := &domain.Room{
+		Host:        game.HostNickname,
+		HostRating:  game.HostRating,
+		Guest:       game.GuestNickname,
+		GuestRating: game.GuestRating,
+		Options:     o,
+		GameId:      game.Id,
+	}
+
+	if err = dst.c.Repo.Room.Save(ctx, room); err != nil {
+		dst.FailNow(err.Error())
+	}
 
 	user10Token, _ := dst.c.TokenFactory.Token(&domain.Passport{
 		Id:       user1.Id,
@@ -291,6 +287,76 @@ func (dst *gameSuite) Test_Game1() {
 		WithParams(map[string]interface{}{
 			"gameId":   game.Id,
 			"wonderId": swde.TheHangingGardens,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/pick-wonder").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId":   game.Id,
+			"wonderId": swde.TheColossus,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/pick-wonder").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId":   game.Id,
+			"wonderId": swde.Messe,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/pick-wonder").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId":   game.Id,
+			"wonderId": swde.TheSphinx,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/pick-wonder").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId":   game.Id,
+			"wonderId": swde.StatueOfLiberty,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/pick-wonder").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId":   game.Id,
+			"wonderId": swde.TheMausoleum,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/pick-wonder").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId":   game.Id,
+			"wonderId": swde.ThePyramids,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.WoodReserve,
 		}).
 		WithAssertStatusOk().
 		Send()
