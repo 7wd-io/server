@@ -1,7 +1,7 @@
 package app
 
 import (
-	"7wd.io/tt/suite/api"
+	"7wd.io/http"
 	"7wd.io/tt/suite/pg"
 	"github.com/stretchr/testify/suite"
 	"path"
@@ -10,14 +10,14 @@ import (
 type Suite struct {
 	suite.Suite
 	pg          pg.S
-	API         api.S
+	API         http.S
 	fixturesDir string
 }
 
 func (dst *Suite) SetupSuite(o SuiteOptions) {
 	dst.fixturesDir = o.FixturesDir
 
-	dst.API.SetupSuite(api.SuiteOptions{
+	dst.API.SetupSuite(http.SuiteOptions{
 		Svc:   o.Svc,
 		Suite: &dst.Suite,
 	})

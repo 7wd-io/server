@@ -4,7 +4,6 @@ import (
 	"7wd.io/di"
 	"7wd.io/domain"
 	"7wd.io/tt/data"
-	"7wd.io/tt/suite/api"
 	pgsuite "7wd.io/tt/suite/pg"
 	"context"
 	swde "github.com/7wd-io/engine"
@@ -20,8 +19,8 @@ func Test_game(t *testing.T) {
 
 type gameSuite struct {
 	suite.Suite
-	pgs  *pgsuite.S
-	apis *api.S
+	pgs  pgsuite.S
+	apis S
 	c    *di.C
 	//srv *fiber.App
 	//svc domain.GameService
@@ -41,7 +40,7 @@ func (dst *gameSuite) SetupSuite() {
 	)
 
 	dst.pgs.SetupSuite()
-	dst.apis.SetupSuite(api.SuiteOptions{
+	dst.apis.SetupSuite(SuiteOptions{
 		Svc:   NewGame(gameSvc),
 		Suite: &dst.Suite,
 	})
@@ -83,24 +82,24 @@ func (dst *gameSuite) Test_Game1() {
 	// 	- создать игру
 	//  - сделать ходы до конца
 
-	user10, err := dst.c.Repo.User.Find(ctx, domain.WithUserNickname("user10"))
+	user1, err := dst.c.Repo.User.Find(ctx, domain.WithUserNickname("user1"))
 
 	if err != nil {
 		dst.FailNow(err.Error())
 	}
 
-	if user10 == nil {
-		dst.FailNow("game 1: user10 not found")
+	if user1 == nil {
+		dst.FailNow("game 1: user1 not found")
 	}
 
-	user11, err := dst.c.Repo.User.Find(ctx, domain.WithUserNickname("user11"))
+	user2, err := dst.c.Repo.User.Find(ctx, domain.WithUserNickname("user2"))
 
 	if err != nil {
 		dst.FailNow(err.Error())
 	}
 
-	if user11 == nil {
-		dst.FailNow("game 1: user11 not found")
+	if user2 == nil {
+		dst.FailNow("game 1: user2 not found")
 	}
 
 	now := data.Now()
@@ -110,12 +109,12 @@ func (dst *gameSuite) Test_Game1() {
 	}
 
 	game := &domain.Game{
-		HostNickname:  user10.Nickname,
-		HostRating:    user10.Rating,
-		HostPoints:    domain.Elo(user10.Rating, user11.Rating),
-		GuestNickname: user11.Nickname,
-		GuestRating:   user11.Rating,
-		GuestPoints:   domain.Elo(user11.Rating, user10.Rating),
+		HostNickname:  user1.Nickname,
+		HostRating:    user1.Rating,
+		HostPoints:    domain.Elo(user1.Rating, user2.Rating),
+		GuestNickname: user2.Nickname,
+		GuestRating:   user2.Rating,
+		GuestPoints:   domain.Elo(user2.Rating, user1.Rating),
 		Log: domain.GameLog{
 			{
 				Move: swde.PrepareMove{
@@ -227,8 +226,8 @@ func (dst *gameSuite) Test_Game1() {
 		LastMoveAt: now,
 		Turn:       domain.Nickname(game.State().Me.Name),
 		Values: map[domain.Nickname]domain.TimeBank{
-			user10.Nickname: o.Clock(),
-			user11.Nickname: o.Clock(),
+			user1.Nickname: o.Clock(),
+			user2.Nickname: o.Clock(),
 		},
 	}
 
@@ -255,29 +254,29 @@ func (dst *gameSuite) Test_Game1() {
 	//}
 
 	user10Token, _ := dst.c.TokenFactory.Token(&domain.Passport{
-		Id:       user10.Id,
-		Nickname: user10.Nickname,
-		Rating:   user10.Rating,
-		Settings: user10.Settings,
+		Id:       user1.Id,
+		Nickname: user1.Nickname,
+		Rating:   user1.Rating,
+		Settings: user1.Settings,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(now.Add(domain.AccessTokenTtl)),
-			Subject:   string(user10.Nickname),
+			Subject:   string(user1.Nickname),
 		},
 	})
 
 	user11Token, _ := dst.c.TokenFactory.Token(&domain.Passport{
-		Id:       user11.Id,
-		Nickname: user11.Nickname,
-		Rating:   user11.Rating,
-		Settings: user11.Settings,
+		Id:       user2.Id,
+		Nickname: user2.Nickname,
+		Rating:   user2.Rating,
+		Settings: user2.Settings,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(now.Add(domain.AccessTokenTtl)),
-			Subject:   string(user11.Nickname),
+			Subject:   string(user2.Nickname),
 		},
 	})
 
 	dst.apis.
-		POST("/game/pick-wonder").
+		POST("/game/move/pick-wonder").
 		WithToken(user10Token).
 		WithParams(map[string]interface{}{
 			"gameId":   game.Id,
@@ -287,7 +286,7 @@ func (dst *gameSuite) Test_Game1() {
 		Send()
 
 	dst.apis.
-		POST("/game/pick-wonder").
+		POST("/game/move/pick-wonder").
 		WithToken(user11Token).
 		WithParams(map[string]interface{}{
 			"gameId":   game.Id,

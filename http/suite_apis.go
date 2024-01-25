@@ -1,7 +1,6 @@
-package api
+package http
 
 import (
-	srv "7wd.io/http"
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/suite"
 	"net/http"
@@ -15,7 +14,7 @@ type S struct {
 }
 
 func (dst *S) SetupSuite(o SuiteOptions) {
-	dst.App = srv.New()
+	dst.App = New()
 	dst.ss = o.Suite
 
 	o.Svc.Bind(dst.App)
