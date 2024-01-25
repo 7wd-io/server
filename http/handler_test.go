@@ -360,4 +360,680 @@ func (dst *gameSuite) Test_Game1() {
 		}).
 		WithAssertStatusOk().
 		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.StoneReserve,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.Scriptorium,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.StonePit,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.Quarry,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/discard-card").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.Garrison,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.Pharmacist,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.ClayPool,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.LumberYard,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.Baths,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/discard-card").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.ClayPit,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.LoggingCamp,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.GlassWorks,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.Altar,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.Workshop,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/discard-card").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.ClayReserve,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.Tavern,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.Stable,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.Theater,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.Palisade,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/select-move").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"user":   "user1",
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.DryingRoom,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.SawMill,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.ShelfQuarry,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/discard-card").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.ParadeGround,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.BrickYard,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.Barracks,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.Library,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/pick-board-token").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId":  game.Id,
+			"tokenId": swde.Theology,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.Walls,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.Brewery,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/discard-card").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.HorseBreeders,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-wonder").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId":   game.Id,
+			"wonderId": swde.Messe,
+			"cardId":   swde.Statue,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/pick-topline-card").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.Dispensary,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/pick-board-token").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId":  game.Id,
+			"tokenId": swde.Economy,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.Laboratory,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/pick-board-token").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId":  game.Id,
+			"tokenId": swde.Agriculture,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.ArcheryRange,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.Aqueduct,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.GlassBlower,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.School,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/discard-card").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.CourtHouse,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.Caravansery,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.CustomHouse,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/select-move").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"user":   "user1",
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-wonder").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId":   game.Id,
+			"wonderId": swde.TheMausoleum,
+			"cardId":   swde.MoneyLendersGuild,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/pick-discarded-card").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.ParadeGround,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.Lighthouse,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.ChamberOfCommerce,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.TownHall,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-wonder").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId":   game.Id,
+			"wonderId": swde.ThePyramids,
+			"cardId":   swde.Gardens,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.Arsenal,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/discard-card").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.Pantheon,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/discard-card").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.Pretorium,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.MerchantsGuild,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-wonder").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId":   game.Id,
+			"wonderId": swde.StatueOfLiberty,
+			"cardId":   swde.Senate,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/pick-returned-cards").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId":     game.Id,
+			"pickCardId": swde.Study,
+			"giveCardId": swde.Circus,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-wonder").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId":   game.Id,
+			"wonderId": swde.TheTempleOfArtemis,
+			"cardId":   swde.Palace,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.Obelisk,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.Arena,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.SiegeWorkshop,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.MagistratesGuild,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.Armory,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.Observatory,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.Fortifications,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user11Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.Port,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/construct-card").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId": game.Id,
+			"cardId": swde.Academy,
+		}).
+		WithAssertStatusOk().
+		Send()
+
+	dst.apis.
+		POST("/game/move/pick-board-token").
+		WithToken(user10Token).
+		WithParams(map[string]interface{}{
+			"gameId":  game.Id,
+			"tokenId": swde.Philosophy,
+		}).
+		WithAssertStatusOk().
+		Send()
 }
