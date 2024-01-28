@@ -5,8 +5,10 @@ import (
 	"7wd.io/domain"
 	pgsuite "7wd.io/tt/suite/pg"
 	"context"
+	"fmt"
 	swde "github.com/7wd-io/engine"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"path"
 	"testing"
@@ -75,12 +77,9 @@ func (dst *gameSuite) TearDownTest() {
 	dst.apis.TearDownTest()
 }
 
+// [{"meta": {"actor": ""}, "move": {"id": 1, "p1": "user1", "p2": "user2", "cards": {"1": [116, 119, 122, 114, 120, 109, 112, 106, 101, 100, 121, 104, 103, 102, 117, 115, 105, 113, 118, 111], "2": [215, 208, 209, 207, 203, 201, 216, 217, 220, 212, 213, 222, 218, 210, 202, 214, 205, 200, 211, 204], "3": [305, 302, 309, 314, 310, 307, 317, 306, 403, 400, 311, 304, 300, 301, 319, 318, 315, 316, 405, 308]}, "tokens": [3, 1, 7, 9, 4], "wonders": [6, 12, 3, 13, 9, 14, 7, 10], "randomTokens": [10, 8, 5]}}, {"meta": {"actor": "user1"}, "move": {"id": 2, "wonder": 12}}, {"meta": {"actor": "user2"}, "move": {"id": 2, "wonder": 6}}, {"meta": {"actor": "user2"}, "move": {"id": 2, "wonder": 3}}, {"meta": {"actor": "user1"}, "move": {"id": 2, "wonder": 13}}, {"meta": {"actor": "user2"}, "move": {"id": 2, "wonder": 10}}, {"meta": {"actor": "user1"}, "move": {"id": 2, "wonder": 14}}, {"meta": {"actor": "user1"}, "move": {"id": 2, "wonder": 7}}, {"meta": {"actor": "user2"}, "move": {"id": 2, "wonder": 9}}, {"meta": {"actor": "user1"}, "move": {"id": 4, "card": 113}}, {"meta": {"actor": "user2"}, "move": {"id": 4, "card": 111}}, {"meta": {"actor": "user1"}, "move": {"id": 4, "card": 117}}, {"meta": {"actor": "user2"}, "move": {"id": 4, "card": 105}}, {"meta": {"actor": "user1"}, "move": {"id": 4, "card": 104}}, {"meta": {"actor": "user2"}, "move": {"id": 6, "card": 115}}, {"meta": {"actor": "user1"}, "move": {"id": 4, "card": 118}}, {"meta": {"actor": "user2"}, "move": {"id": 4, "card": 102}}, {"meta": {"actor": "user1"}, "move": {"id": 4, "card": 100}}, {"meta": {"actor": "user2"}, "move": {"id": 4, "card": 121}}, {"meta": {"actor": "user1"}, "move": {"id": 6, "card": 103}}, {"meta": {"actor": "user2"}, "move": {"id": 4, "card": 101}}, {"meta": {"actor": "user1"}, "move": {"id": 4, "card": 106}}, {"meta": {"actor": "user2"}, "move": {"id": 4, "card": 120}}, {"meta": {"actor": "user1"}, "move": {"id": 4, "card": 109}}, {"meta": {"actor": "user2"}, "move": {"id": 6, "card": 112}}, {"meta": {"actor": "user1"}, "move": {"id": 4, "card": 122}}, {"meta": {"actor": "user2"}, "move": {"id": 4, "card": 114}}, {"meta": {"actor": "user1"}, "move": {"id": 4, "card": 119}}, {"meta": {"actor": "user2"}, "move": {"id": 4, "card": 116}}, {"meta": {"actor": "user1"}, "move": {"id": 7, "player": "user1"}}, {"meta": {"actor": "user1"}, "move": {"id": 4, "card": 204}}, {"meta": {"actor": "user2"}, "move": {"id": 4, "card": 200}}, {"meta": {"actor": "user1"}, "move": {"id": 4, "card": 202}}, {"meta": {"actor": "user2"}, "move": {"id": 6, "card": 213}}, {"meta": {"actor": "user1"}, "move": {"id": 4, "card": 201}}, {"meta": {"actor": "user2"}, "move": {"id": 4, "card": 211}}, {"meta": {"actor": "user1"}, "move": {"id": 4, "card": 214}}, {"meta": {"actor": "user1"}, "move": {"id": 3, "token": 9}}, {"meta": {"actor": "user2"}, "move": {"id": 4, "card": 205}}, {"meta": {"actor": "user1"}, "move": {"id": 4, "card": 222}}, {"meta": {"actor": "user2"}, "move": {"id": 6, "card": 210}}, {"meta": {"actor": "user1"}, "move": {"id": 5, "card": 218, "wonder": 13}}, {"meta": {"actor": "user1"}, "move": {"id": 10, "card": 215}}, {"meta": {"actor": "user1"}, "move": {"id": 3, "token": 3}}, {"meta": {"actor": "user1"}, "move": {"id": 4, "card": 217}}, {"meta": {"actor": "user1"}, "move": {"id": 3, "token": 1}}, {"meta": {"actor": "user2"}, "move": {"id": 4, "card": 212}}, {"meta": {"actor": "user1"}, "move": {"id": 4, "card": 220}}, {"meta": {"actor": "user2"}, "move": {"id": 4, "card": 203}}, {"meta": {"actor": "user1"}, "move": {"id": 4, "card": 216}}, {"meta": {"actor": "user2"}, "move": {"id": 6, "card": 209}}, {"meta": {"actor": "user1"}, "move": {"id": 4, "card": 207}}, {"meta": {"actor": "user2"}, "move": {"id": 4, "card": 208}}, {"meta": {"actor": "user1"}, "move": {"id": 7, "player": "user1"}}, {"meta": {"actor": "user1"}, "move": {"id": 5, "card": 405, "wonder": 7}}, {"meta": {"actor": "user1"}, "move": {"id": 11, "card": 213}}, {"meta": {"actor": "user1"}, "move": {"id": 4, "card": 318}}, {"meta": {"actor": "user2"}, "move": {"id": 4, "card": 304}}, {"meta": {"actor": "user1"}, "move": {"id": 4, "card": 308}}, {"meta": {"actor": "user2"}, "move": {"id": 5, "card": 315, "wonder": 9}}, {"meta": {"actor": "user1"}, "move": {"id": 4, "card": 300}}, {"meta": {"actor": "user2"}, "move": {"id": 6, "card": 316}}, {"meta": {"actor": "user1"}, "move": {"id": 6, "card": 301}}, {"meta": {"actor": "user2"}, "move": {"id": 4, "card": 400}}, {"meta": {"actor": "user1"}, "move": {"id": 5, "card": 317, "wonder": 14}}, {"meta": {"actor": "user1"}, "move": {"id": 12, "give": 312, "pick": 303}}, {"meta": {"actor": "user1"}, "move": {"id": 5, "card": 307, "wonder": 12}}, {"meta": {"actor": "user1"}, "move": {"id": 4, "card": 309}}, {"meta": {"actor": "user2"}, "move": {"id": 4, "card": 319}}, {"meta": {"actor": "user1"}, "move": {"id": 4, "card": 311}}, {"meta": {"actor": "user2"}, "move": {"id": 4, "card": 403}}, {"meta": {"actor": "user1"}, "move": {"id": 4, "card": 306}}, {"meta": {"actor": "user2"}, "move": {"id": 4, "card": 314}}, {"meta": {"actor": "user1"}, "move": {"id": 4, "card": 310}}, {"meta": {"actor": "user2"}, "move": {"id": 4, "card": 305}}, {"meta": {"actor": "user1"}, "move": {"id": 4, "card": 302}}, {"meta": {"actor": "user1"}, "move": {"id": 3, "token": 7}}]
 func (dst *gameSuite) Test_Game1() {
 	ctx := context.Background()
-
-	// Реквесты:
-	// 	- создать игру
-	//  - сделать ходы до конца
 
 	user1, err := dst.c.Repo.User.Find(ctx, domain.WithUserNickname("user1"))
 
@@ -102,7 +101,6 @@ func (dst *gameSuite) Test_Game1() {
 		dst.FailNow("game 1: user2 not found")
 	}
 
-	//now := data.Now()
 	now := time.Now()
 
 	o := domain.RoomOptions{
@@ -249,7 +247,7 @@ func (dst *gameSuite) Test_Game1() {
 		dst.FailNow(err.Error())
 	}
 
-	user10Token, _ := dst.c.TokenFactory.Token(&domain.Passport{
+	t1, _ := dst.c.TokenFactory.Token(&domain.Passport{
 		Id:       user1.Id,
 		Nickname: user1.Nickname,
 		Rating:   user1.Rating,
@@ -260,7 +258,7 @@ func (dst *gameSuite) Test_Game1() {
 		},
 	})
 
-	user11Token, _ := dst.c.TokenFactory.Token(&domain.Passport{
+	t2, _ := dst.c.TokenFactory.Token(&domain.Passport{
 		Id:       user2.Id,
 		Nickname: user2.Nickname,
 		Rating:   user2.Rating,
@@ -273,7 +271,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/pick-wonder").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId":   game.Id,
 			"wonderId": swde.TheTempleOfArtemis,
@@ -283,7 +281,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/pick-wonder").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId":   game.Id,
 			"wonderId": swde.TheHangingGardens,
@@ -293,7 +291,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/pick-wonder").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId":   game.Id,
 			"wonderId": swde.TheColossus,
@@ -303,7 +301,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/pick-wonder").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId":   game.Id,
 			"wonderId": swde.Messe,
@@ -313,7 +311,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/pick-wonder").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId":   game.Id,
 			"wonderId": swde.TheSphinx,
@@ -323,7 +321,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/pick-wonder").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId":   game.Id,
 			"wonderId": swde.StatueOfLiberty,
@@ -333,7 +331,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/pick-wonder").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId":   game.Id,
 			"wonderId": swde.TheMausoleum,
@@ -343,7 +341,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/pick-wonder").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId":   game.Id,
 			"wonderId": swde.ThePyramids,
@@ -353,7 +351,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.WoodReserve,
@@ -363,7 +361,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.StoneReserve,
@@ -373,7 +371,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.Scriptorium,
@@ -383,7 +381,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.StonePit,
@@ -393,7 +391,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.Quarry,
@@ -403,7 +401,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/discard-card").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.Garrison,
@@ -413,7 +411,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.Pharmacist,
@@ -423,7 +421,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.ClayPool,
@@ -433,7 +431,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.LumberYard,
@@ -443,7 +441,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.Baths,
@@ -453,7 +451,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/discard-card").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.ClayPit,
@@ -463,7 +461,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.LoggingCamp,
@@ -473,7 +471,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.GlassWorks,
@@ -483,7 +481,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.Altar,
@@ -493,7 +491,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.Workshop,
@@ -503,7 +501,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/discard-card").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.ClayReserve,
@@ -513,7 +511,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.Tavern,
@@ -523,7 +521,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.Stable,
@@ -533,7 +531,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.Theater,
@@ -543,7 +541,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.Palisade,
@@ -553,7 +551,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/select-move").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"user":   "user1",
@@ -563,7 +561,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.DryingRoom,
@@ -573,7 +571,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.SawMill,
@@ -583,7 +581,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.ShelfQuarry,
@@ -593,7 +591,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/discard-card").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.ParadeGround,
@@ -603,7 +601,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.BrickYard,
@@ -613,7 +611,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.Barracks,
@@ -623,7 +621,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.Library,
@@ -633,7 +631,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/pick-board-token").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId":  game.Id,
 			"tokenId": swde.Theology,
@@ -643,7 +641,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.Walls,
@@ -653,7 +651,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.Brewery,
@@ -663,7 +661,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/discard-card").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.HorseBreeders,
@@ -673,7 +671,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-wonder").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId":   game.Id,
 			"wonderId": swde.Messe,
@@ -684,7 +682,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/pick-topline-card").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.Dispensary,
@@ -694,7 +692,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/pick-board-token").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId":  game.Id,
 			"tokenId": swde.Economy,
@@ -704,7 +702,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.Laboratory,
@@ -714,7 +712,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/pick-board-token").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId":  game.Id,
 			"tokenId": swde.Agriculture,
@@ -724,7 +722,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.ArcheryRange,
@@ -734,7 +732,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.Aqueduct,
@@ -744,7 +742,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.GlassBlower,
@@ -754,7 +752,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.School,
@@ -764,7 +762,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/discard-card").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.CourtHouse,
@@ -774,7 +772,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.Caravansery,
@@ -784,7 +782,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.CustomHouse,
@@ -794,7 +792,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/select-move").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"user":   "user1",
@@ -804,7 +802,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-wonder").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId":   game.Id,
 			"wonderId": swde.TheMausoleum,
@@ -815,7 +813,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/pick-discarded-card").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.ParadeGround,
@@ -825,7 +823,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.Lighthouse,
@@ -835,7 +833,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.ChamberOfCommerce,
@@ -845,7 +843,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.TownHall,
@@ -855,7 +853,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-wonder").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId":   game.Id,
 			"wonderId": swde.ThePyramids,
@@ -866,7 +864,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.Arsenal,
@@ -876,7 +874,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/discard-card").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.Pantheon,
@@ -886,7 +884,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/discard-card").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.Pretorium,
@@ -896,7 +894,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.MerchantsGuild,
@@ -906,7 +904,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-wonder").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId":   game.Id,
 			"wonderId": swde.StatueOfLiberty,
@@ -917,7 +915,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/pick-returned-cards").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId":     game.Id,
 			"pickCardId": swde.Study,
@@ -928,7 +926,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-wonder").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId":   game.Id,
 			"wonderId": swde.TheTempleOfArtemis,
@@ -939,7 +937,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.Obelisk,
@@ -949,7 +947,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.Arena,
@@ -959,7 +957,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.SiegeWorkshop,
@@ -969,7 +967,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.MagistratesGuild,
@@ -979,7 +977,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.Armory,
@@ -989,7 +987,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.Observatory,
@@ -999,7 +997,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.Fortifications,
@@ -1009,7 +1007,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user11Token).
+		WithToken(t2).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.Port,
@@ -1019,7 +1017,7 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/construct-card").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId": game.Id,
 			"cardId": swde.Academy,
@@ -1029,11 +1027,64 @@ func (dst *gameSuite) Test_Game1() {
 
 	dst.apis.
 		POST("/game/move/pick-board-token").
-		WithToken(user10Token).
+		WithToken(t1).
 		WithParams(map[string]interface{}{
 			"gameId":  game.Id,
 			"tokenId": swde.Philosophy,
 		}).
 		WithAssertStatusOk().
 		Send()
+
+	type player struct {
+		Name   domain.Nickname `json:"name"`
+		Rating domain.Rating   `json:"rating"`
+		Points int             `json:"points"`
+	}
+
+	type response struct {
+		Id       domain.GameId     `json:"id"`
+		Host     player            `json:"host"`
+		Guest    player            `json:"guest"`
+		Clock    *domain.GameClock `json:"clock,omitempty"`
+		State    *swde.State       `json:"state"`
+		Finished bool              `json:"finished"`
+		Log      domain.GameLog    `json:"log"`
+	}
+
+	var resp response
+
+	dst.apis.
+		GET(fmt.Sprintf("/game/%d", game.Id)).
+		WithToken(t1).
+		WithAssertStatusOk().
+		Send().
+		Response(&resp)
+
+	user1Score := swde.Score{
+		Civilian:   20,
+		Science:    13,
+		Commercial: 6,
+		Guilds:     0,
+		Wonders:    9,
+		Tokens:     11,
+		Coins:      11,
+		Military:   0,
+		Total:      70,
+	}
+
+	user2Score := swde.Score{
+		Civilian:   6,
+		Science:    2,
+		Commercial: 9,
+		Guilds:     10,
+		Wonders:    9,
+		Tokens:     0,
+		Coins:      6,
+		Military:   0,
+		Total:      42,
+	}
+
+	assert.True(dst.T(), resp.Finished)
+	assert.Equal(dst.T(), resp.State.Enemy.Score, user1Score)
+	assert.Equal(dst.T(), resp.State.Me.Score, user2Score)
 }
