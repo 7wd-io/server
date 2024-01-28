@@ -35,12 +35,6 @@ type c struct {
 		Endpoint string `required:"true" envconfig:"SWD_CENTRIFUGO_ENDPOINT"`
 		ApiKey   string `required:"true" envconfig:"SWD_CENTRIFUGO_API_KEY"`
 	}
-	Mailer struct {
-		Server   string `required:"true" envconfig:"SWD_MAILER_SERVER"`
-		Port     int    `required:"true" envconfig:"SWD_MAILER_PORT"`
-		User     string `required:"true" envconfig:"SWD_MAILER_LOGIN"`
-		Password string `required:"true" envconfig:"SWD_MAILER_PASSWORD"`
-	}
 }
 
 func (dst c) IsTest() bool {

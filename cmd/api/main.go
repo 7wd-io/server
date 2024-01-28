@@ -24,7 +24,6 @@ func main() {
 	app.Get("/ping", func(c *fiber.Ctx) error {
 		return c.SendString("pong 👋")
 	})
-
 	app.Get("/secret", func(c *fiber.Ctx) error {
 		return c.SendString("love")
 	})
