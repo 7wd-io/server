@@ -1,0 +1,42 @@
+version: '3.9'
+services:
+    pg_dev:
+        container_name: swd_pg
+        image: postgres
+        restart: always
+        volumes:
+            - swd_pgdata:/var/lib/postgresql/data/
+        environment:
+            POSTGRES_USER: ${SWD_PG_USER}
+            POSTGRES_PASSWORD: ${SWD_PG_PASSWORD}
+            POSTGRES_DB: ${SWD_PG_DBNAME}
+        ports:
+            - "${SWD_PG_PORT}:5432"
+
+    redis:
+        container_name: swd_redis
+        image: redis
+        restart: always
+        ports:
+            - "${SWD_REDIS_PORT}:6379"
+
+    cent:
+        container_name: swd_cent
+        image: centrifugo/centrifugo:latest
+        restart: always
+        volumes:
+            - ./centrifugo.dev.json:/centrifugo/config.json
+        command: centrifugo -c config.json
+        ports:
+            - "8105:8000"
+        ulimits:
+            nofile:
+                soft: 65535
+                hard: 65535
+networks:
+    default:
+        name: swd_network
+        external: true
+
+volumes:
+    swd_pgdata:
