@@ -25,10 +25,10 @@ m:
 	$(LOCAL_BIN)/migrate create -ext sql -dir migrations -seq  $(NAME)
 
 m-up:
-	$(LOCAL_BIN)/migrate -database "postgres://$(ENV):$(ENV)@localhost:$(SWD_PG_PORT)/$(SWD_PG_DBNAME)?sslmode=disable" -path "migrations" up
+	$(LOCAL_BIN)/migrate -database "postgres://$(SWD_PG_USER):$(SWD_PG_PASSWORD)@localhost:$(SWD_PG_PORT)/$(SWD_PG_DBNAME)?sslmode=disable" -path "migrations" up
 
 m-down:
-	$(LOCAL_BIN)/migrate -database "postgres://$(ENV):$(ENV)@localhost:$(SWD_PG_PORT)/$(SWD_PG_DBNAME)?sslmode=disable" -path "migrations" down
+	$(LOCAL_BIN)/migrate -database "postgres://$(SWD_PG_USER):$(SWD_PG_PASSWORD)@localhost:$(SWD_PG_PORT)/$(SWD_PG_DBNAME)?sslmode=disable" -path "migrations" down
 
 ttr:
 	go test ./... -cover -race -vet=all
