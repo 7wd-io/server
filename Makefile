@@ -10,6 +10,8 @@ include $(ENV_FILE)
 # to share env in program
 export $(shell sed 's/=.*//' $(ENV_FILE))
 
+.PHONY : run rin-api run-clock run-online
+
 i:
 	$(info Installing binary dependencies...)
 
@@ -32,3 +34,14 @@ m-down:
 
 ttr:
 	go test ./... -cover -race -vet=all
+
+run: run-api run-clock run-online
+
+run-api:
+	./cmd/api/api
+
+run-online:
+	./cmd/online/online
+
+run-clock:
+	./cmd/clock/clock
