@@ -56,10 +56,16 @@ type SoundsSettings struct {
 }
 
 type UserOptions struct {
-	Tx       Tx
-	Id       UserId
+	Tx Tx
+
+	Id    UserId
+	IdSet bool
+
 	Email    Email
-	Nickname Nickname
+	EmailSet bool
+
+	Nickname    Nickname
+	NicknameSet bool
 }
 
 type UserOption func(o *UserOptions)
@@ -73,18 +79,21 @@ func WithUserTx(v Tx) UserOption {
 func WithUserId(v UserId) UserOption {
 	return func(o *UserOptions) {
 		o.Id = v
+		o.IdSet = true
 	}
 }
 
 func WithUserEmail(v Email) UserOption {
 	return func(o *UserOptions) {
 		o.Email = v
+		o.EmailSet = true
 	}
 }
 
 func WithUserNickname(v Nickname) UserOption {
 	return func(o *UserOptions) {
 		o.Nickname = v
+		o.NicknameSet = true
 	}
 }
 

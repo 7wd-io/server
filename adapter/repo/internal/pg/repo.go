@@ -1,6 +1,7 @@
 package pg
 
 import (
+	"7wd.io/domain"
 	"context"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -15,6 +16,23 @@ type Conn interface {
 }
 
 type R struct {
-	PG *pgxpool.Pool
-	QB QB
+	PG        *pgxpool.Pool
+	TableName string
+	Columns   []string
+}
+
+func (dst R) Conn(t domain.Tx) Conn {
+	if t == nil {
+		return dst.PG
+	}
+
+	tx, ok := t.Value().(pgx.Tx)
+
+	if ok {
+		return tx
+	}
+
+	// log !ok?
+
+	return dst.PG
 }

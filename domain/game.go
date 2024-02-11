@@ -130,7 +130,9 @@ func (dst *Game) IsOver() bool {
 
 type GameOptions struct {
 	Tx Tx
-	Id GameId
+
+	Id    GameId
+	IdSet bool
 }
 
 type GameOption func(o *GameOptions)
@@ -138,6 +140,7 @@ type GameOption func(o *GameOptions)
 func WithGameId(v GameId) GameOption {
 	return func(o *GameOptions) {
 		o.Id = v
+		o.IdSet = true
 	}
 }
 

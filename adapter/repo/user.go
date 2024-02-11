@@ -4,27 +4,24 @@ import (
 	"7wd.io/adapter/repo/internal/pg"
 	"7wd.io/domain"
 	"context"
-	"errors"
-	"github.com/jackc/pgx/v5"
+	sq "github.com/Masterminds/squirrel"
+	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"log/slog"
 )
 
 func NewUser(c *pgxpool.Pool) UserRepo {
 	return UserRepo{
 		R: pg.R{
-			PG: c,
-			QB: pg.QB{
-				TableName: `"user"`,
-				Columns: []string{
-					"id",
-					"email",
-					"nickname",
-					"password",
-					"settings",
-					"rating",
-					"created_at",
-				},
+			PG:        c,
+			TableName: `"user"`,
+			Columns: []string{
+				"id",
+				"email",
+				"nickname",
+				"password",
+				"settings",
+				"rating",
+				"created_at",
 			},
 		},
 	}
@@ -34,121 +31,110 @@ type UserRepo struct {
 	pg.R
 }
 
-func (dst UserRepo) conn(t domain.Tx) pg.Conn {
-	if t == nil {
-		return dst.PG
-	}
+func (dst UserRepo) Save(ctx context.Context, in *domain.User, o ...domain.UserOption) error {
+	conn, _ := dst.opts(o...)
 
-	tx, ok := t.Value().(pgx.Tx)
-
-	if ok {
-		return tx
-	}
-
-	slog.Warn("tx extract !ok")
-
-	return dst.PG
-}
-
-func (dst UserRepo) findOneBy(ctx context.Context, o ...domain.UserOption) (*domain.User, error) {
-	var err error
-	out := new(domain.User)
-
-	c, w := dst.c(o...)
-
-	err = c.
-		QueryRow(
-			ctx,
-			dst.QB.SelectWhere(w),
-			w.Values()...,
+	q, args, err := sq.
+		Insert(dst.TableName).
+		// skip id column
+		Columns(dst.Columns[1:]...).
+		Values(
+			in.Email,
+			in.Nickname,
+			in.Password,
+			in.Settings,
+			in.Rating,
+			in.CreatedAt,
 		).
-		Scan(
-			&out.Id,
-			&out.Email,
-			&out.Nickname,
-			&out.Password,
-			&out.Settings,
-			&out.Rating,
-			&out.CreatedAt,
-		)
+		Suffix("RETURNING \"id\"").
+		ToSql()
 
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, domain.ErrUserNotFound
-		}
+		return err
+	}
 
+	return conn.QueryRow(ctx, q, args...).Scan(&in.Id)
+}
+
+func (dst UserRepo) Update(ctx context.Context, in *domain.User, o ...domain.UserOption) error {
+	conn, _ := dst.opts(o...)
+
+	q, args, err := sq.
+		Update(dst.TableName).
+		Where(sq.Eq{"id": in.Id}).
+		Set("email", in.Email).
+		Set("nickname", in.Nickname).
+		Set("password", in.Password).
+		Set("settings", in.Settings).
+		Set("rating", in.Rating).
+		Set("created_at", in.CreatedAt).
+		ToSql()
+
+	if err != nil {
+		return err
+	}
+
+	_, err = conn.Exec(ctx, q, args...)
+
+	return err
+}
+
+func (dst UserRepo) Find(ctx context.Context, o ...domain.UserOption) (*domain.User, error) {
+	users, err := dst.FindMany(ctx, o...)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(users) == 0 {
+		return nil, domain.ErrUserNotFound
+	}
+
+	return users[0], nil
+}
+
+func (dst UserRepo) FindMany(ctx context.Context, o ...domain.UserOption) ([]*domain.User, error) {
+	conn, where := dst.opts(o...)
+
+	sql, args, err := sq.Select(dst.Columns...).
+		From(dst.TableName).
+		Where(where).
+		OrderBy("id ASC").
+		ToSql()
+
+	if err != nil {
+		return nil, err
+	}
+
+	var out []*domain.User
+
+	if err = pgxscan.Select(ctx, conn, &out, sql, args...); err != nil {
 		return nil, err
 	}
 
 	return out, nil
 }
 
-func (dst UserRepo) Save(ctx context.Context, in *domain.User, o ...domain.UserOption) error {
-	c, _ := dst.c(o...)
+func (dst UserRepo) opts(opts ...domain.UserOption) (pg.Conn, sq.Eq) {
+	o := new(domain.UserOptions)
 
-	return c.
-		QueryRow(
-			ctx,
-			dst.QB.Insert(),
-			in.Email,
-			in.Nickname,
-			in.Password,
-			in.Settings,
-			in.Rating,
-			in.CreatedAt,
-		).Scan(&in.Id)
-}
-
-func (dst UserRepo) Update(ctx context.Context, in *domain.User, o ...domain.UserOption) error {
-	c, _ := dst.c(o...)
-
-	_, err := c.
-		Exec(
-			ctx,
-			dst.QB.Update(),
-			in.Id,
-			in.Email,
-			in.Nickname,
-			in.Password,
-			in.Settings,
-			in.Rating,
-			in.CreatedAt,
-		)
-
-	return err
-}
-
-func (dst UserRepo) Find(ctx context.Context, o ...domain.UserOption) (*domain.User, error) {
-	return dst.findOneBy(ctx, o...)
-}
-
-func (dst UserRepo) c(o ...domain.UserOption) (c pg.Conn, w pg.Where) {
-	opts := new(domain.UserOptions)
-
-	for _, v := range o {
-		v(opts)
+	for _, v := range opts {
+		v(o)
 	}
 
-	if opts.Id != 0 {
-		w = append(w, pg.F{
-			Expr:  "id",
-			Value: opts.Id,
-		})
+	w := sq.Eq{}
+
+	if o.IdSet {
+		w["id"] = o.Id
 	}
 
-	if opts.Email != "" {
-		w = append(w, pg.F{
-			Expr:  "email",
-			Value: opts.Email,
-		})
+	if o.EmailSet {
+		w["email"] = o.Email
 	}
 
-	if opts.Nickname != "" {
-		w = append(w, pg.F{
-			Expr:  "nickname",
-			Value: opts.Nickname,
-		})
+	if o.NicknameSet {
+		w["nickname"] = o.Nickname
 	}
 
-	return dst.conn(opts.Tx), w
+	return dst.Conn(o.Tx), w
 }
