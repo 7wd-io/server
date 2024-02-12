@@ -37,7 +37,7 @@ services:
         env_file:
             - .env.prod
         volumes:
-            - ./centrifugo.dev.json:/centrifugo/config.json
+            - ./cent.prod.json:/centrifugo/config.json
         command: centrifugo -c config.json
         ports:
             - "8105:8000"
