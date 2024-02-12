@@ -37,7 +37,7 @@ type GameRepo struct {
 }
 
 func (dst GameRepo) Save(ctx context.Context, in *domain.Game, o ...domain.GameOption) error {
-	conn, _ := dst.opts(o...)
+	opts := dst.opts(o...)
 
 	q, args, err := sq.
 		Insert(dst.TableName).
@@ -63,11 +63,11 @@ func (dst GameRepo) Save(ctx context.Context, in *domain.Game, o ...domain.GameO
 		return err
 	}
 
-	return conn.QueryRow(ctx, q, args...).Scan(&in.Id)
+	return dst.Conn(opts.Tx).QueryRow(ctx, q, args...).Scan(&in.Id)
 }
 
 func (dst GameRepo) Update(ctx context.Context, in *domain.Game, o ...domain.GameOption) error {
-	conn, _ := dst.opts(o...)
+	opts := dst.opts(o...)
 
 	q, args, err := sq.
 		Update(dst.TableName).
@@ -89,7 +89,7 @@ func (dst GameRepo) Update(ctx context.Context, in *domain.Game, o ...domain.Gam
 		return err
 	}
 
-	_, err = conn.Exec(ctx, q, args...)
+	_, err = dst.Conn(opts.Tx).Exec(ctx, q, args...)
 
 	return err
 }
@@ -109,13 +109,9 @@ func (dst GameRepo) Find(ctx context.Context, o ...domain.GameOption) (*domain.G
 }
 
 func (dst GameRepo) FindMany(ctx context.Context, o ...domain.GameOption) ([]*domain.Game, error) {
-	conn, where := dst.opts(o...)
+	opts := dst.opts(o...)
 
-	sql, args, err := sq.Select(dst.Columns...).
-		From(dst.TableName).
-		Where(where).
-		OrderBy("id ASC").
-		ToSql()
+	sql, args, err := dst.selectb(opts).ToSql()
 
 	if err != nil {
 		return nil, err
@@ -123,25 +119,42 @@ func (dst GameRepo) FindMany(ctx context.Context, o ...domain.GameOption) ([]*do
 
 	var out []*domain.Game
 
-	if err = pgxscan.Select(ctx, conn, &out, sql, args...); err != nil {
+	if err = pgxscan.Select(ctx, dst.Conn(opts.Tx), &out, sql, args...); err != nil {
 		return nil, err
 	}
 
 	return out, nil
 }
 
-func (dst GameRepo) opts(opts ...domain.GameOption) (pg.Conn, sq.Eq) {
+func (dst GameRepo) opts(opts ...domain.GameOption) domain.GameOptions {
 	o := new(domain.GameOptions)
 
 	for _, v := range opts {
 		v(o)
 	}
 
+	return *o
+}
+
+func (dst GameRepo) selectb(o domain.GameOptions) sq.SelectBuilder {
+	sb := sq.Select(dst.Columns...).
+		From(dst.TableName).
+		Where(dst.where(o)).
+		OrderBy("id ASC")
+
+	if o.Lock {
+		sb.Suffix("FOR UPDATE")
+	}
+
+	return sb
+}
+
+func (GameRepo) where(o domain.GameOptions) sq.Eq {
 	w := sq.Eq{}
 
 	if o.IdSet {
 		w["id"] = o.Id
 	}
 
-	return dst.Conn(o.Tx), w
+	return w
 }

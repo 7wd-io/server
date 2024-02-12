@@ -402,7 +402,7 @@ func (dst GameService) Move(ctx context.Context, u Nickname, id GameId, m swde.M
 		Game: g,
 	})
 
-	return g, nil
+	return g, tx.Commit(ctx)
 }
 
 func (dst GameService) OnEventBotIsReadyToMove(ctx context.Context, payload interface{}) error {
