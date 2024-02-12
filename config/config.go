@@ -29,7 +29,8 @@ type c struct {
 		Password string `envconfig:"SWD_PG_PASSWORD"`
 	}
 	Redis struct {
-		Port int `envconfig:"SWD_REDIS_PORT"`
+		Port     int    `envconfig:"SWD_REDIS_PORT"`
+		Password string `envconfig:"SWD_REDIS_PASSWORD"`
 	}
 	Centrifugo struct {
 		Endpoint string `required:"true" envconfig:"SWD_CENTRIFUGO_ENDPOINT"`
@@ -53,5 +54,5 @@ func (dst c) PgDsn() string {
 }
 
 func (dst c) RedisUrl() string {
-	return fmt.Sprintf("redis://localhost:%d", dst.Redis.Port)
+	return fmt.Sprintf("redis://:%s@localhost:%d", dst.Redis.Password, dst.Redis.Port)
 }
