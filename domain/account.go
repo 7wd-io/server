@@ -58,6 +58,8 @@ type SoundsSettings struct {
 type UserOptions struct {
 	Tx Tx
 
+	Lock bool
+
 	Id    UserId
 	IdSet bool
 
@@ -73,6 +75,12 @@ type UserOption func(o *UserOptions)
 func WithUserTx(v Tx) UserOption {
 	return func(o *UserOptions) {
 		o.Tx = v
+	}
+}
+
+func WithUserLock() UserOption {
+	return func(o *UserOptions) {
+		o.Lock = true
 	}
 }
 
@@ -124,6 +132,7 @@ func NewAccountService(
 	uuidf Uuidf,
 	sessionRepo SessionRepo,
 	analyst Analyst,
+	tx Txer,
 ) AccountService {
 	return AccountService{
 		userRepo:    userRepo,
@@ -133,6 +142,7 @@ func NewAccountService(
 		uuidf:       uuidf,
 		sessionRepo: sessionRepo,
 		analyst:     analyst,
+		tx:          tx,
 	}
 }
 
@@ -144,6 +154,7 @@ type AccountService struct {
 	uuidf       Uuidf
 	sessionRepo SessionRepo
 	analyst     Analyst
+	tx          Txer
 }
 
 func (dst AccountService) Signup(ctx context.Context, email Email, password string, nickname Nickname) error {
@@ -250,7 +261,24 @@ func (dst AccountService) Refresh(ctx context.Context, refreshToken uuid.UUID, f
 }
 
 func (dst AccountService) UpdateSettings(ctx context.Context, pass Passport, s UserSettings) error {
-	user, err := dst.userRepo.Find(ctx, WithUserId(pass.Id))
+	tx, err := dst.tx.Tx(ctx)
+
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if err = tx.Rollback(ctx); err != nil {
+			slog.Error("AccountService.UpdateSettings: tx.Rollback", "err", err)
+		}
+	}()
+
+	user, err := dst.userRepo.Find(
+		ctx,
+		WithUserId(pass.Id),
+		WithUserTx(tx),
+		WithUserLock(),
+	)
 
 	if err != nil {
 		return err
@@ -258,7 +286,11 @@ func (dst AccountService) UpdateSettings(ctx context.Context, pass Passport, s U
 
 	user.Settings = s
 
-	return dst.userRepo.Update(ctx, user)
+	if err = dst.userRepo.Update(ctx, user, WithUserTx(tx)); err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
 }
 
 func (dst AccountService) Profile(ctx context.Context, u Nickname) (*UserProfile, error) {
@@ -378,11 +410,27 @@ func (dst AccountService) token(ctx context.Context, u *User, fingerprint uuid.U
 func (dst AccountService) updateRating(ctx context.Context, u Nickname, points int) error {
 	var err error
 
-	// @TODO SELECT FOR UPDATE
-	user, _ := dst.userRepo.Find(ctx, WithUserNickname(u))
+	tx, err := dst.tx.Tx(ctx)
+
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if err := tx.Rollback(ctx); err != nil {
+			slog.Error("AccountService.updateRating: tx.Rollback", "err", err)
+		}
+	}()
+
+	user, _ := dst.userRepo.Find(
+		ctx,
+		WithUserNickname(u),
+		WithUserTx(tx),
+		WithUserLock(),
+	)
 	user.Rating += Rating(points)
 
-	if err = dst.userRepo.Update(ctx, user); err != nil {
+	if err = dst.userRepo.Update(ctx, user, WithUserTx(tx)); err != nil {
 		return err
 	}
 
@@ -390,5 +438,5 @@ func (dst AccountService) updateRating(ctx context.Context, u Nickname, points i
 		return err
 	}
 
-	return nil
+	return tx.Commit(ctx)
 }

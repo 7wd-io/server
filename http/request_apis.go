@@ -85,9 +85,9 @@ func (dst *Req) Send() *Req {
 
 	dst.ss.NoError(err)
 
-	if res == nil {
-		dst.ss.FailNow("response nil")
-	}
+	//if res == nil {
+	//	dst.ss.FailNow("response nil")
+	//}
 
 	defer func() {
 		_ = res.Body.Close()

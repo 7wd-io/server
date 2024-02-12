@@ -7,6 +7,7 @@ import (
 	"fmt"
 	swde "github.com/7wd-io/engine"
 	"log"
+	"log/slog"
 	"math"
 	"strconv"
 	"time"
@@ -131,11 +132,25 @@ func (dst *Game) IsOver() bool {
 type GameOptions struct {
 	Tx Tx
 
+	Lock bool
+
 	Id    GameId
 	IdSet bool
 }
 
 type GameOption func(o *GameOptions)
+
+func WithGameTx(v Tx) GameOption {
+	return func(o *GameOptions) {
+		o.Tx = v
+	}
+}
+
+func WithGameLock() GameOption {
+	return func(o *GameOptions) {
+		o.Lock = true
+	}
+}
 
 func WithGameId(v GameId) GameOption {
 	return func(o *GameOptions) {
@@ -151,6 +166,7 @@ func NewGameService(
 	gameClockRepo GameClockRepo,
 	userRepo UserRepo,
 	dispatcher Dispatcher,
+	tx Txer,
 ) GameService {
 	return GameService{
 		clock:         clock,
@@ -159,6 +175,7 @@ func NewGameService(
 		gameClockRepo: gameClockRepo,
 		userRepo:      userRepo,
 		dispatcher:    dispatcher,
+		tx:            tx,
 	}
 }
 
@@ -170,6 +187,7 @@ type GameService struct {
 	userRepo      UserRepo
 	pusher        Pusher
 	dispatcher    Dispatcher
+	tx            Txer
 }
 
 func (dst GameService) Get(ctx context.Context, id GameId) (*Game, error) {
@@ -285,7 +303,24 @@ func (dst GameService) CreateWithBot(ctx context.Context, pass Passport) error {
 func (dst GameService) Move(ctx context.Context, u Nickname, id GameId, m swde.Mutator) (*Game, error) {
 	var err error
 
-	g, err := dst.gameRepo.Find(ctx, WithGameId(id))
+	tx, err := dst.tx.Tx(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		if err := tx.Rollback(ctx); err != nil {
+			slog.Error("GameService.Move tx.Rollback", "err", err)
+		}
+	}()
+
+	g, err := dst.gameRepo.Find(
+		ctx,
+		WithGameId(id),
+		WithGameLock(),
+		WithGameTx(tx),
+	)
 
 	if err != nil {
 		return nil, err
@@ -348,7 +383,7 @@ func (dst GameService) Move(ctx context.Context, u Nickname, id GameId, m swde.M
 		)
 	}
 
-	if err = dst.gameRepo.Update(ctx, g); err != nil {
+	if err = dst.gameRepo.Update(ctx, g, WithGameTx(tx)); err != nil {
 		return nil, err
 	}
 

@@ -37,6 +37,7 @@ func main() {
 		c.Repo.GameClock,
 		c.Repo.User,
 		c.Dispatcher,
+		c.Tx,
 	)
 
 	push := pusher.New(cent.New())
@@ -49,6 +50,7 @@ func main() {
 		c.UUIDFactory,
 		c.Repo.Session,
 		c.Analyst,
+		c.Tx,
 	)
 
 	roomSvc := domain.NewRoomService(

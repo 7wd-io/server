@@ -39,6 +39,7 @@ func (dst *gameSuite) SetupSuite() {
 		c.Repo.GameClock,
 		c.Repo.User,
 		c.Dispatcher,
+		c.Tx,
 	)
 
 	dst.pgs.SetupSuite()
