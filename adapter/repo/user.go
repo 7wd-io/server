@@ -32,7 +32,7 @@ type UserRepo struct {
 }
 
 func (dst UserRepo) Save(ctx context.Context, in *domain.User, o ...domain.UserOption) error {
-	conn, _ := dst.opts(o...)
+	opts := dst.opts(o...)
 
 	q, args, err := sq.
 		Insert(dst.TableName).
@@ -53,11 +53,11 @@ func (dst UserRepo) Save(ctx context.Context, in *domain.User, o ...domain.UserO
 		return err
 	}
 
-	return conn.QueryRow(ctx, q, args...).Scan(&in.Id)
+	return dst.Conn(opts.Tx).QueryRow(ctx, q, args...).Scan(&in.Id)
 }
 
 func (dst UserRepo) Update(ctx context.Context, in *domain.User, o ...domain.UserOption) error {
-	conn, _ := dst.opts(o...)
+	opts := dst.opts(o...)
 
 	q, args, err := sq.
 		Update(dst.TableName).
@@ -74,7 +74,7 @@ func (dst UserRepo) Update(ctx context.Context, in *domain.User, o ...domain.Use
 		return err
 	}
 
-	_, err = conn.Exec(ctx, q, args...)
+	_, err = dst.Conn(opts.Tx).Exec(ctx, q, args...)
 
 	return err
 }
@@ -94,13 +94,9 @@ func (dst UserRepo) Find(ctx context.Context, o ...domain.UserOption) (*domain.U
 }
 
 func (dst UserRepo) FindMany(ctx context.Context, o ...domain.UserOption) ([]*domain.User, error) {
-	conn, where := dst.opts(o...)
+	opts := dst.opts(o...)
 
-	sql, args, err := sq.Select(dst.Columns...).
-		From(dst.TableName).
-		Where(where).
-		OrderBy("id ASC").
-		ToSql()
+	sql, args, err := dst.selectb(opts).ToSql()
 
 	if err != nil {
 		return nil, err
@@ -108,20 +104,37 @@ func (dst UserRepo) FindMany(ctx context.Context, o ...domain.UserOption) ([]*do
 
 	var out []*domain.User
 
-	if err = pgxscan.Select(ctx, conn, &out, sql, args...); err != nil {
+	if err = pgxscan.Select(ctx, dst.Conn(opts.Tx), &out, sql, args...); err != nil {
 		return nil, err
 	}
 
 	return out, nil
 }
 
-func (dst UserRepo) opts(opts ...domain.UserOption) (pg.Conn, sq.Eq) {
+func (dst UserRepo) opts(opts ...domain.UserOption) domain.UserOptions {
 	o := new(domain.UserOptions)
 
 	for _, v := range opts {
 		v(o)
 	}
 
+	return *o
+}
+
+func (dst UserRepo) selectb(o domain.UserOptions) sq.SelectBuilder {
+	sb := sq.Select(dst.Columns...).
+		From(dst.TableName).
+		Where(dst.where(o)).
+		OrderBy("id ASC")
+
+	if o.Lock {
+		sb.Suffix("FOR UPDATE")
+	}
+
+	return sb
+}
+
+func (UserRepo) where(o domain.UserOptions) sq.Eq {
 	w := sq.Eq{}
 
 	if o.IdSet {
@@ -136,5 +149,5 @@ func (dst UserRepo) opts(opts ...domain.UserOption) (pg.Conn, sq.Eq) {
 		w["nickname"] = o.Nickname
 	}
 
-	return dst.Conn(o.Tx), w
+	return w
 }
