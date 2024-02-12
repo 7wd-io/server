@@ -35,16 +35,8 @@ m-down:
 ttr:
 	go test ./... -cover -race -vet=all
 
-run: run-api run-clock run-online
-
-run-api:
+build:
 	go build -C cmd/api -o swd-api
-	./cmd/api/swd-api
-
-run-online:
 	go build -C cmd/online -o swd-online
-	./cmd/online/swd-online
-
-run-clock:
 	go build -C cmd/clock -o swd-clock
-	./cmd/clock/swd-clock
+
