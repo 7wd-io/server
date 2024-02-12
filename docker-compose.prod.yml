@@ -52,4 +52,4 @@ networks:
 
 volumes:
     swd_pgdata:
-    swd_rdsata:
+    swd_rdsdata:
