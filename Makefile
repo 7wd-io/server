@@ -38,10 +38,13 @@ ttr:
 run: run-api run-clock run-online
 
 run-api:
-	./cmd/api/api
+	go build -C cmd/api -o swd-api
+	./cmd/api/swd-api
 
 run-online:
-	./cmd/online/online
+	go build -C cmd/online -o swd-online
+	./cmd/online/swd-online
 
 run-clock:
-	./cmd/clock/clock
+	go build -C cmd/clock -o swd-clock
+	./cmd/clock/swd-clock
