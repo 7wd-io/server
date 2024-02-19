@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	AccessTokenTtl  = 24 * 30 * time.Hour
+	AccessTokenTtl  = 24 * time.Hour
 	RefreshTokenTtl = 30 * 24 * time.Hour
 	PasswordCost    = 10
 )
@@ -116,7 +116,7 @@ type Passport struct {
 type Session struct {
 	UserId       UserId
 	RefreshToken uuid.UUID
-	Fingerprint  uuid.UUID
+	Client       uuid.UUID
 }
 
 type Token struct {
@@ -190,7 +190,7 @@ func (dst AccountService) Signup(ctx context.Context, email Email, password stri
 	return dst.analyst.UpdateRatings(ctx, user)
 }
 
-func (dst AccountService) Signin(ctx context.Context, login string, pass string, fingerprint uuid.UUID) (*Token, error) {
+func (dst AccountService) Signin(ctx context.Context, login string, pass string, client uuid.UUID) (*Token, error) {
 	var user *User
 	var err error
 
@@ -212,11 +212,11 @@ func (dst AccountService) Signin(ctx context.Context, login string, pass string,
 		return nil, errCredentialsNotFound
 	}
 
-	return dst.token(ctx, user, fingerprint)
+	return dst.token(ctx, user, client)
 }
 
-func (dst AccountService) Logout(ctx context.Context, pass Passport, fingerprint uuid.UUID) error {
-	session, err := dst.sessionRepo.Find(ctx, fingerprint)
+func (dst AccountService) Logout(ctx context.Context, pass Passport, client uuid.UUID) error {
+	session, err := dst.sessionRepo.Find(ctx, client)
 
 	if err != nil {
 		return err
@@ -235,13 +235,13 @@ func (dst AccountService) Logout(ctx context.Context, pass Passport, fingerprint
 		return nil
 	}
 
-	_, err = dst.sessionRepo.Delete(ctx, fingerprint)
+	_, err = dst.sessionRepo.Delete(ctx, client)
 
 	return err
 }
 
-func (dst AccountService) Refresh(ctx context.Context, refreshToken uuid.UUID, fingerprint uuid.UUID) (*Token, error) {
-	session, err := dst.sessionRepo.Delete(ctx, fingerprint)
+func (dst AccountService) Refresh(ctx context.Context, refreshToken uuid.UUID, client uuid.UUID) (*Token, error) {
+	session, err := dst.sessionRepo.Delete(ctx, client)
 
 	if err != nil || session == nil {
 		return nil, errCredentialsNotFound
@@ -257,7 +257,7 @@ func (dst AccountService) Refresh(ctx context.Context, refreshToken uuid.UUID, f
 		return nil, err
 	}
 
-	return dst.token(ctx, user, fingerprint)
+	return dst.token(ctx, user, client)
 }
 
 func (dst AccountService) UpdateSettings(ctx context.Context, pass Passport, s UserSettings) error {
@@ -373,7 +373,7 @@ func (dst AccountService) OnGameOver(ctx context.Context, payload interface{}) e
 	return nil
 }
 
-func (dst AccountService) token(ctx context.Context, u *User, fingerprint uuid.UUID) (*Token, error) {
+func (dst AccountService) token(ctx context.Context, u *User, client uuid.UUID) (*Token, error) {
 	refresh := dst.uuidf.Uuid()
 
 	access, err := dst.tokenf.Token(&Passport{
@@ -394,7 +394,7 @@ func (dst AccountService) token(ctx context.Context, u *User, fingerprint uuid.U
 	session := &Session{
 		UserId:       u.Id,
 		RefreshToken: refresh,
-		Fingerprint:  fingerprint,
+		Client:       client,
 	}
 
 	if err = dst.sessionRepo.Save(ctx, session, RefreshTokenTtl); err != nil {

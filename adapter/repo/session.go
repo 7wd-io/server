@@ -21,11 +21,11 @@ type SessionRepo struct {
 }
 
 func (dst SessionRepo) Save(ctx context.Context, s *domain.Session, ttl time.Duration) error {
-	return dst.Set(ctx, dst.k(s.Fingerprint), s, ttl)
+	return dst.Set(ctx, dst.k(s.Client), s, ttl)
 }
 
-func (dst SessionRepo) Delete(ctx context.Context, fingerprint uuid.UUID) (*domain.Session, error) {
-	s, err := dst.Find(ctx, fingerprint)
+func (dst SessionRepo) Delete(ctx context.Context, client uuid.UUID) (*domain.Session, error) {
+	s, err := dst.Find(ctx, client)
 
 	if err != nil {
 		return nil, err
@@ -35,12 +35,12 @@ func (dst SessionRepo) Delete(ctx context.Context, fingerprint uuid.UUID) (*doma
 		return nil, domain.ErrSessionNotFound
 	}
 
-	return s, dst.Rds.Del(ctx, dst.k(s.Fingerprint)).Err()
+	return s, dst.Rds.Del(ctx, dst.k(s.Client)).Err()
 }
 
-func (dst SessionRepo) Find(ctx context.Context, fingerprint uuid.UUID) (*domain.Session, error) {
+func (dst SessionRepo) Find(ctx context.Context, client uuid.UUID) (*domain.Session, error) {
 	s := new(domain.Session)
-	err := dst.Get(ctx, dst.k(fingerprint), s)
+	err := dst.Get(ctx, dst.k(client), s)
 
 	if err != nil {
 		return nil, err

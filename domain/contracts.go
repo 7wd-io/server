@@ -84,8 +84,8 @@ type (
 
 	SessionRepo interface {
 		Save(ctx context.Context, s *Session, ttl time.Duration) error
-		Delete(ctx context.Context, fingerprint uuid.UUID) (*Session, error)
-		Find(ctx context.Context, fingerprint uuid.UUID) (*Session, error)
+		Delete(ctx context.Context, client uuid.UUID) (*Session, error)
+		Find(ctx context.Context, client uuid.UUID) (*Session, error)
 	}
 
 	RoomRepo interface {

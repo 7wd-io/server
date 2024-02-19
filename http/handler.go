@@ -50,9 +50,9 @@ func (dst Account) signup() fiber.Handler {
 
 func (dst Account) signin() fiber.Handler {
 	type request struct {
-		Login       string    `json:"login" validate:"required"`
-		Password    string    `json:"password" validate:"required"`
-		Fingerprint uuid.UUID `json:"fingerprint" validate:"required"`
+		Login    string    `json:"login" validate:"required"`
+		Password string    `json:"password" validate:"required"`
+		Client   uuid.UUID `json:"client" validate:"required"`
 	}
 
 	type response struct {
@@ -67,7 +67,7 @@ func (dst Account) signin() fiber.Handler {
 			return err
 		}
 
-		res, err := dst.svc.Signin(ctx.Context(), r.Login, r.Password, r.Fingerprint)
+		res, err := dst.svc.Signin(ctx.Context(), r.Login, r.Password, r.Client)
 
 		if err != nil {
 			return err
@@ -82,7 +82,7 @@ func (dst Account) signin() fiber.Handler {
 
 func (dst Account) logout() fiber.Handler {
 	type request struct {
-		Fingerprint uuid.UUID `json:"fingerprint" validate:"required"`
+		Client uuid.UUID `json:"client" validate:"required"`
 	}
 
 	return func(ctx *fiber.Ctx) error {
@@ -94,7 +94,7 @@ func (dst Account) logout() fiber.Handler {
 
 		pass, _ := usePassport(ctx)
 
-		err := dst.svc.Logout(ctx.Context(), pass, r.Fingerprint)
+		err := dst.svc.Logout(ctx.Context(), pass, r.Client)
 
 		if err != nil {
 			return err
@@ -106,7 +106,7 @@ func (dst Account) logout() fiber.Handler {
 
 func (dst Account) refresh() fiber.Handler {
 	type request struct {
-		Fingerprint  uuid.UUID `json:"fingerprint" validate:"required"`
+		Client       uuid.UUID `json:"client" validate:"required"`
 		RefreshToken uuid.UUID `json:"refresh_token" validate:"required"`
 	}
 
@@ -122,7 +122,7 @@ func (dst Account) refresh() fiber.Handler {
 			return err
 		}
 
-		res, err := dst.svc.Refresh(ctx.Context(), r.RefreshToken, r.Fingerprint)
+		res, err := dst.svc.Refresh(ctx.Context(), r.RefreshToken, r.Client)
 
 		if err != nil {
 			return err
