@@ -1,4 +1,3 @@
-version: '3.9'
 services:
     pg_dev:
         container_name: swd_pg_dev

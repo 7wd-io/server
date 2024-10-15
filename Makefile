@@ -1,7 +1,7 @@
 #!make
 
 ENV_FILE=.env.$(ENV)
-DC_FILE=docker-compose.$(ENV).yml
+DC_FILE=compose.$(ENV).yml
 LOCAL_BIN=$(PWD)/scripts/bin
 LOCAL_TMP=$(PWD)/scripts/tmp
 
@@ -16,6 +16,8 @@ i:
 	$(info Installing binary dependencies...)
 
 	GOBIN=$(LOCAL_BIN) go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+
+#docker compose -f compose.yml --env-file=.env.dev
 
 dc-up:
 	docker compose --file=$(DC_FILE) --env-file=$(ENV_FILE) up -d
