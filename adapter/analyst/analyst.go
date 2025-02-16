@@ -321,8 +321,10 @@ func (dst A) refreshRatings(ctx context.Context) error {
 		})
 	}
 
-	if err = dst.rds.ZAdd(ctx, dst.key, members...).Err(); err != nil {
-		return err
+	if len(members) > 0 {
+		if err = dst.rds.ZAdd(ctx, dst.key, members...).Err(); err != nil {
+			return err
+		}
 	}
 
 	return nil

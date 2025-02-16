@@ -10,6 +10,7 @@ import (
 	"7wd.io/infra/pg"
 	"7wd.io/infra/rds"
 	"context"
+	"fmt"
 	"log/slog"
 	"os"
 	"time"
@@ -36,14 +37,14 @@ func main() {
 		players, err = watcher.Online(ctx)
 
 		if err != nil {
-			slog.Error(err.Error())
+			slog.Error(fmt.Sprintf("watcher.Online: %v", err))
 			continue
 		}
 
 		rooms, err = roomRepo.FindAll(ctx)
 
 		if err != nil {
-			slog.Error(err.Error())
+			slog.Error(fmt.Sprintf("roomRepo.FindAll: %v", err))
 			continue
 		}
 
@@ -61,7 +62,7 @@ func main() {
 				_, err = roomRepo.Delete(ctx, room.Id)
 
 				if err != nil {
-					slog.Error(err.Error())
+					slog.Error(fmt.Sprintf("roomRepo.Delete: %v", err))
 					continue
 				}
 
@@ -77,7 +78,7 @@ func main() {
 					)
 
 					if err != nil {
-						slog.Error(err.Error())
+						slog.Error(fmt.Sprintf("psh.Publish Room Delete: %v", err))
 					}
 				}()
 
@@ -92,7 +93,7 @@ func main() {
 					room.GuestRating = 0
 
 					if err = roomRepo.Save(ctx, room); err != nil {
-						slog.Error(err.Error())
+						slog.Error(fmt.Sprintf("roomRepo.Save: %v", err))
 						continue
 					}
 
@@ -100,7 +101,7 @@ func main() {
 						err = psh.Publish(ctx, domain.ChRoomUpdate, r)
 
 						if err != nil {
-							slog.Error(err.Error())
+							slog.Error(fmt.Sprintf("psh.Publish Room Update: %v", err))
 						}
 					}(room)
 				}
@@ -113,7 +114,7 @@ func main() {
 			online, err = anl.Ratings(ctx, players...)
 
 			if err != nil {
-				slog.Error(err.Error())
+				slog.Error(fmt.Sprintf("anl.Ratings: %v", err))
 				continue
 			}
 		}
@@ -122,7 +123,7 @@ func main() {
 			err = psh.Publish(ctx, domain.ChOnline, online)
 
 			if err != nil {
-				slog.Error(err.Error())
+				slog.Error(fmt.Sprintf("psh.Publish Online: %v", err))
 			}
 		}()
 
