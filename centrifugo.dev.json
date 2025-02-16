@@ -1,50 +1,62 @@
 {
-  "debug": true,
-  "admin": true,
-  "admin_password": "9ecb6139-ee3f-4d2b-8e59-675cd68aeb2d",
-  "admin_secret": "ade88943-f0f4-495c-8349-ba1065ffe308",
-  "token_hmac_secret_key": "secret",
-  "api_key": "f8e18ca4-ae9d-4ecb-ac51-493612800a73",
-  "allowed_origins": [
-    "https://7wd.io.local"
-  ],
-  "namespaces": [
-    {
-      "name": "service",
-      "allow_subscribe_for_client": true,
-      "allow_publish_for_subscriber": true,
-      "allow_presence_for_subscriber": true,
-      "presence": true
+  "client": {
+    "token": {
+      "hmac_secret_key": "secret"
     },
-    {
-      "name": "chat-public",
-      "allow_publish_for_client": true,
-      "allow_subscribe_for_client": true,
-      "allow_history_for_subscriber": true,
-      "history_size": 50,
-      "history_ttl": "24h"
-    },
-    {
-      "name": "chat-game",
-      "allow_subscribe_for_client": true,
-      "allow_publish_for_subscriber": true,
-      "allow_history_for_subscriber": true,
-      "allow_presence_for_subscriber": true,
-      "presence": true,
-      "history_size": 50,
-      "history_ttl": "1200s"
-    },
-    {
-      "name": "room",
-      "allow_subscribe_for_client": true
-    },
-    {
-      "name": "game",
-      "allow_subscribe_for_client": true
-    },
-    {
-      "name": "play-again",
-      "allow_subscribe_for_client": true
-    }
-  ]
+    "allowed_origins": [
+      "https://7wd.io.local"
+    ]
+  },
+  "debug": {
+    "enabled": true
+  },
+  "admin": {
+    "enabled": true,
+    "password": "9ecb6139-ee3f-4d2b-8e59-675cd68aeb2d",
+    "secret": "ade88943-f0f4-495c-8349-ba1065ffe308"
+  },
+  "http_api": {
+    "key": "f8e18ca4-ae9d-4ecb-ac51-493612800a73"
+  },
+  "channel": {
+    "namespaces": [
+      {
+        "name": "service",
+        "allow_subscribe_for_client": true,
+        "allow_publish_for_subscriber": true,
+        "allow_presence_for_subscriber": true,
+        "presence": true
+      },
+      {
+        "name": "chat-public",
+        "allow_publish_for_client": true,
+        "allow_subscribe_for_client": true,
+        "allow_history_for_subscriber": true,
+        "history_size": 50,
+        "history_ttl": "24h"
+      },
+      {
+        "name": "chat-game",
+        "allow_subscribe_for_client": true,
+        "allow_publish_for_subscriber": true,
+        "allow_history_for_subscriber": true,
+        "allow_presence_for_subscriber": true,
+        "presence": true,
+        "history_size": 50,
+        "history_ttl": "1200s"
+      },
+      {
+        "name": "room",
+        "allow_subscribe_for_client": true
+      },
+      {
+        "name": "game",
+        "allow_subscribe_for_client": true
+      },
+      {
+        "name": "play-again",
+        "allow_subscribe_for_client": true
+      }
+    ]
+  }
 }

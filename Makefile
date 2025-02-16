@@ -1,29 +1,38 @@
 #!make
 
-ENV_FILE=.env.$(ENV)
-DC_FILE=compose.$(ENV).yml
-LOCAL_BIN=$(PWD)/scripts/bin
-LOCAL_TMP=$(PWD)/scripts/tmp
-
+#!make
+ENV_FILE = .env.$(ENV)
 # to share env here
 include $(ENV_FILE)
 # to share env in program
 export $(shell sed 's/=.*//' $(ENV_FILE))
 
-.PHONY : run rin-api run-clock run-online
+DC_CLI = docker compose --env-file=$(ENV_FILE) --profile $(ENV)
+PG_DSN = postgres://$(SWD_PG_USER):$(SWD_PG_PASSWORD)@localhost:$(SWD_PG_PORT)/$(SWD_PG_DBNAME)?sslmode=disable
 
-i:
-	$(info Installing binary dependencies...)
+LOCAL_BIN=$(PWD)/scripts/bin
+LOCAL_TMP=$(PWD)/scripts/tmp
 
-	GOBIN=$(LOCAL_BIN) go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+
+
+
+#.PHONY : run rin-api run-clock run-online
+
+#i:
+#	$(info Installing binary dependencies...)
+#
+#	GOBIN=$(LOCAL_BIN) go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 
 #docker compose -f compose.yml --env-file=.env.dev
 
-dc-up:
-	docker compose --file=$(DC_FILE) --env-file=$(ENV_FILE) up -d
+default:
+	$(info Commands: up,down,migrate)
 
-dc-down:
-	docker compose --file=$(DC_FILE) --env-file=$(ENV_FILE) down
+up:
+	$(DC_CLI) up -d
+
+down:
+	$(DC_CLI) down
 
 m:
 	$(LOCAL_BIN)/migrate create -ext sql -dir migrations -seq  $(NAME)
