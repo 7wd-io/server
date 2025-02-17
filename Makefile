@@ -8,20 +8,18 @@ include $(ENV_FILE)
 export $(shell sed 's/=.*//' $(ENV_FILE))
 
 DC_CLI = docker compose --env-file=$(ENV_FILE) --profile $(ENV)
+MIGRATE_CLI = $(LOCAL_BIN)/migrate
 PG_DSN = postgres://$(SWD_PG_USER):$(SWD_PG_PASSWORD)@localhost:$(SWD_PG_PORT)/$(SWD_PG_DBNAME)?sslmode=disable
 
 LOCAL_BIN=$(PWD)/scripts/bin
 LOCAL_TMP=$(PWD)/scripts/tmp
 
 
-
-
 #.PHONY : run rin-api run-clock run-online
 
-#i:
-#	$(info Installing binary dependencies...)
-#
-#	GOBIN=$(LOCAL_BIN) go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+i:
+	$(info Installing binary dependencies...)
+	GOBIN=$(LOCAL_BIN) go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 
 #docker compose -f compose.yml --env-file=.env.dev
 
@@ -35,13 +33,13 @@ down:
 	$(DC_CLI) down
 
 m:
-	$(LOCAL_BIN)/migrate create -ext sql -dir migrations -seq  $(NAME)
+	$(MIGRATE_CLI) create -ext sql -dir migrations -seq  $(NAME)
 
 m-up:
-	$(LOCAL_BIN)/migrate -database "postgres://$(SWD_PG_USER):$(SWD_PG_PASSWORD)@localhost:$(SWD_PG_PORT)/$(SWD_PG_DBNAME)?sslmode=disable" -path "migrations" up
+	$(MIGRATE_CLI) -database "postgres://$(SWD_PG_USER):$(SWD_PG_PASSWORD)@localhost:$(SWD_PG_PORT)/$(SWD_PG_DBNAME)?sslmode=disable" -path "migrations" up
 
 m-down:
-	$(LOCAL_BIN)/migrate -database "postgres://$(SWD_PG_USER):$(SWD_PG_PASSWORD)@localhost:$(SWD_PG_PORT)/$(SWD_PG_DBNAME)?sslmode=disable" -path "migrations" down
+	$(MIGRATE_CLI) -database "postgres://$(SWD_PG_USER):$(SWD_PG_PASSWORD)@localhost:$(SWD_PG_PORT)/$(SWD_PG_DBNAME)?sslmode=disable" -path "migrations" down
 
 ttr:
 	go test ./... -cover -race -vet=all
