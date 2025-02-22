@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	swde "github.com/7wd-io/engine"
 	"io"
+	"log/slog"
 	"net/http"
 	"time"
 )
@@ -53,6 +54,7 @@ func (dst B) GetMove(g *domain.Game) (swde.Mutator, error) {
 	)
 
 	if err != nil {
+		slog.Error("call bot server failed")
 		return nil, err
 	}
 
@@ -61,6 +63,7 @@ func (dst B) GetMove(g *domain.Game) (swde.Mutator, error) {
 	body, err := io.ReadAll(resp.Body)
 
 	if err != nil {
+		slog.Error("read answer from bot server failed")
 		return nil, err
 	}
 

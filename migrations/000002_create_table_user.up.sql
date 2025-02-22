@@ -12,3 +12,5 @@ CREATE TABLE "user"
 CREATE UNIQUE INDEX user_id_idx ON "user" (id);
 CREATE UNIQUE INDEX user_email_idx ON "user" (email);
 CREATE UNIQUE INDEX user_nickname_idx ON "user" (nickname);
+-- add bot user
+-- INSERT INTO public."user" (id, nickname, rating, email, password, settings, created_at) VALUES (2, 'bot', 1510, 'bot@7wd.io', '$2a$10$mLWeVbgbpiJVE3gTV3IvgOIe6WkEWsvBbqPEjnHyL66eX.pVImiHe', '{"game": {"animationSpeed": 3}, "sounds": {"myTurn": false, "opponentJoined": true}}', '2024-02-12 22:25:43');

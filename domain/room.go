@@ -40,10 +40,10 @@ type Room struct {
 }
 
 type RoomOptions struct {
+	PromoWonders bool     `json:"promoWonders,omitempty"`
 	Fast         bool     `json:"fast,omitempty"`
 	MinRating    Rating   `json:"minRating,omitempty" validate:"omitempty,max=2000"`
 	Enemy        Nickname `json:"enemy,omitempty"`
-	PromoWonders bool     `json:"promoWonders,omitempty"`
 	TimeBank     TimeBank `json:"timeBank,omitempty"`
 }
 

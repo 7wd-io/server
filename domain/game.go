@@ -14,15 +14,15 @@ import (
 )
 
 const (
-	TimeBankDefault = TimeBank(10 * time.Minute)
-	TimeBankFast    = TimeBank(3 * time.Minute)
+	TimeBankDefault = TimeBank(20 * time.Minute)
+	TimeBankFast    = TimeBank(7 * time.Minute)
 	TimeBankBot     = TimeBank(30 * time.Minute)
 	TimeBankIncr    = TimeBank(5 * time.Second)
 )
 
 type GameId int
 
-func newGame(host User, guest User, now time.Time) *Game {
+func newGame(host User, guest User, now time.Time, o RoomOptions) *Game {
 	return &Game{
 		HostNickname:  host.Nickname,
 		HostRating:    host.Rating,
@@ -35,6 +35,9 @@ func newGame(host User, guest User, now time.Time) *Game {
 				Move: swde.NewMovePrepare(
 					swde.Nickname(host.Nickname),
 					swde.Nickname(guest.Nickname),
+					swde.Options{
+						PromoWonders: o.PromoWonders,
+					},
 				),
 			},
 		},
@@ -222,7 +225,7 @@ func (dst GameService) Create(
 ) (*Game, error) {
 	now := dst.clock.Now()
 
-	game := newGame(host, guest, now)
+	game := newGame(host, guest, now, o)
 
 	if err := dst.gameRepo.Save(ctx, game); err != nil {
 		return nil, err
@@ -269,7 +272,8 @@ func (dst GameService) CreateWithBot(ctx context.Context, pass Passport) error {
 	}
 
 	options := RoomOptions{
-		TimeBank: TimeBankBot,
+		PromoWonders: false,
+		TimeBank:     TimeBankBot,
 	}
 
 	game, err := dst.Create(ctx, *user, *bot, options)
@@ -690,6 +694,7 @@ func UnmarshalMove(move []byte) (swde.Mutator, error) {
 	var m map[string]interface{}
 
 	if err = json.Unmarshal(move, &m); err != nil {
+		slog.Error("unmarshal move fail", slog.String("raw", string(move)))
 		return nil, err
 	}
 
@@ -712,6 +717,8 @@ func UnmarshalMove(move []byte) (swde.Mutator, error) {
 	case swde.MoveConstructCard:
 		var m4 swde.ConstructCardMove
 		err = json.Unmarshal(move, &m4)
+
+		slog.Error("unmarshal MoveConstructCard")
 
 		return m4, err
 	case swde.MoveConstructWonder:

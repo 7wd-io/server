@@ -1,6 +1,7 @@
 package http
 
 import (
+	"7wd.io/domain"
 	"7wd.io/rr"
 	"errors"
 	"github.com/gofiber/fiber/v2"
@@ -25,6 +26,10 @@ func New() *fiber.App {
 
 			var er rr.AppError
 			if errors.As(err, &er) {
+				if errors.Is(er, errUnauthorized) || errors.Is(er, domain.ErrSessionNotFound) {
+					return ctx.Status(http.StatusUnauthorized).JSON(er)
+				}
+
 				return ctx.Status(http.StatusBadRequest).JSON(er)
 			}
 

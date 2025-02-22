@@ -3,6 +3,7 @@ package domain
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"log/slog"
@@ -243,12 +244,16 @@ func (dst AccountService) Logout(ctx context.Context, pass Passport, client uuid
 func (dst AccountService) Refresh(ctx context.Context, refreshToken uuid.UUID, client uuid.UUID) (*Token, error) {
 	session, err := dst.sessionRepo.Delete(ctx, client)
 
-	if err != nil || session == nil {
-		return nil, errCredentialsNotFound
+	if err != nil {
+		return nil, fmt.Errorf("AccountService.Refresh: dst.sessionRepo.Delete failed: %w", err)
+	}
+
+	if session == nil {
+		return nil, ErrSessionNotFound
 	}
 
 	if session.RefreshToken != refreshToken {
-		return nil, errCredentialsNotFound
+		return nil, ErrSessionNotFound
 	}
 
 	user, err := dst.userRepo.Find(ctx, WithUserId(session.UserId))

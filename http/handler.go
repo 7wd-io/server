@@ -265,10 +265,10 @@ func (dst Room) list() fiber.Handler {
 
 func (dst Room) create() fiber.Handler {
 	type request struct {
+		PromoWonders bool            `json:"promoWonders,omitempty"`
 		Fast         bool            `json:"fast,omitempty"`
 		MinRating    domain.Rating   `json:"minRating,omitempty" validate:"omitempty,max=2000"`
 		Enemy        domain.Nickname `json:"enemy,omitempty" validate:"omitempty,nickname"`
-		PromoWonders bool            `json:"promoWonders"`
 	}
 
 	type response struct {
@@ -288,10 +288,10 @@ func (dst Room) create() fiber.Handler {
 			ctx.Context(),
 			pass,
 			domain.RoomOptions{
+				PromoWonders: r.PromoWonders,
 				Fast:         r.Fast,
 				MinRating:    r.MinRating,
 				Enemy:        r.Enemy,
-				PromoWonders: r.PromoWonders,
 			},
 		)
 
