@@ -2,6 +2,7 @@ package http
 
 import (
 	"7wd.io/domain"
+	"errors"
 	swde "github.com/7wd-io/engine"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -125,6 +126,10 @@ func (dst Account) refresh() fiber.Handler {
 		res, err := dst.svc.Refresh(ctx.Context(), r.RefreshToken, r.Client)
 
 		if err != nil {
+			if errors.Is(err, domain.ErrSessionNotFound) {
+				return errUnauthorized
+			}
+
 			return err
 		}
 

@@ -4,6 +4,7 @@ import (
 	"7wd.io/adapter/repo/internal/rds"
 	"7wd.io/domain"
 	"context"
+	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
@@ -35,7 +36,13 @@ func (dst SessionRepo) Delete(ctx context.Context, client uuid.UUID) (*domain.Se
 		return nil, domain.ErrSessionNotFound
 	}
 
-	return s, dst.Rds.Del(ctx, dst.k(s.Client)).Err()
+	err = dst.Rds.Del(ctx, dst.k(s.Client)).Err()
+
+	if errors.Is(err, redis.Nil) {
+		return s, nil
+	}
+
+	return s, err
 }
 
 func (dst SessionRepo) Find(ctx context.Context, client uuid.UUID) (*domain.Session, error) {
@@ -43,6 +50,10 @@ func (dst SessionRepo) Find(ctx context.Context, client uuid.UUID) (*domain.Sess
 	err := dst.Get(ctx, dst.k(client), s)
 
 	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return nil, nil
+		}
+
 		return nil, err
 	}
 
