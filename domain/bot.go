@@ -3,11 +3,12 @@ package domain
 import (
 	"context"
 	"errors"
+	swde "github.com/7wd-io/engine"
 	"log/slog"
 	"time"
 )
 
-const BotNickname = "bot"
+const BotNickname Nickname = "bot"
 const BotPlayAgainDelay = 3 * time.Second
 const BotMoveDelay = 2 * time.Second
 
@@ -29,7 +30,7 @@ type BotService struct {
 }
 
 func (dst BotService) tryMove(ctx context.Context, g *Game) {
-	if !g.IsOver() && g.State().Me.Name == BotNickname {
+	if !g.IsOver() && g.State().Me.Name == swde.Nickname(BotNickname) {
 		go dst.move(ctx, g)
 	}
 }

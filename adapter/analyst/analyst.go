@@ -203,6 +203,17 @@ func (dst A) Rank(ctx context.Context, u domain.Nickname) (int, error) {
 		return 0, err
 	}
 
+	botRank, err := dst.rds.ZRevRank(ctx, dst.key, string(domain.BotNickname)).Result()
+
+	if err != nil {
+		return 0, err
+	}
+
+	// skip bot
+	if botRank <= rank && rank > 0 {
+		rank -= 1
+	}
+
 	return int(rank) + 1, nil
 }
 
