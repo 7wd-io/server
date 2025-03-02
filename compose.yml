@@ -56,6 +56,14 @@ services:
             - ./centrifugo.dev.json:/centrifugo/config.json
         ports:
             - "8105:8000"
+
+    bot_dev:
+        profiles:
+            -   dev
+        container_name: swd_bot_dev
+        image: swd-bot
+        ports:
+            - "10007:10007"
 networks:
     default:
         name: swd_network

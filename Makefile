@@ -49,3 +49,4 @@ build:
 	go build -C cmd/online -o swd-online
 	go build -C cmd/clock -o swd-clock
 
+# https://7wd.io.local/welcome
