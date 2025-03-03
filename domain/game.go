@@ -315,7 +315,7 @@ func (dst GameService) Move(ctx context.Context, u Nickname, id GameId, m swde.M
 
 	defer func() {
 		if err := tx.Rollback(ctx); err != nil {
-			slog.Error("GameService.Move tx.Rollback", "err", err)
+			slog.Error("GameService.Move tx.Rollback", slog.String("err", err.Error()))
 		}
 	}()
 
@@ -717,8 +717,6 @@ func UnmarshalMove(move []byte) (swde.Mutator, error) {
 	case swde.MoveConstructCard:
 		var m4 swde.ConstructCardMove
 		err = json.Unmarshal(move, &m4)
-
-		slog.Error("unmarshal MoveConstructCard")
 
 		return m4, err
 	case swde.MoveConstructWonder:

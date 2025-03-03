@@ -3,6 +3,7 @@ package tx
 import (
 	"7wd.io/domain"
 	"context"
+	"errors"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -30,7 +31,17 @@ type tx struct {
 }
 
 func (dst *tx) Rollback(ctx context.Context) error {
-	return dst.v.Rollback(ctx)
+	err := dst.v.Rollback(ctx)
+
+	if err != nil {
+		if errors.Is(err, pgx.ErrTxClosed) {
+			return nil
+		}
+
+		return err
+	}
+
+	return nil
 }
 
 func (dst *tx) Commit(ctx context.Context) error {

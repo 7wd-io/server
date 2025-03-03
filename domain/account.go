@@ -295,7 +295,7 @@ func (dst AccountService) UpdateSettings(ctx context.Context, pass Passport, s U
 
 	defer func() {
 		if err = tx.Rollback(ctx); err != nil {
-			slog.Error("AccountService.UpdateSettings: tx.Rollback", "err", err)
+			slog.Error("AccountService.UpdateSettings: tx.Rollback", slog.String("err", err.Error()))
 		}
 	}()
 
@@ -444,7 +444,7 @@ func (dst AccountService) updateRating(ctx context.Context, u Nickname, points i
 
 	defer func() {
 		if err := tx.Rollback(ctx); err != nil {
-			slog.Error("AccountService.updateRating: tx.Rollback", "err", err)
+			slog.Error("AccountService.updateRating: tx.Rollback", slog.String("err", err.Error()))
 		}
 	}()
 

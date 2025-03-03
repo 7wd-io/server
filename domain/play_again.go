@@ -3,7 +3,6 @@ package domain
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log/slog"
 	"time"
 )
@@ -152,7 +151,7 @@ func (dst PlayAgainService) OnGameOver(ctx context.Context, payload interface{})
 			time.Sleep(BotPlayAgainDelay)
 
 			if err = dst.Update(ctx, p.Game, BotNickname, true); err != nil {
-				slog.Error(fmt.Sprintf("bot agree play again %s", err))
+				slog.Error("bot agree play again fail", slog.String("err", err.Error()))
 			}
 		}()
 	}

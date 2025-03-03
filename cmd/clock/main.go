@@ -16,7 +16,6 @@ import (
 	"7wd.io/infra/pg"
 	"7wd.io/infra/rds"
 	"context"
-	"fmt"
 	swde "github.com/7wd-io/engine"
 	"log/slog"
 	"time"
@@ -60,7 +59,11 @@ func main() {
 		gc, err := gameClockRepo.Find(ctx, room.GameId)
 
 		if err != nil {
-			slog.Error(fmt.Sprintf("game clock: %s (game id=%d)", err, room.GameId))
+			slog.Error(
+				"game clock: gameClockRepo.Find fail",
+				slog.Int("game id", int(room.GameId)),
+				slog.String("err", err.Error()),
+			)
 			return
 		}
 
@@ -78,15 +81,22 @@ func main() {
 		tx, err := txer.Tx(ctx)
 
 		if err != nil {
-			slog.Error(fmt.Sprintf("game clock: %s (game id=%d): txer.Tx fail", err, room.GameId))
+			slog.Error(
+				"game clock: txer.Tx fail",
+				slog.Int("game id", int(room.GameId)),
+				slog.String("err", err.Error()),
+			)
+
 			return
 		}
 
 		defer func() {
-			errTx := tx.Rollback(ctx)
-
-			if errTx != nil {
-				slog.Error(fmt.Sprintf("game clock: %s (game id=%d): txer.Rollback fail", errTx, room.GameId))
+			if errTx := tx.Rollback(ctx); errTx != nil {
+				slog.Error(
+					"game clock: tx.Rollback fail",
+					slog.Int("game id", int(room.GameId)),
+					slog.String("err", errTx.Error()),
+				)
 			}
 		}()
 
@@ -98,7 +108,12 @@ func main() {
 		)
 
 		if err != nil {
-			slog.Error(fmt.Sprintf("game clock: failed during gameRepo.Find: %s", err))
+			slog.Error(
+				"game clock: gameRepo.Find fail",
+				slog.Int("game id", int(room.GameId)),
+				slog.String("err", err.Error()),
+			)
+
 			return
 		}
 
@@ -107,14 +122,24 @@ func main() {
 		state, err := game.Move(gc.Turn, move)
 
 		if err != nil {
-			slog.Error(fmt.Sprintf("game clock: failed during moveOver: %s", err))
+			slog.Error(
+				"game clock: moveOver fail",
+				slog.Int("game id", int(room.GameId)),
+				slog.String("err", err.Error()),
+			)
+
 			return
 		}
 
 		result := game.Over(state, now)
 
 		if err := gameRepo.Update(ctx, game, domain.WithGameTx(tx)); err != nil {
-			slog.Error(fmt.Sprintf("game clock: failed during update game: %s", err))
+			slog.Error(
+				"game clock: gameRepo.Update fail",
+				slog.Int("game id", int(room.GameId)),
+				slog.String("err", err.Error()),
+			)
+
 			return
 		}
 
@@ -125,7 +150,11 @@ func main() {
 		})
 
 		if err != nil {
-			slog.Error(fmt.Sprintf("game clock: accountSvc.OnGameOver failed: %s", err))
+			slog.Error(
+				"game clock: accountSvc.OnGameOver fail",
+				slog.Int("game id", int(room.GameId)),
+				slog.String("err", err.Error()),
+			)
 		}
 
 		go func() {
@@ -141,12 +170,21 @@ func main() {
 			)
 
 			if err != nil {
-				slog.Error(err.Error())
+				slog.Error(
+					"game clock: psh.Publish GameUpdated fail",
+					slog.Int("game id", int(room.GameId)),
+					slog.String("err", err.Error()),
+				)
 			}
 		}()
 
 		if _, err = roomRepo.Delete(ctx, room.Id); err != nil {
-			slog.Error(fmt.Sprintf("game clock: failed during delete room: %s", err))
+			slog.Error(
+				"game clock: roomRepo.Delete fail",
+				slog.Int("game id", int(room.GameId)),
+				slog.String("err", err.Error()),
+			)
+
 			return
 		}
 
@@ -162,22 +200,41 @@ func main() {
 			)
 
 			if err != nil {
-				slog.Error(err.Error())
+				slog.Error(
+					"game clock: psh.Publish RoomDelete fail",
+					slog.Int("game id", int(room.GameId)),
+					slog.String("err", err.Error()),
+				)
 			}
 		}()
 
 		if err = gameClockRepo.Delete(ctx, room.GameId); err != nil {
-			slog.Error(fmt.Sprintf("game clock: failed during delete clock: %s", err))
+			slog.Error(
+				"game clock: gameClockRepo.Delete fail",
+				slog.Int("game id", int(room.GameId)),
+				slog.String("err", err.Error()),
+			)
+
 			return
 		}
 
 		if err = playAgainStore.Create(ctx, *game, room.Options); err != nil {
-			slog.Error(fmt.Sprintf("game clock: cant create playAgain: %s", err))
+			slog.Error(
+				"game clock: playAgainStore.Create fail",
+				slog.Int("game id", int(room.GameId)),
+				slog.String("err", err.Error()),
+			)
+
 			return
 		}
 
 		if err = tx.Commit(ctx); err != nil {
-			slog.Error(fmt.Sprintf("game clock: tx.Commit fail: %s", err))
+			slog.Error(
+				"game clock: tx.Commit fail",
+				slog.Int("game id", int(room.GameId)),
+				slog.String("err", err.Error()),
+			)
+
 			return
 		}
 	}
@@ -186,7 +243,7 @@ func main() {
 		rooms, err := roomRepo.FindAll(ctx)
 
 		if err != nil {
-			slog.Error(err.Error())
+			slog.Error("game clock: roomRepo.FindAll fail", slog.String("err", err.Error()))
 			continue
 		}
 
