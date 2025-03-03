@@ -22,8 +22,10 @@ var (
 
 // account errors
 var (
-	ErrUserNotFound        = rr.New("user not found")
-	ErrGameNotFound        = rr.New("game not found")
-	ErrSessionNotFound     = rr.New("session not found")
-	errCredentialsNotFound = rr.New("credentials not found")
+	ErrNicknameAlreadyInUse = rr.New("nickname already in use")
+	ErrEmailAlreadyInUse    = rr.New("email already in use")
+	ErrUserNotFound         = rr.New("user not found")
+	ErrGameNotFound         = rr.New("game not found")
+	ErrSessionNotFound      = rr.New("session not found")
+	errCredentialsNotFound  = rr.New("credentials not found")
 )

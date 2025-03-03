@@ -162,6 +162,26 @@ type AccountService struct {
 func (dst AccountService) Signup(ctx context.Context, email Email, password string, nickname Nickname) error {
 	var err error
 
+	exists, err := dst.userRepo.Find(ctx, WithUserNickname(nickname))
+
+	if err != nil && !errors.Is(err, ErrUserNotFound) {
+		return err
+	}
+
+	if exists != nil {
+		return ErrNicknameAlreadyInUse
+	}
+
+	exists, err = dst.userRepo.Find(ctx, WithUserEmail(email))
+
+	if err != nil && !errors.Is(err, ErrUserNotFound) {
+		return err
+	}
+
+	if exists != nil {
+		return ErrEmailAlreadyInUse
+	}
+
 	password, err = dst.pass.Hash(password, PasswordCost)
 
 	if err != nil {
