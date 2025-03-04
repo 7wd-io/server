@@ -46,8 +46,8 @@ ttr:
 	go test ./... -cover -race -vet=all
 
 build:
-	go build -C cmd/api -o $DEPLOY_BIN/swd-api
-	go build -C cmd/online -o $DEPLOY_BIN/swd-online
-	go build -C cmd/clock -o $DEPLOY_BIN/swd-clock
+	go build -C cmd/api -o $(DEPLOY_BIN)/swd-api
+	go build -C cmd/online -o $(DEPLOY_BIN)/swd-online
+	go build -C cmd/clock -o $(DEPLOY_BIN)/swd-clock
 
 # https://7wd.io.local/welcome
