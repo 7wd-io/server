@@ -31,11 +31,18 @@ services:
             - ./cent.prod.json:/centrifugo/config.json
         command: centrifugo -c config.json
         ports:
-            - "8105:8000"
+            - "10003:8000"
         ulimits:
             nofile:
                 soft: 65535
                 hard: 65535
+
+    bot:
+        container_name: swd_bot
+        image: swd-bot
+        ports:
+            - "10007:10007"
+
 networks:
     default:
         name: swd_network
