@@ -13,6 +13,7 @@ PG_DSN = postgres://$(SWD_PG_USER):$(SWD_PG_PASSWORD)@localhost:$(SWD_PG_PORT)/$
 
 LOCAL_BIN=$(PWD)/scripts/bin
 LOCAL_TMP=$(PWD)/scripts/tmp
+DEPLOY_BIN=/usr/local/bin
 
 
 #.PHONY : run rin-api run-clock run-online
@@ -45,8 +46,8 @@ ttr:
 	go test ./... -cover -race -vet=all
 
 build:
-	go build -C cmd/api -o swd-api
-	go build -C cmd/online -o swd-online
-	go build -C cmd/clock -o swd-clock
+	go build -C cmd/api -o $DEPLOY_BIN/swd-api
+	go build -C cmd/online -o $DEPLOY_BIN/swd-online
+	go build -C cmd/clock -o $DEPLOY_BIN/swd-clock
 
 # https://7wd.io.local/welcome
