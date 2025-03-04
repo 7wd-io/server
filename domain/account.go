@@ -12,8 +12,7 @@ import (
 )
 
 const (
-	//AccessTokenTtl  = 24 * time.Hour
-	AccessTokenTtl  = 20 * time.Second
+	AccessTokenTtl  = 24 * time.Hour
 	RefreshTokenTtl = 30 * 24 * time.Hour
 	PasswordCost    = 10
 )
