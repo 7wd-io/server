@@ -1,12 +1,10 @@
 services:
     pg:
         container_name: swd_pg
-        image: postgres
+        image: postgres:17.2
         restart: always
         volumes:
             - swd_pgdata:/var/lib/postgresql/data/
-        env_file:
-            - .env.prod
         environment:
             POSTGRES_USER: ${SWD_PG_USER}
             POSTGRES_PASSWORD: ${SWD_PG_PASSWORD}
@@ -16,25 +14,19 @@ services:
 
     redis:
         container_name: swd_redis
-        image: redis
+        image: redis/redis-stack:6.2.6-v18
         restart: always
         volumes:
             - swd_rdsdata:/var/lib/postgresql/data/:/data
-        env_file:
-            - .env.prod
-        command:
-            - /bin/sh
-            - -c
-            - redis-server --requirepass "$${SWD_REDIS_PASSWORD:?SWD_REDIS_PASSWORD variable is not set}"
+        environment:
+            - REDIS_ARGS=--requirepass ${SWD_REDIS_PASSWORD}
         ports:
             - "${SWD_REDIS_PORT}:6379"
 
     cent:
         container_name: swd_cent
-        image: centrifugo/centrifugo:latest
+        image: centrifugo/centrifugo:v6.0
         restart: always
-        env_file:
-            - .env.prod
         volumes:
             - ./cent.prod.json:/centrifugo/config.json
         command: centrifugo -c config.json
