@@ -1,9 +1,10 @@
 package repo
 
 import (
+	"context"
+
 	"7wd.io/adapter/repo/internal/pg"
 	"7wd.io/domain"
-	"context"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -143,7 +144,7 @@ func (dst GameRepo) selectb(o domain.GameOptions) sq.SelectBuilder {
 		OrderBy("id ASC")
 
 	if o.Lock {
-		sb.Suffix("FOR UPDATE")
+		sb = sb.Suffix("FOR UPDATE")
 	}
 
 	return sb
